@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { Button, Form, Container, Spinner } from "react-bootstrap";
+import { FaEdit } from 'react-icons/fa'; // Import the edit icon
 
 function SongUpdate() {
   const { id } = useParams(); // Get the song id from the URL
@@ -87,7 +88,6 @@ function SongUpdate() {
 
   return (
     <Container className="mt-4">
-      <h1>Edit Song</h1>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="songTitle" className="mb-3">
           <Form.Label>Song Title</Form.Label>
@@ -156,6 +156,7 @@ function SongUpdate() {
         </Form.Group>
 
         <Button variant="primary" type="submit" disabled={isSubmitting}>
+          <FaEdit className="me-2" /> {/* Add the icon before the text */}
           {isSubmitting ? "Updating..." : "Update Song"}
         </Button>
       </Form>

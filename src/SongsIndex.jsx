@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { Tabs, Tab, Table, Container, Spinner, Button, FormControl } from "react-bootstrap";
+import { Tabs, Tab, Table, Container, FormControl } from "react-bootstrap";
+import { Button } from "react-bootstrap";
+import { FaPlus } from "react-icons/fa"; // React Icons (Font Awesome)
+import { InputGroup } from "react-bootstrap";
+import { FaSearch } from "react-icons/fa"; // Import the Search Icon
 
 function SongsIndex() {
   const [songs, setSongs] = useState([]);
@@ -24,7 +28,6 @@ function SongsIndex() {
             ...data[key],
           }));
           setSongs(formattedData);
-          filterSongs(formattedData, searchQuery, key);
         }
       },
       (error) => {
@@ -33,21 +36,33 @@ function SongsIndex() {
     );
 
     return () => unsubscribe();
-  }, [key, searchQuery]);
+  }, []);
+
+  // Filter songs whenever the songs, searchQuery, or selected tab changes
+  useEffect(() => {
+    filterSongs(songs, searchQuery, key);
+  }, [songs, searchQuery, key]);
 
   // Filter songs by category and search query
   const filterSongs = (songs, query, category) => {
     let filtered = songs;
-    
+
+    // Filter by category if not "allSongs"
     if (category && category !== "allSongs") {
-      filtered = songs.filter((song) => song.songCategory === category);
+      filtered = filtered.filter((song) => song.songCategory.toLowerCase() === category.toLowerCase());
     }
 
+    // Filter by search query
     if (query) {
-      filtered = filtered.filter((song) =>
-        song.songTitle.toLowerCase().includes(query.toLowerCase())
+      filtered = filtered.filter(
+        (song) =>
+          song.songTitle.toLowerCase().includes(query.toLowerCase()) || // Search in title
+          song.songCategory.toLowerCase().includes(query.toLowerCase()) // Search in category
       );
     }
+
+    // Sort songs alphabetically by title
+    filtered.sort((a, b) => a.songTitle.localeCompare(b.songTitle));
 
     setFilteredSongs(filtered);
   };
@@ -59,16 +74,21 @@ function SongsIndex() {
 
   return (
     <Container className="mt-4">
-      <h3 className="text-center mb-4">Song Index</h3>
-
       {/* Search Bar */}
       <div className="mb-4">
-        <FormControl
-          type="text"
-          placeholder="Search Songs"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
+      <InputGroup className="mb-4">
+      <InputGroup.Text id="basic-addon1">
+        <FaSearch /> {/* Search Icon */}
+      </InputGroup.Text>
+      <FormControl
+        type="text"
+        placeholder="Search Songs"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        aria-label="Search Songs"
+        aria-describedby="basic-addon1"
+      />
+    </InputGroup>
       </div>
 
       {/* Tabs for Song Categories */}
@@ -77,6 +97,7 @@ function SongsIndex() {
         onSelect={(k) => setKey(k)}
         id="song-category-tabs"
         className="mb-4"
+        direction="horizontal"   
       >
         <Tab eventKey="allSongs" title="All Songs">
           <Table striped bordered hover responsive>
@@ -110,7 +131,7 @@ function SongsIndex() {
             </thead>
             <tbody>
               {filteredSongs.map((song) => (
-                song.songCategory === 'Hindi' && (
+                song.songCategory.toLowerCase() === "hindi" && (
                   <tr key={song.id}>
                     <td>{song.songNo}</td>
                     <td>
@@ -134,7 +155,7 @@ function SongsIndex() {
             </thead>
             <tbody>
               {filteredSongs.map((song) => (
-                song.songCategory === 'English' && (
+                song.songCategory.toLowerCase() === "english" && (
                   <tr key={song.id}>
                     <td>{song.songNo}</td>
                     <td>
@@ -158,7 +179,55 @@ function SongsIndex() {
             </thead>
             <tbody>
               {filteredSongs.map((song) => (
-                song.songCategory === 'Marathi' && (
+                song.songCategory.toLowerCase() === "marathi" && (
+                  <tr key={song.id}>
+                    <td>{song.songNo}</td>
+                    <td>
+                      <Link to={`/songs/${song.id}`} className="text-decoration-none">
+                        {song.songTitle}
+                      </Link>
+                    </td>
+                  </tr>
+                )
+              ))}
+            </tbody>
+          </Table>
+        </Tab>
+        <Tab eventKey="worship" title="Worship">
+          <Table striped bordered hover responsive>
+            <thead className="thead-dark">
+              <tr>
+                <th>Song No</th>
+                <th>Title</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSongs.map((song) => (
+                song.songCategory.toLowerCase() === "worship" && (
+                  <tr key={song.id}>
+                    <td>{song.songNo}</td>
+                    <td>
+                      <Link to={`/songs/${song.id}`} className="text-decoration-none">
+                        {song.songTitle}
+                      </Link>
+                    </td>
+                  </tr>
+                )
+              ))}
+            </tbody>
+          </Table>
+        </Tab>
+        <Tab eventKey="gamit" title="Gamit">
+          <Table striped bordered hover responsive>
+            <thead className="thead-dark">
+              <tr>
+                <th>Song No</th>
+                <th>Title</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSongs.map((song) => (
+                song.songCategory.toLowerCase() === "gamit" && (
                   <tr key={song.id}>
                     <td>{song.songNo}</td>
                     <td>
@@ -176,14 +245,14 @@ function SongsIndex() {
 
       {/* Floating Add Button */}
       <Button
-        as={Link}
-        to="/editSong"
-        variant="outline-secondary"
-        className="position-fixed bottom-0 end-0 m-4 p-2"
-        style={{ width: "60px", height: "60px" }}
-      >
-        <h2>+</h2>
-      </Button>
+      as={Link}
+      to="/editSong"
+      variant="primary"
+      className="position-fixed bottom-0 end-0 m-4 rounded-circle d-flex justify-content-center align-items-center"
+      style={{ width: "60px", height: "60px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)" }}
+    >
+      <FaPlus size={20} />
+    </Button>
     </Container>
   );
 }

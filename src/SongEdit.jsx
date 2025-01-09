@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update, push } from "firebase/database";
-import { Button, Form, Container, Spinner } from "react-bootstrap";
+import { Form, Container, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
+import { FaSave } from "react-icons/fa"; // Importing the Save Icon from React Icons
 
 function SongAdd() {
   const { id } = useParams(); // Get the song id from the URL
@@ -122,7 +124,6 @@ function SongAdd() {
 
   return (
     <Container className="mt-4">
-      <h1>{id ? "Edit Song" : "Add New Song"}</h1>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="songTitle" className="mb-3">
           <Form.Label>Song Title</Form.Label>
@@ -188,9 +189,10 @@ function SongAdd() {
           />
         </Form.Group>
 
-        <Button variant="primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save"}
-        </Button>
+        <Button variant="primary" type="submit" disabled={isSubmitting} className="d-flex align-items-center">
+      <FaSave size={20} className="mr-2" /> {/* Save Icon */}
+      {isSubmitting ? "Saving..." : ""}
+    </Button>
       </Form>
     </Container>
   );

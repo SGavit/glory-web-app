@@ -159,3 +159,55 @@ function SongTabs() {
 export default SongTabs;
 ----------------------------------------------------------------------
 ######################################################################
+
+EditLyrics.jsx
+1] add Buttons of chord [Db,  Fm , Ab , Eb]
+add textarea where i paste any Lyric
+[
+Hide me now
+Under Your wings
+Co - ver me
+Within Your mighty hands    
+]
+I will pick any chord from button will place in Lyric 
+Eg. 
+In Textare
+[
+Ab    Eb  Fm
+Hide me now
+  Db   Bbm   Eb
+Under Your wings
+Ab    Eb   Fm
+Co - ver me
+  Db         Bbm     Eb
+Within Your mighty hands
+   
+]
+Add Button for save 
+also show in same pase
+ShowLyrics.jsx
+----------------------------------------------------------
+2] Show the Lyric 
+
+Ab    Eb  Fm
+Hide me now
+  Db   Bbm   Eb
+Under Your wings
+Ab    Eb   Fm
+Co - ver me
+  Db         Bbm     Eb
+Within Your mighty hands 
+
+Add Button Edit which will go the EditLyrics page to edit
+
+
+
+
+
+
+
+
+From index.js
+<!--React.StrictMode>
+    <App />
+  </React.StrictMode-->

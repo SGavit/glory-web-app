@@ -7,7 +7,6 @@ import MyNavbar from "./components/Navbar/Navbar";
 import { Container } from "react-bootstrap";
 import SongEdit from "./SongEdit";
 import SongUpdate from "./SongUpdate";
-
 function App() {
   return (
     <div>
@@ -30,6 +29,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+
     </div>
   );
 }

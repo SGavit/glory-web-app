@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
 import { Container, Spinner, Card, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { FaEdit } from "react-icons/fa"; // Import the Edit Icon
 
 function SongDetails() {
   const { id } = useParams(); // Extract the song ID from the URL
@@ -47,7 +48,7 @@ function SongDetails() {
               <iframe
                 width="560"
                 height="315"
-                src={`https://www.youtube.com/embed/${song.songYoutubeID}`}
+                src={`https://www.youtube.com/embed/${song.songYoutubeID}?autoplay=1=1&loop=1&playlist=${song.songYoutubeID}`} // Autoplay, mute, and loop
                 title={song.songTitle}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -58,10 +59,14 @@ function SongDetails() {
             <p className="text-center text-muted">YouTube video not available.</p>
           )}
 
+
           {/* Edit Button */}
           <div className="text-center mt-4">
             <Link to={`/songs/update/${id}`}>
-              <Button variant="primary">Edit Song</Button>
+              <Button variant="primary">
+                <FaEdit className="me-2" /> {/* Edit Icon */}
+                Edit Song
+              </Button>
             </Link>
           </div>
         </Card.Body>
