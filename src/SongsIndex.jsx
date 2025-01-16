@@ -103,7 +103,7 @@ function SongsIndex() {
           <Table striped bordered hover responsive>
             <thead className="thead-dark">
               <tr>
-                <th>Song No 01</th>
+                <th>Song No</th>
                 <th>Title</th>
               </tr>
             </thead>
