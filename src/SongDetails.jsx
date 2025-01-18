@@ -4,6 +4,8 @@ import { getDatabase, ref, get } from "firebase/database";
 import { Container, Spinner, Card, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaEdit } from "react-icons/fa"; // Import the Edit Icon
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 
 function SongDetails() {
   const { id } = useParams(); // Extract the song ID from the URL
@@ -37,6 +39,12 @@ function SongDetails() {
 
   return (
     <Container className="mt-4">
+      <Tabs
+      defaultActiveKey="profile"
+      id="uncontrolled-tab-example"
+      className="mb-3"
+    >
+      <Tab eventKey="Lyric" title="Lyric">
       <Card>
         <Card.Body>
           <Card.Title className="text-center">{song.songTitle}</Card.Title>
@@ -71,6 +79,15 @@ function SongDetails() {
           </div>
         </Card.Body>
       </Card>
+      </Tab>
+      <Tab eventKey="chord" title="Chord">
+        Tab content for Profile
+      </Tab>
+      <Tab eventKey="Note" title="Note">
+        Tab content for Contact
+      </Tab>
+    </Tabs>
+     
     </Container>
   );
 }

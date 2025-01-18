@@ -28,7 +28,7 @@ function SongAdd() {
       .then((snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
-          let highestSongNo = 0;
+          let highestSongNo = 0; 
           // Loop through the data to find the highest songNo
           Object.keys(data).forEach((key) => {
             const songData = data[key];
@@ -115,10 +115,10 @@ function SongAdd() {
 
   if (loading) {
     return (
-      <div className="text-center">
+      <sic className="text-center">
         <Spinner animation="border" role="status" />
         <p>Loading song data...</p>
-      </div>
+      </sic>
     );
   }
 

@@ -20,6 +20,9 @@ function MyNavbar() {
             <Nav.Link as={Link} to="/editSong">
               Edit Song
             </Nav.Link>
+            <Nav.Link as={Link} to="/indecYoutubeSong">
+              YouTube Song Play
+            </Nav.Link>
           </Nav>
 
         </Navbar.Collapse>

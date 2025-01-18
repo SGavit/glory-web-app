@@ -7,6 +7,7 @@ import MyNavbar from "./components/Navbar/Navbar";
 import { Container } from "react-bootstrap";
 import SongEdit from "./SongEdit";
 import SongUpdate from "./SongUpdate";
+import YoutubeSearch from "./YoutubeSearch";
 function App() {
   return (
     <div>
@@ -19,6 +20,7 @@ function App() {
           <Route path="/addSong" element={<SongDetails />} />
           <Route path="/editSong" element={<SongEdit />} />
           <Route path="/updateSong" element={<SongUpdate />} />
+          <Route path="/indecYoutubeSong" element={<YoutubeSearch />} />
           <Route path="/songs/update/:id" element={<SongUpdate />} />
         </Routes>
       </Container>
