@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/glory-web-app/static/css/main.b95436a8.css",
-    "main.js": "/glory-web-app/static/js/main.94afcc3f.js",
+    "main.js": "/glory-web-app/static/js/main.0631b409.js",
     "static/js/488.2338ad5c.chunk.js": "/glory-web-app/static/js/488.2338ad5c.chunk.js",
     "index.html": "/glory-web-app/index.html",
     "main.b95436a8.css.map": "/glory-web-app/static/css/main.b95436a8.css.map",
-    "main.94afcc3f.js.map": "/glory-web-app/static/js/main.94afcc3f.js.map",
+    "main.0631b409.js.map": "/glory-web-app/static/js/main.0631b409.js.map",
     "488.2338ad5c.chunk.js.map": "/glory-web-app/static/js/488.2338ad5c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b95436a8.css",
-    "static/js/main.94afcc3f.js"
+    "static/js/main.0631b409.js"
   ]
 }
