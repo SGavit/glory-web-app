@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Chord Transposer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chord-buttons {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chord-button {
+            padding: 8px 12px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .chord-button.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .song-content {
+            line-height: 1.6;
+        }
+
+        .verse {
+            margin: 15px 0;
+        }
+
+        .chords {
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .lyrics {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="chord-buttons" id="chordButtons"></div>
+        <div class="song-content" id="songContent"></div>
+    </div>
+
+    <script>
+        // Song data
+        const song = {
+            title: "Yeshu Naam Ki Jai",
+            chords: [
+                { line: "E            A  B", lyrics: "Chahe Tum Ko Dilse" },
+                { line: "E            A  B", lyrics: "Gaye Ye Geet Milke" },
+                { line: "A         B             E", lyrics: "Tere Naam Yeshu Naam Ki Jai" },
+                { line: "E             C#m", lyrics: "Jis Naam Mein Hai Zindaji" },
+                { line: "A           B", lyrics: "Vo Naam Hai Yeshu Masih" },
+                { line: "E             C#m", lyrics: "Jis Naam Mein Hai Bandagi" },
+                { line: "A           B", lyrics: "Vo Naam Hai Yeshu Masih" }
+            ],
+            originalKey: "E"
+        };
+
+        // Chord configuration
+        const chordMap = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        let currentKey = song.originalKey;
+
+        // Transposition logic
+        function transposeChord(chord, fromKey, toKey) {
+            const baseIndex = chordMap.indexOf(fromKey);
+            const targetIndex = chordMap.indexOf(toKey);
+            const diff = targetIndex - baseIndex;
+            
+            return chord.split(/(?=[A-Z])/).map(part => {
+                const cleanPart = part.replace(/m|M|\d+/g, '');
+                const currentIndex = chordMap.indexOf(cleanPart);
+                if(currentIndex === -1) return part;
+                const newIndex = (currentIndex + diff + 12) % 12;
+                return chordMap[newIndex] + part.replace(/[A-Z]#?/g, '');
+            }).join('');
+        }
+
+        // Render chord buttons
+        function renderChordButtons() {
+            const container = document.getElementById('chordButtons');
+            container.innerHTML = chordMap.map(key => `
+                <button class="chord-button ${key === currentKey ? 'active' : ''}" 
+                        onclick="changeKey('${key}')">
+                    ${key}
+                </button>
+            `).join('');
+        }
+
+        // Render song content
+        function renderSong() {
+            const container = document.getElementById('songContent');
+            container.innerHTML = `
+                <h2>${song.title} - Key: ${currentKey}</h2>
+                ${song.chords.map(verse => `
+                    <div class="verse">
+                        <div class="chords">${transposeVerse(verse.line)}</div>
+                        <div class="lyrics">${verse.lyrics}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Transpose entire verse line
+        function transposeVerse(line) {
+            return line.split(' ').map(chord => {
+                return chord ? transposeChord(chord, song.originalKey, currentKey) : '&nbsp;';
+            }).join(' ');
+        }
+
+        // Change key handler
+        function changeKey(newKey) {
+            currentKey = newKey;
+            renderChordButtons();
+            renderSong();
+        }
+
+        // Initial render
+        renderChordButtons();
+        renderSong();
+    </script>
+</body>
+</html>

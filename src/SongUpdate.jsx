@@ -4,8 +4,9 @@ import { getDatabase, ref, get, update } from "firebase/database";
 import { Button, Form, Container, Spinner } from "react-bootstrap";
 import { FaEdit } from 'react-icons/fa'; // Import the edit icon
 
-function SongUpdate() {
-  const { id } = useParams(); // Get the song id from the URL
+function SongUpdate({ id: propId }) {
+  const { id: routeId } = useParams();
+  const id = propId || routeId;
   const navigate = useNavigate();
   const [song, setSong] = useState({
     songNo: "",

@@ -1,8 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { Table, Container, FormControl, Button } from "react-bootstrap";
-import { InputGroup } from "react-bootstrap";
-import { FaSearch } from "react-icons/fa";
+import {
+  Table,
+  Container,
+  FormControl,
+  Button,
+  InputGroup,
+  Card,
+  Modal,
+  Row,
+  Col,
+} from "react-bootstrap";
+import {
+  FaSearch,
+  FaYoutube,
+  FaMusic,
+  FaEdit,
+  FaEye,
+  FaEyeSlash,
+  FaGlobe,
+  FaPrayingHands,
+  FaFlag,
+  FaGift,
+  FaChurch,
+} from "react-icons/fa";
+import SongUpdate from "./SongUpdate";
 
 function YoutubeSearch() {
   const [songs, setSongs] = useState([]);
@@ -10,8 +32,10 @@ function YoutubeSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentVideoId, setCurrentVideoId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("allSongs");
+  const [expandedSongId, setExpandedSongId] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedSongId, setSelectedSongId] = useState(null);
 
-  // Fetch songs from Firebase
   useEffect(() => {
     const db = getDatabase();
     const songsRef = ref(db, "songs");
@@ -36,21 +60,17 @@ function YoutubeSearch() {
     return () => unsubscribe();
   }, []);
 
-  // Filter songs whenever songs, searchQuery, or selectedCategory changes
   useEffect(() => {
     filterSongs(songs, searchQuery, selectedCategory);
   }, [songs, searchQuery, selectedCategory]);
 
-  // Filter songs by category and search query
   const filterSongs = (songs, query, category) => {
     let filtered = songs;
-
-    // Filter by category if not "allSongs"
     if (category && category !== "allSongs") {
-      filtered = filtered.filter((song) => song.songCategory.toLowerCase() === category.toLowerCase());
+      filtered = filtered.filter(
+        (song) => song.songCategory.toLowerCase() === category.toLowerCase()
+      );
     }
-
-    // Filter by search query
     if (query) {
       filtered = filtered.filter(
         (song) =>
@@ -58,17 +78,14 @@ function YoutubeSearch() {
           song.songCategory.toLowerCase().includes(query.toLowerCase())
       );
     }
-
     filtered.sort((a, b) => a.songTitle.localeCompare(b.songTitle));
     setFilteredSongs(filtered);
   };
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  // Handle song click to update video
   const handleSongClick = (song) => {
     if (song.songYoutubeID) {
       setCurrentVideoId(song.songYoutubeID);
@@ -77,114 +94,189 @@ function YoutubeSearch() {
     }
   };
 
-  // Handle category button click
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
   };
 
+  const handleEditClick = (song) => {
+    setSelectedSongId(song.id);
+    setShowEditModal(true);
+  };
+
+  const toggleSongContent = (songId) => {
+    setExpandedSongId((prevId) => (prevId === songId ? null : songId));
+  };
+
   return (
-    <div style={{ maxHeight: "100vh", overflow: "hidden" }}>
-      {/* YouTube Video Player */}
-      <div
-        style={{
-          marginTop: "16px", // Remove extra space
-          width: "100%",
-        }}
-      >
-        {currentVideoId ? (
-          <iframe
-            width="100%"
-            height="315"
-            src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1`}
-            title="YouTube Video Player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            style={{ maxWidth: "100%" }}
-          ></iframe>
-        ) : (
-          <div className="text-center text-muted" style={{ padding: "1rem" }}>
-            Select a song to play its video.
+    <div className="bg-light" style={{ minHeight: "100vh" }}>
+      {/* Video Player Section */}
+      <Container fluid className="px-0">
+        <Card className="border-0">
+          <div className="ratio ratio-16x9 bg-dark">
+            {currentVideoId ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1`}
+                title="YouTube Video Player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-bottom shadow-lg"
+              ></iframe>
+            ) : (
+              <div className="d-flex flex-column justify-content-center align-items-center h-100 text-white">
+                <FaYoutube size={64} className="mb-3" />
+                <h4 className="text-center">Select a song to start playing</h4>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </Card>
+      </Container>
 
-      {/* Content Section */}
-      <div
-        style={{
-          marginTop: "20px", // Reduced gap between video and buttons
-          overflowY: "auto",
-          height: "calc(100vh - 380px)", // Adjust height accordingly
-        }}
-      >
-        <Container>
-          {/* Category Buttons */}
-          <div
-            className="d-flex flex-wrap mb-4"
-            style={{
-              backgroundColor: "white",
-              boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-              padding: "10px 0",
-              whiteSpace: "nowrap", // Ensure items stay in one line
-            }}
-          >
-            {[
-              { key: "allSongs", label: "All Songs" },
-              { key: "english", label: "English" },
-              { key: "worship", label: "Worship" },
-              { key: "hindi", label: "Hindi" },
-              { key: "marathi", label: "Marathi" },
-              { key: "gamit", label: "Gamit" },
-              { key: "christmas", label: "Christmas" },
-              { key: "sundayschool", label: "Sunday School" },
-            ].map((category) => (
-              <Button
-                key={category.key}
-                variant={selectedCategory === category.key ? "primary" : "outline-primary"}
-                className="me-2 mb-2"
-                onClick={() => handleCategoryClick(category.key)}
-              >
-                {category.label}
-              </Button>
-            ))}
-          </div>
+      <Container className="py-4" style={{ maxWidth: "1200px" }}>
+        {/* Search Bar */}
+        <Row className="mb-4">
+          <Col xs={12}>
+            <InputGroup className="search-bar-glass">
+              <InputGroup.Text className="bg-white border-0 ps-3 pe-2">
+                <FaSearch className="text-primary" />
+              </InputGroup.Text>
+              <FormControl
+                placeholder="Search songs by title or category..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="border-0 py-2 search-input"
+              />
+            </InputGroup>
+          </Col>
+        </Row>
 
-          {/* Search Bar */}
-          <InputGroup className="mb-4">
-            <InputGroup.Text>
-              <FaSearch />
-            </InputGroup.Text>
-            <FormControl
-              type="text"
-              placeholder="Search Songs"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-          </InputGroup>
-
-          {/* Song List */}
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>Song No</th>
-                <th>Title</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSongs.map((song) => (
-                <tr
-                  key={song.id}
-                  onClick={() => handleSongClick(song)}
-                  style={{ cursor: "pointer" }}
+        {/* Category Filters */}
+        <Row className="mb-3">
+          <Col xs={12}>
+            <div className="d-flex flex-wrap gap-2">
+              {[
+                { key: "allSongs", label: "All Songs", icon: <FaMusic /> },
+                { key: "english", label: "English", icon: <FaGlobe /> },
+                { key: "worship", label: "Worship", icon: <FaPrayingHands /> },
+                { key: "hindi", label: "Hindi", icon: <FaFlag /> },
+                { key: "marathi", label: "Marathi", icon: <FaFlag /> },
+                { key: "gamit", label: "Gamit", icon: <FaFlag /> },
+                { key: "christmas", label: "Christmas", icon: <FaGift /> },
+                { key: "sundayschool", label: "Sunday School", icon: <FaChurch /> },
+              ].map((category) => (
+                <Button
+                  key={category.key}
+                  variant={
+                    selectedCategory === category.key ? "primary" : "outline-primary"
+                  }
+                  className="rounded-pill d-flex align-items-center"
+                  onClick={() => handleCategoryClick(category.key)}
+                  style={{ minWidth: "120px" }}
                 >
-                  <td>{song.songNo}</td>
-                  <td>{song.songTitle}</td>
-                </tr>
+                  <span className="me-1">{category.icon}</span>
+                  <span className="d-none d-md-inline">{category.label}</span>
+                </Button>
               ))}
-            </tbody>
-          </Table>
-        </Container>
-      </div>
+            </div>
+          </Col>
+        </Row>
+
+        {/* Songs Table */}
+        <Card className="shadow-sm">
+          <div className="table-responsive">
+            <Table hover className="mb-0">
+              <thead className="bg-primary text-white">
+                <tr>
+                  <th style={{ width: "10%", minWidth: "80px" }}>Song #</th>
+                  <th style={{ width: "30%", minWidth: "200px" }}>Title</th>
+                  <th style={{ width: "150px" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSongs.map((song) => (
+                  <React.Fragment key={song.id}>
+                    <tr
+                      onClick={() => handleSongClick(song)}
+                      style={{ cursor: "pointer" }}
+                      className="hover-transform"
+                    >
+                      <td className="fw-bold text-primary">{song.songNo}</td>
+                      <td>{song.songTitle}</td>
+                      <td>
+                        <div className="d-flex justify-content-end">
+                          <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="me-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditClick(song);
+                            }}
+                          >
+                            <FaEdit />
+                          </Button>
+                          <Button
+                            variant="outline-info"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSongContent(song.id);
+                            }}
+                          >
+                            {expandedSongId === song.id ? (
+                              <FaEyeSlash />
+                            ) : (
+                              <FaEye />
+                            )}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                    {expandedSongId === song.id && (
+                      <tr>
+                        <td colSpan="3" className="p-0">
+                          <div className="song-content-container p-3">
+                            <div className="song-content-card">
+                              <h6 className="song-content-title mb-3">
+                                <FaMusic className="me-2" />
+                                Song Lyrics & Details
+                              </h6>
+                              <pre className="song-content-text">
+                                {song.songContent || "No content available."}
+                              </pre>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+          {filteredSongs.length === 0 && (
+            <div className="text-center py-4 text-muted">
+              <FaMusic className="mb-2" size={32} />
+              <p>No songs found matching your search</p>
+            </div>
+          )}
+        </Card>
+      </Container>
+
+      {/* Edit Modal */}
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        size="lg"
+        centered
+        className="mobile-fullscreen-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Song</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedSongId && <SongUpdate id={selectedSongId} />}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }
