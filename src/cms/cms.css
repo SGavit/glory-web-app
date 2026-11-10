@@ -80,3 +80,16 @@
 .android-chord-step{background:#fbfcfb}
 .android-lyrics-content{padding:0;border:0;background:transparent}
 .android-editor-step .android-section-toolbar{margin-bottom:1px}
+
+/* Song editor's three-step tab navigation */
+.song-editor-tabs{display:flex;gap:6px;align-items:center;padding:5px;margin:0 0 16px;border:1px solid var(--line);border-radius:11px;background:#f7f9f7}
+.song-editor-tabs button{display:flex;align-items:center;justify-content:center;gap:9px;flex:1;min-width:0;padding:11px 13px;border:1px solid transparent;border-radius:8px;background:transparent;color:#64746a;font:600 12px Manrope;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.song-editor-tabs button span{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#e9eeea;color:#64746a;font-size:10px;font-weight:800}
+.song-editor-tabs button.active{border-color:#d9e5dc;background:#fff;color:#24563b;box-shadow:0 1px 3px #173b2410}
+.song-editor-tabs button.active span{background:#e7f1e9;color:#24563b}
+.song-editor-tab-content{align-items:start}
+.android-chord-targets{display:grid;gap:10px}
+.android-chord-targets .android-section-card h5{margin:0 0 8px;color:#315b43;font:700 12px Manrope}
+.android-chord-target-line{padding:8px 4px;border-top:1px solid #eff2ef}
+.android-chord-target-line .android-lyric-word-line{cursor:crosshair}
+@media(max-width:700px){.song-editor-tabs{display:grid;grid-template-columns:1fr}.song-editor-tabs button{justify-content:flex-start}}
