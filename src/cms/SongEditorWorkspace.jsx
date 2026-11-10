@@ -26,6 +26,7 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
   const [showDetect, setShowDetect] = useState(false);
   const [notice, setNotice] = useState("");
   const dragRef = useRef(null);
+  const lastPublishedRef = useRef(value);
   const roots = flats ? ROOTS_FLAT : ROOTS_SHARP;
   const palette = useMemo(() => {
     const suffixes = QUALITY.find(item => item[0] === quality)?.[1] || [""];
@@ -34,6 +35,8 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
   const chordName = normalizeChord(selected);
 
   useEffect(() => {
+    if (value === lastPublishedRef.current) return;
+    lastPublishedRef.current = value;
     const parsed = parseLyrics(value);
     setSections(parsed);
     setHistory([parsed]);
@@ -41,16 +44,16 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
   }, [value]);
 
   const publish = next => {
+    const serialized = lyricsFromSections(next);
+    lastPublishedRef.current = serialized;
     setSections(next);
-    onChange?.(lyricsFromSections(next));
+    onChange?.(serialized);
   };
   const commit = next => {
     if (locked) return;
-    setHistory(current => {
-      const updated = [...current.slice(0, historyIndex + 1), next].slice(-50);
-      setHistoryIndex(updated.length - 1);
-      return updated;
-    });
+    const updated = [...history.slice(0, historyIndex + 1), next].slice(-50);
+    setHistory(updated);
+    setHistoryIndex(updated.length - 1);
     publish(next);
     setNotice("");
   };
@@ -191,14 +194,14 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
       <header><input aria-label="Section title" value={section.title} disabled={locked} onChange={event => updateSection(sectionIndex,{...section,title:event.target.value,type:event.target.value.toUpperCase().split(/\\s+/)[0]})}/><div className="android-section-actions"><button type="button" disabled={locked||sectionIndex===0} onClick={() => moveSection(sectionIndex,-1)} title="Move up">↑</button><button type="button" disabled={locked||sectionIndex===sections.length-1} onClick={() => moveSection(sectionIndex,1)} title="Move down">↓</button><button type="button" disabled={locked} onClick={() => duplicateSection(sectionIndex)} title="Duplicate">⧉</button><button type="button" disabled={locked} onClick={() => deleteSection(sectionIndex)} title="Delete">×</button></div></header>
       {section.lines.map((line,lineIndex) => <div className="android-chord-line" key={lineIndex}>
         <div className="android-chord-label-track" style={{minHeight:line.chords.length?25:5}}>
-          {line.chords.map((chord,chordIndex) => <button type="button" draggable={!locked} key={chordIndex} className="android-chord-chip" style={{left:(chord.charIndex/Math.max(1,line.text.length))*100+"%"}} onContextMenu={event => {event.preventDefault();beginEdit(sectionIndex,lineIndex,chordIndex,chord);}} onClick={() => beginEdit(sectionIndex,lineIndex,chordIndex,chord)} onDragStart={event => {dragRef.current={section:sectionIndex,line:lineIndex,chord:chordIndex};event.dataTransfer.effectAllowed="move";}}>{chord.chordName}</button>)}
+          {line.chords.map((chord,chordIndex) => <button type="button" draggable={!locked} key={chordIndex} className="android-chord-chip" style={{left:(chord.charIndex*0.6)+"em"}} onContextMenu={event => {event.preventDefault();beginEdit(sectionIndex,lineIndex,chordIndex,chord);}} onClick={() => beginEdit(sectionIndex,lineIndex,chordIndex,chord)} onDragStart={event => {dragRef.current={section:sectionIndex,line:lineIndex,chord:chordIndex};event.dataTransfer.effectAllowed="move";}}>{chord.chordName}</button>)}
         </div>
         <textarea rows="1" className="android-chord-lyric" value={line.text} disabled={locked} onChange={event => {const text=event.target.value;updateLine(sectionIndex,lineIndex,{...line,text,chords:line.chords.map(chord=>({...chord,charIndex:Math.min(chord.charIndex,text.length)}))});}} onClick={event => placeChord(sectionIndex,lineIndex,event.currentTarget.selectionStart)} onDragOver={event => event.preventDefault()} onDrop={event => {event.preventDefault();if(dragRef.current){const rect=event.currentTarget.getBoundingClientRect(),ratio=(event.clientX-rect.left)/Math.max(1,rect.width);moveChord(dragRef.current,{section:sectionIndex,line:lineIndex},Math.round(ratio*line.text.length));dragRef.current=null;}}} placeholder="Type lyrics here; choose a chord then tap a character position…"} />
         <div className="android-line-actions"><button type="button" disabled={locked} onClick={() => updateLine(sectionIndex,lineIndex,{...line,text:line.text,chords:line.chords})}>Line {lineIndex+1}</button><button type="button" disabled={locked} onClick={() => {if(window.confirm("Delete this lyric line?"))updateSection(sectionIndex,{...section,lines:section.lines.filter((_,index)=>index!==lineIndex)});}}>Delete line</button></div>
       </div>)}
       <button type="button" className="android-add-line" disabled={locked} onClick={() => addLine(sectionIndex)}>＋ Add lyric line</button>
     </section>)}</div>}
-    {preview && <div className="android-song-preview">{sections.map((section,index)=><section key={index}><h4>{section.title}</h4>{section.lines.map((line,lineIndex)=><div className="android-preview-line" key={lineIndex}><div>{line.chords.map((chord,chordIndex)=><span key={chordIndex} style={{left:(chord.charIndex/Math.max(1,line.text.length))*100+"%"}}>{chord.chordName}</span>)}</div><p>{line.text || " "}</p></div>)}</section>)}</div>}
+    {preview && <div className="android-song-preview">{sections.map((section,index)=><section key={index}><h4>{section.title}</h4>{section.lines.map((line,lineIndex)=><div className="android-preview-line" key={lineIndex}><div>{line.chords.map((chord,chordIndex)=><span key={chordIndex} style={{left:(chord.charIndex*0.6)+"em"}}>{chord.chordName}</span>)}</div><p>{line.text || " "}</p></div>)}</section>)}</div>}
     {editing && <div className="android-chord-modal-backdrop" role="presentation" onClick={() => setEditing(null)}><form className="android-chord-modal" onSubmit={event => {event.preventDefault();editChord(editing.sectionIndex,editing.lineIndex,editing.chordIndex,editing.name);setEditing(null);}} onClick={event => event.stopPropagation()}><h4>Edit chord</h4><label>Chord name<input autoFocus value={editing.name} onChange={event => setEditing(current=>({...current,name:event.target.value}))}/></label><div><button type="submit">Save</button><button type="button" className="danger" onClick={() => {deleteChord(editing.sectionIndex,editing.lineIndex,editing.chordIndex);setEditing(null);}}>Delete</button><button type="button" className="quiet" onClick={() => setEditing(null)}>Cancel</button></div></form></div>}
   </div>;
 }
