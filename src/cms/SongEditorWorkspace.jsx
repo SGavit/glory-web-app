@@ -153,13 +153,17 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
       const key = line.text.trim().toLocaleLowerCase();
       if (key && !oldByText.has(key)) oldByText.set(key, line);
     }));
-    const preserved = detected.map(section => ({
-      ...section,
-      lines: section.lines.map(line => {
-        const old = oldByText.get(line.text.trim().toLocaleLowerCase());
-        return old ? { ...line, chords: old.chords.map(chord => ({ ...chord })) } : line;
-      })
-    }));
+    const preserved = detected.map(section => {
+      const previousSection = sections.find(item => item.title.trim().toLocaleLowerCase() === section.title.trim().toLocaleLowerCase());
+      return {
+        ...(previousSection || {}),
+        ...section,
+        lines: section.lines.map(line => {
+          const old = previousSection?.lines.find(item => item.text.trim() === line.text.trim()) || oldByText.get(line.text.trim().toLocaleLowerCase());
+          return old ? { ...old, ...line, chords: old.chords.map(chord => ({ ...chord })) } : line;
+        })
+      };
+    });
     commit(preserved);
     setShowDetect(false);
     setNotice("Sections detected. Review the section cards before saving.");
