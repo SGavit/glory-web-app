@@ -93,3 +93,9 @@
 .android-chord-target-line{padding:8px 4px;border-top:1px solid #eff2ef}
 .android-chord-target-line .android-lyric-word-line{cursor:crosshair}
 @media(max-width:700px){.song-editor-tabs{display:grid;grid-template-columns:1fr}.song-editor-tabs button{justify-content:flex-start}}
+
+/* One continuous lyrics field per verse/section */
+.android-verse-lyrics-label{display:grid;gap:6px;margin-top:8px;color:#64746a;font-size:10px;font-weight:650}
+.android-verse-lyrics{display:block;width:100%;min-height:112px;resize:vertical;box-sizing:border-box;border:1px solid #e5ebe6;border-radius:7px;padding:11px;background:#fff;color:#26392d;font:13px/1.9 ui-monospace,monospace;white-space:pre-wrap}
+.android-verse-lyrics:focus{outline:0;border-color:#9bb9a2;box-shadow:0 0 0 2px #eaf2ec}
+.android-section-card{box-shadow:none}
