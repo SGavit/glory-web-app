@@ -17,3 +17,56 @@
 
 /* Android-parity chord workspace */
 .glory-chord-workspace{position:relative}.glory-chord-toolbar{display:grid;gap:12px;padding:12px;background:#f8faf8;border:1px solid var(--line);border-radius:10px}.glory-chord-actions,.glory-chord-picker,.glory-chord-roots{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.glory-chord-actions button,.glory-chord-roots button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 10px;font-size:10px;cursor:pointer}.glory-chord-actions button:disabled{opacity:.4;cursor:not-allowed}.glory-chord-actions .clear-chords{margin-left:auto;color:#a34d4d}.glory-chord-roots .chosen{background:var(--green);color:white;border-color:var(--green)}.glory-chord-picker label{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.glory-chord-picker select{border:1px solid var(--line);border-radius:6px;padding:7px;background:white}.selected-chord{font:700 14px Manrope;padding:7px 12px;background:#e8f2eb;border-radius:7px;color:var(--green)}.glory-chord-sections,.glory-chord-preview{display:grid;gap:14px;margin-top:12px}.glory-chord-section{padding:13px;border:1px solid var(--line);border-radius:9px;background:#fff}.glory-chord-section h4,.glory-chord-preview h4{font:700 11px Manrope;margin:0 0 12px;color:var(--green)}.glory-chord-line{padding:5px 7px 9px;border-radius:6px;margin:4px 0}.glory-chord-line.active{background:#f4f8f4}.glory-chord-labels{position:relative;display:flex;align-items:flex-start}.glory-chord-label{position:relative;display:inline-flex;align-items:center;gap:2px;margin-right:5px;color:var(--green);font-size:10px;cursor:grab}.glory-chord-label b{background:#eaf3ec;border:1px solid #d6e6d9;border-radius:5px;padding:3px 6px}.glory-chord-label button{border:0;background:transparent;color:var(--muted);cursor:pointer}.glory-chord-lyric{width:100%;border:0!important;border-bottom:1px solid #edf1ed!important;border-radius:0!important;padding:5px 0!important;background:transparent!important;font:12px/1.8 ui-monospace,monospace!important;color:var(--ink)}.glory-chord-lyric:focus{outline:0;border-bottom-color:var(--green)!important}.glory-chord-preview section{padding:12px;border-bottom:1px solid var(--line)}.glory-preview-line{font:12px/1.8 ui-monospace,monospace;margin:8px 0;position:relative}.glory-preview-chords{height:20px;position:relative}.glory-preview-chords span{position:absolute;color:var(--green);font:bold 10px sans-serif;white-space:nowrap}.glory-chord-dialog{position:sticky;bottom:8px;display:flex;justify-content:flex-end}.glory-chord-dialog form{background:white;border:1px solid var(--line);box-shadow:0 8px 30px #1b322622;border-radius:9px;padding:12px;display:grid;gap:10px;min-width:220px}.glory-chord-dialog label{display:grid;gap:5px;font-size:10px}.glory-chord-dialog input{border:1px solid var(--line);border-radius:5px;padding:8px}.glory-chord-dialog form>div{display:flex;gap:6px}.glory-chord-dialog button{border:1px solid var(--line);background:#fff;border-radius:5px;padding:7px 10px;font-size:10px}.glory-chord-dialog button[type=submit]{background:var(--green);color:#fff}@media(max-width:700px){.glory-chord-picker{align-items:flex-start}.glory-chord-actions .clear-chords{margin-left:0}}
+
+
+/* Android-matched section and chord workspace */
+.android-song-workspace{display:grid;gap:13px}
+.android-section-toolbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.android-section-add{display:flex;gap:6px;flex-wrap:wrap}
+.android-section-add button,.android-detect-button,.android-section-actions button,.android-line-actions button,.android-add-line{border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 10px;font-size:10px;color:#40564a;cursor:pointer}
+.android-detect-button{background:#edf5ef;color:#286b52;border-color:#d4e5d8;font-weight:700}
+.android-detect-panel{display:grid;gap:9px;padding:12px;border:1px solid #cfe0d3;border-radius:9px;background:#f7faf7}
+.android-detect-panel label{display:grid;gap:7px;font-size:10px;font-weight:700;color:#526258}
+.android-detect-panel textarea{width:100%;border:1px solid var(--line);border-radius:7px;padding:10px;font:11px/1.7 monospace}
+.android-detect-panel>div{display:flex;gap:7px}
+.android-detect-panel button,.android-chord-modal button{border:1px solid var(--line);border-radius:6px;padding:8px 12px;background:#1c4b35;color:#fff;font-size:10px;cursor:pointer}
+.android-detect-panel button.quiet,.android-chord-modal button.quiet{background:#fff;color:#526258}
+.android-chord-toolbar{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:9px;background:#f8faf8}
+.android-chord-actions,.android-chord-palette,.android-chord-roots{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.android-chord-actions button,.android-chord-roots button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 9px;font-size:10px;color:#40564a;cursor:pointer}
+.android-chord-actions button:disabled,.android-section-actions button:disabled,.android-add-line:disabled{opacity:.4;cursor:not-allowed}
+.android-chord-actions .danger,.android-chord-modal .danger{color:#a34d4d}
+.android-chord-palette label{display:flex;gap:7px;align-items:center;font-size:10px;color:#64746a}
+.android-chord-palette select{border:1px solid var(--line);border-radius:6px;padding:7px;background:#fff;font-size:10px}
+.android-chord-roots .selected{background:#286b52;color:#fff;border-color:#286b52}
+.android-selected-chord,.android-editor-notice{margin:0;font-size:10px;color:#64746a}
+.android-selected-chord b{color:#286b52;font-size:13px}
+.android-editor-notice{padding:8px 10px;background:#f1f6f2;border-radius:6px}
+.android-empty-sections{padding:22px;text-align:center;border:1px dashed #cad8cd;border-radius:9px;color:#89968d;font-size:11px}
+.android-section-list{display:grid;gap:11px}
+.android-section-card{border:1px solid var(--line);border-radius:10px;padding:13px;background:#fff}
+.android-section-card>header{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.android-section-card>header input{flex:1;min-width:0;border:0;border-bottom:1px solid #e7ede8;background:transparent;padding:7px 2px;font:700 12px Manrope;color:#286b52}
+.android-section-actions{display:flex;gap:4px}
+.android-section-actions button{padding:5px 8px}
+.android-chord-line{padding:8px 5px;border-top:1px solid #eff2ef}
+.android-chord-label-track{position:relative;min-height:24px;overflow:visible}
+.android-chord-chip{position:absolute;transform:translateX(-3px);top:0;border:1px solid #d4e5d8;background:#eaf3ec;color:#286b52;border-radius:5px;padding:3px 6px;font-size:9px;font-weight:700;white-space:nowrap;cursor:grab}
+.android-chord-lyric{display:block;width:100%;min-height:34px;resize:vertical;border:0;border-bottom:1px solid #edf1ed;border-radius:0;padding:6px 0;background:transparent;color:#394a3f;font:12px/1.8 ui-monospace,monospace}
+.android-chord-lyric:focus{outline:0;border-bottom-color:#78a88a}
+.android-line-actions{display:flex;justify-content:space-between;gap:6px;margin-top:4px}
+.android-line-actions button{border:0;background:transparent;padding:3px;color:#89968d;font-size:9px}
+.android-add-line{margin-top:8px;background:#f8faf8;color:#286b52}
+.android-song-preview{display:grid;gap:14px;padding:14px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.android-song-preview section h4{margin:0 0 10px;color:#286b52;font:700 12px Manrope}
+.android-preview-line{margin:8px 0 13px}
+.android-preview-line>div{height:20px;position:relative}
+.android-preview-line span{position:absolute;color:#286b52;font:bold 10px sans-serif;white-space:nowrap}
+.android-preview-line p{margin:0;font:12px/1.8 ui-monospace,monospace;white-space:pre-wrap}
+.android-chord-modal-backdrop{position:fixed;inset:0;z-index:50;background:#15251d66;display:grid;place-items:center;padding:16px}
+.android-chord-modal{width:min(340px,100%);display:grid;gap:12px;padding:18px;border-radius:12px;background:#fff;box-shadow:0 15px 50px #0003}
+.android-chord-modal h4{margin:0;font:700 15px Manrope}
+.android-chord-modal label{display:grid;gap:6px;font-size:10px}
+.android-chord-modal input{border:1px solid var(--line);border-radius:6px;padding:9px}
+.android-chord-modal>div{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:700px){.android-section-toolbar{display:grid}.android-chord-actions{gap:4px}.android-chord-actions button{padding:7px}.android-section-card{padding:10px}}
