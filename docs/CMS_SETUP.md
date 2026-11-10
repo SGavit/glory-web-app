@@ -63,7 +63,7 @@ It writes song records and version snapshots, report status changes, taxonomy un
 ## Compatibility notes
 
 - Song lyrics are parsed from section headings such as [Verse 1], [Chorus], and [Bridge].
-- Chord markers entered in the editor as {G} or {Em} are serialized into Android-compatible chord objects with zero-based charIndex; markers are removed from the saved lyric text.
+- The CMS editor uses Android-style section cards and chord workspace controls: select a chord, click a lyric position, drag chord labels, edit/delete, undo/redo, lock, clear with confirmation, and preview.\n- Auto-detection accepts complete lyrics: explicit bracket headings create named sections; without headings, blank-line-separated blocks become numbered verses.\n- Chords are serialized into Android-compatible line chord objects with zero-based UTF-16 `charIndex`; inline `{G}` / `{Em}` markers are used only as an internal editing serialization and are removed from saved lyric text.
 - Editing uses a Realtime Database transaction with a version check to avoid silently overwriting another editor's newer song revision.
 - A version snapshot is written to songVersions after a successful save.
 - Archive is a status/visibility change, not a hard delete.
