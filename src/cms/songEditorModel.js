@@ -42,7 +42,7 @@ export function nextSectionTitle(type, sections) {
   const standard = String(type || "Verse").trim();
   if (!/^(verse|chorus)$/i.test(standard)) return standard;
   const numbers = asArray(sections).map(section => {
-    const match = String(section.title || "").match(new RegExp("^" + standard + "\s+(\d+)$", "i"));
+    const match = String(section.title || "").match(new RegExp("^" + standard + "\\s+(\\d+)$", "i"));
     return match ? Number(match[1]) : 0;
   });
   return standard[0].toUpperCase() + standard.slice(1).toLowerCase() + " " + (Math.max(0, ...numbers) + 1);
