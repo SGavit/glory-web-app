@@ -173,7 +173,7 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
   return <div className="android-song-workspace">
     <div className="android-section-toolbar">
       <div className="android-section-add">{["Verse","Chorus","Bridge","Intro","Outro","Pre-Chorus","Tag"].map(type => <button type="button" key={type} disabled={locked} onClick={() => addSection(type)}>＋ {type}</button>)}</div>
-      <button type="button" className="android-detect-button" onClick={() => { setDetectText(value.replace(/\{[^}]+\}/g,"")); setShowDetect(true); }}>✦ Auto-detect from lyrics</button>
+      <button type="button" className="android-detect-button" disabled={locked} onClick={() => { setDetectText(value.replace(/\{[^}]+\}/g,"")); setShowDetect(true); }}>✦ Auto-detect from lyrics</button>
     </div>
     {showDetect && <div className="android-detect-panel"><label>Paste or edit the complete lyrics<textarea rows="7" value={detectText} onChange={event => setDetectText(event.target.value)} placeholder={"[Verse 1]\nLyrics…\n\n[Chorus]\nLyrics…"}/></label><div><button type="button" onClick={runDetection}>Detect sections</button><button type="button" className="quiet" onClick={() => setShowDetect(false)}>Cancel</button></div></div>}
     <div className="android-chord-toolbar">
@@ -181,12 +181,12 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
         <button type="button" disabled={locked || historyIndex===0} onClick={undo}>↶ Undo</button>
         <button type="button" disabled={locked || historyIndex===history.length-1} onClick={redo}>↷ Redo</button>
         <button type="button" onClick={() => setLocked(current => !current)}>{locked ? "🔒 Unlock" : "🔓 Lock"}</button>
-        <button type="button" onClick={() => setFlats(current => !current)}>{flats ? "Use sharps" : "Use flats"}</button>
+        <button type="button" onClick={() => { setFlats(current => !current); setSelected(null); }}>{flats ? "Use sharps" : "Use flats"}</button>
         <button type="button" onClick={() => setPreview(current => !current)}>{preview ? "Edit workspace" : "Preview"}</button>
         <button type="button" className="danger" disabled={locked} onClick={clearChords}>Clear chords</button>
       </div>
       <div className="android-chord-palette">
-        <label>Quality<select value={quality} onChange={event => setQuality(event.target.value)}>{QUALITY.map(([name]) => <option key={name}>{name}</option>)}</select></label>
+        <label>Quality<select value={quality} onChange={event => { setQuality(event.target.value); setSelected(null); }}>{QUALITY.map(([name]) => <option key={name}>{name}</option>)}</select></label>
         <div className="android-chord-roots">{palette.map(name => <button type="button" key={name} className={selected===name?"selected":""} onClick={() => setSelected(name)}>{name}</button>)}</div>
       </div>
       <p className="android-selected-chord">Selected chord: <b>{selected || "Choose a chord"}</b></p>
