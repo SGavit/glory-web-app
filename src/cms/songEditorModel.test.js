@@ -2,13 +2,13 @@ import { detectSectionsFromLyrics, nextSectionTitle, normalizeChordIndex } from 
 
 describe("Android-compatible section and chord editing", () => {
   test("detects explicit section headings and keeps section titles", () => {
-    const result = detectSectionsFromLyrics("[Intro]\\nMusic\\n[Verse 1]\\nFirst line\\nSecond line\\n[Chorus]\\nSing");
+    const result = detectSectionsFromLyrics("[Intro]\nMusic\n[Verse 1]\nFirst line\nSecond line\n[Chorus]\nSing");
     expect(result.map(section => section.title)).toEqual(["Intro", "Verse 1", "Chorus"]);
     expect(result[1].lines.map(line => line.text)).toEqual(["First line", "Second line"]);
   });
 
   test("uses blank-line groups as numbered verses when no headings exist", () => {
-    const result = detectSectionsFromLyrics("Line one\\nLine two\\n\\nLine three\\n\\nLine four");
+    const result = detectSectionsFromLyrics("Line one\nLine two\n\nLine three\n\nLine four");
     expect(result.map(section => section.title)).toEqual(["Verse 1", "Verse 2", "Verse 3"]);
     expect(result[1].lines[0].text).toBe("Line three");
   });
