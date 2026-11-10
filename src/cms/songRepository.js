@@ -55,9 +55,8 @@ export async function saveSongToFirebase({
     }
     const currentVersion = Number(current.version || 0);
     if (currentVersion === proposed.version) {
-      // Stable operation payload allows a retry after song commit but before history write.
-      // Compare proposed keys only; Firebase may omit null-valued Android properties.
-      const matches = Object.keys(proposed).every(key =>
+      // Match Android data-class equality. Firebase omits null-valued properties.
+      const matches = Object.keys({ ...current, ...proposed }).every(key =>
         JSON.stringify(current[key] ?? null) === JSON.stringify(proposed[key] ?? null)
       );
       if (matches) return current;
