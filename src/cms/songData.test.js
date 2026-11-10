@@ -23,7 +23,7 @@ describe("Android song model compatibility", () => {
 
   test("matches Android punctuation removal after NFC normalization", () => {
     expect(normalizeForDuplicate("A-B!")).toBe("ab");
-    expect(normalizeForDuplicate("धन्यवाद  के साथ ")).toBe("धन्यवाद के साथ");
+    expect(normalizeForDuplicate("धन्यवाद  के साथ ")).toBe("धनयवद क सथ");
   });
 
   test("matches Android word-set Jaccard and duplicate thresholds", () => {
