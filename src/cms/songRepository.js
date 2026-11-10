@@ -1,4 +1,4 @@
-import { ref, runTransaction, set } from "firebase/database";
+import { ref, push, runTransaction, set } from "firebase/database";
 import { buildSongPayload } from "./songData";
 
 const sameJson = (left, right) => JSON.stringify(left) === JSON.stringify(right);
@@ -19,7 +19,7 @@ export async function saveSongToFirebase({ database, songId, existing, edited, u
   if (!String(edited.songTitle || "").trim()) throw new Error("Song title is required.");
   const operationId = makeOperationId();
   const now = Date.now();
-  const targetId = songId || ref(database, "songs").push().key;
+  const targetId = songId || push(ref(database, "songs")).key;
   if (!targetId) throw new Error("Could not allocate a song ID.");
 
   const baseVersion = Number(existing?.version || 0);
