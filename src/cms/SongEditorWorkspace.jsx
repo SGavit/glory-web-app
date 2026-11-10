@@ -84,7 +84,7 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
   const addSection = type => {
     if (locked) return;
     const title = nextSectionTitle(type, sections);
-    commit([...sections, { type: title.toUpperCase().split(/\\s+/)[0], title, lines: [{ text: "", chords: [] }] }]);
+    commit([...sections, { type: title.toUpperCase().split(/\s+/)[0], title, lines: [{ text: "", chords: [] }] }]);
   };
   const addLine = sectionIndex => {
     const section = sections[sectionIndex];
@@ -170,9 +170,9 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
   return <div className="android-song-workspace">
     <div className="android-section-toolbar">
       <div className="android-section-add">{["Verse","Chorus","Bridge","Intro","Outro","Pre-Chorus","Tag"].map(type => <button type="button" key={type} disabled={locked} onClick={() => addSection(type)}>＋ {type}</button>)}</div>
-      <button type="button" className="android-detect-button" onClick={() => { setDetectText(value.replace(/\\{[^}]+\\}/g,"")); setShowDetect(true); }}>✦ Auto-detect from lyrics</button>
+      <button type="button" className="android-detect-button" onClick={() => { setDetectText(value.replace(/\{[^}]+\}/g,"")); setShowDetect(true); }}>✦ Auto-detect from lyrics</button>
     </div>
-    {showDetect && <div className="android-detect-panel"><label>Paste or edit the complete lyrics<textarea rows="7" value={detectText} onChange={event => setDetectText(event.target.value)} placeholder={"[Verse 1]\\nLyrics…\\n\\n[Chorus]\\nLyrics…"}/></label><div><button type="button" onClick={runDetection}>Detect sections</button><button type="button" className="quiet" onClick={() => setShowDetect(false)}>Cancel</button></div></div>}
+    {showDetect && <div className="android-detect-panel"><label>Paste or edit the complete lyrics<textarea rows="7" value={detectText} onChange={event => setDetectText(event.target.value)} placeholder={"[Verse 1]\nLyrics…\n\n[Chorus]\nLyrics…"}/></label><div><button type="button" onClick={runDetection}>Detect sections</button><button type="button" className="quiet" onClick={() => setShowDetect(false)}>Cancel</button></div></div>}
     <div className="android-chord-toolbar">
       <div className="android-chord-actions">
         <button type="button" disabled={locked || historyIndex===0} onClick={undo}>↶ Undo</button>
@@ -191,7 +191,7 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
     {notice && <p className="android-editor-notice">{notice}</p>}
     {!sections.length && <div className="android-empty-sections">Add a section or use Auto-detect to organize your lyrics.</div>}
     {!preview && <div className="android-section-list">{sections.map((section,sectionIndex) => <section className="android-section-card" key={sectionIndex}>
-      <header><input aria-label="Section title" value={section.title} disabled={locked} onChange={event => updateSection(sectionIndex,{...section,title:event.target.value,type:event.target.value.toUpperCase().split(/\\s+/)[0]})}/><div className="android-section-actions"><button type="button" disabled={locked||sectionIndex===0} onClick={() => moveSection(sectionIndex,-1)} title="Move up">↑</button><button type="button" disabled={locked||sectionIndex===sections.length-1} onClick={() => moveSection(sectionIndex,1)} title="Move down">↓</button><button type="button" disabled={locked} onClick={() => duplicateSection(sectionIndex)} title="Duplicate">⧉</button><button type="button" disabled={locked} onClick={() => deleteSection(sectionIndex)} title="Delete">×</button></div></header>
+      <header><input aria-label="Section title" value={section.title} disabled={locked} onChange={event => updateSection(sectionIndex,{...section,title:event.target.value,type:event.target.value.toUpperCase().split(/\s+/)[0]})}/><div className="android-section-actions"><button type="button" disabled={locked||sectionIndex===0} onClick={() => moveSection(sectionIndex,-1)} title="Move up">↑</button><button type="button" disabled={locked||sectionIndex===sections.length-1} onClick={() => moveSection(sectionIndex,1)} title="Move down">↓</button><button type="button" disabled={locked} onClick={() => duplicateSection(sectionIndex)} title="Duplicate">⧉</button><button type="button" disabled={locked} onClick={() => deleteSection(sectionIndex)} title="Delete">×</button></div></header>
       {section.lines.map((line,lineIndex) => <div className="android-chord-line" key={lineIndex}>
         <div className="android-chord-label-track" style={{minHeight:line.chords.length?25:5}}>
           {line.chords.map((chord,chordIndex) => <button type="button" draggable={!locked} key={chordIndex} className="android-chord-chip" style={{left:(chord.charIndex*0.6)+"em"}} onContextMenu={event => {event.preventDefault();beginEdit(sectionIndex,lineIndex,chordIndex,chord);}} onClick={() => beginEdit(sectionIndex,lineIndex,chordIndex,chord)} onDragStart={event => {dragRef.current={section:sectionIndex,line:lineIndex,chord:chordIndex};event.dataTransfer.effectAllowed="move";}}>{chord.chordName}</button>)}
