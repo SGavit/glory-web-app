@@ -1,4 +1,4 @@
-import { normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate, jaccardSimilarity, toStatusVisibility } from "./songData";
+import { normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate, jaccardSimilarity, toStatusVisibility, buildSongPayload } from "./songData";
 
 describe("song data compatibility", () => {
   test("keeps firebaseKey and composite status", () => {
@@ -17,6 +17,16 @@ describe("song data compatibility", () => {
   test("normalizes Unicode before duplicate checks", () => {
     expect(normalizeForDuplicate("नमः-शिवाय")).toBe(normalizeForDuplicate("नमः शिवाय"));
     expect(jaccardSimilarity("नमः शिवाय", "नमः शिवाय")).toBe(1);
+  });
+  test("preserves unknown nested metadata and optional section number", () => {
+    const old = { vendorField: "keep", version: 4, sections: [{ type: "verse", title: "Verse 1", custom: 7, lines: [{ text: "Hi", customLine: true }] }] };
+    const sections = parseLyrics("[Verse 1]\\nHello", old.sections);
+    const next = buildSongPayload(old, { songTitle: "Test", status: "DRAFT", visibility: "PRIVATE", sections }, "uid-1", 100);
+    expect(next.vendorField).toBe("keep");
+    expect(next.sections[0].custom).toBe(7);
+    expect(next.sections[0].sectionNo).toBeUndefined();
+    expect(next.sections[0].lines[0].customLine).toBe(true);
+    expect(next.firebaseKey).toBeUndefined();
   });
   test("builds the Android query field", () => {
     expect(toStatusVisibility("PUBLISHED", "PUBLIC")).toBe("PUBLISHED_PUBLIC");
