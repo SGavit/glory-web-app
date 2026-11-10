@@ -1,63 +1,10 @@
-const asArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
-
-const cleanText = value => String(value || "").replace(/\{[^}]+\}/g, "").replace(/\r\n?/g, "\n");
-
-export function detectSectionsFromLyrics(input) {
-  const source = cleanText(input).trim();
-  if (!source) return [];
-  const lines = source.split("\n");
-  const hasHeadings = lines.some(line => /^\s*\[[^\]]+\]\s*$/.test(line));
-  const sections = [];
-
-  if (hasHeadings) {
-    let current = null;
-    const finish = () => {
-      if (current && current.lines.length) sections.push(current);
-    };
-    lines.forEach(raw => {
-      const heading = raw.match(/^\s*\[([^\]]+)\]\s*$/);
-      if (heading) {
-        finish();
-        const title = heading[1].trim();
-        current = { type: title.toUpperCase().split(/\s+/)[0], title, lines: [] };
-      } else if (current && raw.trim()) {
-        current.lines.push({ text: raw.trimEnd(), chords: [] });
-      }
-    });
-    finish();
-    return sections;
-  }
-
-  const blocks = source.split(/\n\s*\n+/)
-    .map(block => block.split("\n").map(line => line.trimEnd()).filter(line => line.trim()))
-    .filter(block => block.length);
-  return blocks.map((block, index) => ({
-    type: "VERSE",
-    title: "Verse " + (index + 1),
-    lines: block.map(text => ({ text, chords: [] }))
-  }));
+const asArray=value=>Array.isArray(value)?value:value&&typeof value==="object"?Object.values(value):[];
+const cleanText=value=>String(value||"").replace(/\{[^}]+\}/g,"").replace(/\r\n?/g,"\n");
+export function detectSectionsFromLyrics(input){
+ const source=cleanText(input).trim();if(!source)return[];const lines=source.split("\n"),explicit=lines.some(x=>/^\s*\[[^\]]+\]\s*$/.test(x));
+ if(explicit){const out=[];let current=null;const finish=()=>{if(current&&current.lines.length)out.push(current);};lines.forEach(raw=>{const m=raw.match(/^\s*\[([^\]]+)\]\s*$/);if(m){finish();const title=m[1].trim();current={type:title.toUpperCase().split(/\s+/)[0],title,lines:[]};}else if(current&&raw.trim())current.lines.push({text:raw.trimEnd(),chords:[]});});finish();return out;}
+ return source.split(/\n\s*\n+/).map(b=>b.split("\n").map(x=>x.trimEnd()).filter(x=>x.trim())).filter(b=>b.length).map((b,i)=>({type:"VERSE",title:"Verse "+(i+1),lines:b.map(text=>({text,chords:[]}))}));
 }
-
-export function nextSectionTitle(type, sections) {
-  const standard = String(type || "Verse").trim();
-  if (!/^(verse|chorus)$/i.test(standard)) return standard;
-  const numbers = asArray(sections).map(section => {
-    const match = String(section.title || "").match(new RegExp("^" + standard + "\\s+(\\d+)$", "i"));
-    return match ? Number(match[1]) : 0;
-  });
-  return standard[0].toUpperCase() + standard.slice(1).toLowerCase() + " " + (Math.max(0, ...numbers) + 1);
-}
-
-export function normalizeChordIndex(chords, requested, textLength, excludeIndex = -1) {
-  const max = Math.max(0, Number(textLength) || 0);
-  const occupied = new Set(asArray(chords)
-    .filter((_, index) => index !== excludeIndex)
-    .map(chord => Number(chord.charIndex) || 0));
-  const target = Math.max(0, Math.min(max, Number(requested) || 0));
-  if (!occupied.has(target)) return target;
-  for (let distance = 1; distance <= max; distance += 1) {
-    if (target - distance >= 0 && !occupied.has(target - distance)) return target - distance;
-    if (target + distance <= max && !occupied.has(target + distance)) return target + distance;
-  }
-  return -1;
-}
+export function nextSectionTitle(type,sections){const t=String(type||"Verse").trim();if(!/^(verse|chorus)$/i.test(t))return t;const nums=asArray(sections).map(s=>{const m=String(s.title||"").match(new RegExp("^"+t+"\\s+(\\d+)$","i"));return m?Number(m[1]):0;});return t[0].toUpperCase()+t.slice(1).toLowerCase()+" "+(Math.max(0,...nums)+1);}
+export function normalizeChordIndex(chords,requested,length,exclude=-1){const max=Math.max(0,(Number(length)||0)-1),used=new Set(asArray(chords).filter((_,i)=>i!==exclude).map(c=>Number(c.charIndex)||0)),target=Math.max(0,Math.min(max,Number(requested)||0));if(!used.has(target))return target;for(let d=1;d<=max;d++){if(target-d>=0&&!used.has(target-d))return target-d;if(target+d<=max&&!used.has(target+d))return target+d;}return-1;}
+export function normalizeSections(sections){return asArray(sections).map(s=>({type:String(s.type||s.title||"VERSE").toUpperCase().split(/\s+/)[0],...(s.sectionNo==null?{}:{sectionNo:Number(s.sectionNo)}),title:String(s.title||s.type||"Verse"),lines:asArray(s.lines).map(l=>{const text=String(l.text||"");return{text,chords:asArray(l.chords).map(c=>({chordName:String(c.chordName||"").trim().replace("♯","#").replace("♭","b"),charIndex:Math.max(0,Math.min(Math.max(0,text.length-1),Number(c.charIndex)||0))})).filter(c=>c.chordName).sort((x,y)=>x.charIndex-y.charIndex)};})}));}
