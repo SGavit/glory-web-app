@@ -47,7 +47,7 @@ export function parseLyrics(text = "", previousSections = []) {
       const old = previous.find(section => section.title === title) || {};
       sections.push({
         ...old,
-        type: old.type || title.toLowerCase().split(" ")[0],
+        type: old.type || title.toUpperCase().split(" ")[0],
         title,
         lines: []
       });
@@ -58,7 +58,7 @@ export function parseLyrics(text = "", previousSections = []) {
       const old = previous.find(section => /verse/i.test(section.title || "")) || {};
       sections.push({
         ...old,
-        type: old.type || "verse",
+        type: old.type || "VERSE",
         title: old.title || "Verse 1",
         lines: []
       });
