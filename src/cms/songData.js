@@ -1,6 +1,6 @@
 const asArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
 
-export const toStatusVisibility = (status, visibility) => `${status || "DRAFT"}_${visibility || "PRIVATE"}`;
+export const toStatusVisibility = (status, visibility) => String(status || "DRAFT") + "_" + String(visibility || "PRIVATE");
 
 export function normalizeSong(id, value = {}) {
   const legacyLyrics = value.songContent || "";
@@ -9,27 +9,16 @@ export function normalizeSong(id, value = {}) {
   const visibility = value.visibility || composite.slice(1).join("_") || (legacyLyrics ? "PUBLIC" : "PRIVATE");
   const sourceSections = asArray(value.sections);
   return {
-    ...value,
-    firebaseKey: id || value.firebaseKey || "",
-    songNo: Number(value.songNo || 0),
-    songTitle: value.songTitle || "Untitled song",
-    songLanguage: value.songLanguage || "English",
-    songCategory: value.songCategory || "Worship",
-    originalKey: value.originalKey || "C",
-    status,
-    visibility,
-    statusVisibility: toStatusVisibility(status, visibility),
-    version: Number(value.version || 1),
-    tags: asArray(value.tags),
-    aliases: asArray(value.aliases),
-    preferredKeys: asArray(value.preferredKeys),
+    ...value, firebaseKey: id || value.firebaseKey || "",
+    songNo: Number(value.songNo || 0), songTitle: value.songTitle || "Untitled song",
+    songLanguage: value.songLanguage || "English", songCategory: value.songCategory || "Worship",
+    originalKey: value.originalKey || "C", status, visibility,
+    statusVisibility: toStatusVisibility(status, visibility), version: Number(value.version || 1),
+    tags: asArray(value.tags), aliases: asArray(value.aliases), preferredKeys: asArray(value.preferredKeys),
     sections: (sourceSections.length ? sourceSections : parseLyrics(legacyLyrics)).map(section => ({
-      ...section,
-      // Keep sectionNo absent when it was not present in the Android model.
-      ...(section.sectionNo === undefined ? {} : { sectionNo: section.sectionNo }),
+      ...section, ...(section.sectionNo === undefined ? {} : { sectionNo: section.sectionNo }),
       lines: asArray(section.lines).map(line => ({
-        ...line,
-        chords: asArray(line.chords).map(chord => ({ ...chord, charIndex: Number(chord.charIndex || 0) }))
+        ...line, chords: asArray(line.chords).map(chord => ({ ...chord, charIndex: Number(chord.charIndex || 0) }))
       }))
     }))
   };
@@ -38,8 +27,8 @@ export function normalizeSong(id, value = {}) {
 export function parseLyrics(text = "", previousSections = []) {
   const previous = asArray(previousSections);
   const sections = [];
-  String(text).split(/\\r?\\n/).forEach(line => {
-    const heading = line.trim().match(/^\\[(.+)\\]$/);
+  String(text).split(/\r?\n/).forEach(line => {
+    const heading = line.trim().match(/^\[(.+)\]$/);
     if (heading) {
       const title = heading[1].trim();
       const old = previous.find(section => section.title === title) || {};
@@ -56,7 +45,7 @@ export function parseLyrics(text = "", previousSections = []) {
     const oldLine = asArray(oldSection?.lines)[current.lines.length] || {};
     let clean = "";
     const chords = [];
-    const marker = /\\{([^}]+)\\}/g;
+    const marker = /\{([^}]+)\}/g;
     let last = 0, match;
     while ((match = marker.exec(line))) {
       clean += line.slice(last, match.index);
@@ -71,48 +60,36 @@ export function parseLyrics(text = "", previousSections = []) {
 
 export function lyricsFromSections(sections) {
   return asArray(sections).map(section =>
-    `[${section.title || "Verse"}]\\n` + asArray(section.lines).map(line => {
+    "[" + (section.title || "Verse") + "]\n" + asArray(section.lines).map(line => {
       let text = line.text || "";
       asArray(line.chords).slice().sort((a, b) => b.charIndex - a.charIndex).forEach(chord => {
         const index = Math.max(0, Math.min(text.length, Number(chord.charIndex || 0)));
-        text = text.slice(0, index) + `{${chord.chordName}}` + text.slice(index);
+        text = text.slice(0, index) + "{" + chord.chordName + "}" + text.slice(index);
       });
       return text;
-    }).join("\\n")
-  ).join("\\n\\n");
+    }).join("\n")
+  ).join("\n\n");
 }
 
-export function buildSongPayload(existing, edited, uid, now, operationId) {
+export function buildSongPayload(existing, edited, uid, now) {
   const old = existing || {};
   const status = edited.status || old.status || "DRAFT";
   const visibility = edited.visibility || old.visibility || "PRIVATE";
   return {
-    ...old,
-    ...edited,
-    firebaseKey: edited.firebaseKey || old.firebaseKey,
-    songNo: Number(edited.songNo || 0),
-    songTitle: String(edited.songTitle || "").trim(),
-    songLanguage: edited.songLanguage || "English",
-    songCategory: edited.songCategory || "Worship",
-    tags: asArray(edited.tags ?? old.tags),
-    aliases: asArray(edited.aliases ?? old.aliases),
-    preferredKeys: asArray(edited.preferredKeys ?? old.preferredKeys),
-    sections: asArray(edited.sections),
-    status,
-    visibility,
-    statusVisibility: toStatusVisibility(status, visibility),
-    version: Number(old.version || 0) + 1,
-    createdAt: old.createdAt || now,
-    createdBy: old.createdBy || uid,
-    updatedAt: now,
-    updatedBy: uid
+    ...old, ...edited, firebaseKey: edited.firebaseKey || old.firebaseKey,
+    songNo: Number(edited.songNo || 0), songTitle: String(edited.songTitle || "").trim(),
+    songLanguage: edited.songLanguage || "English", songCategory: edited.songCategory || "Worship",
+    tags: asArray(edited.tags ?? old.tags), aliases: asArray(edited.aliases ?? old.aliases),
+    preferredKeys: asArray(edited.preferredKeys ?? old.preferredKeys), sections: asArray(edited.sections),
+    status, visibility, statusVisibility: toStatusVisibility(status, visibility),
+    version: Number(old.version || 0) + 1, createdAt: old.createdAt || now,
+    createdBy: old.createdBy || uid, updatedAt: now, updatedBy: uid
   };
 }
 
 export function normalizeForDuplicate(value = "") {
   return String(value).normalize("NFC").toLocaleLowerCase()
-    .replace(/[\\p{P}\\p{S}]/gu, " ")
-    .replace(/\\s+/g, " ").trim();
+    .replace(/[\p{P}\p{S}]/gu, " ").replace(/\s+/g, " ").trim();
 }
 
 export function jaccardSimilarity(left, right) {
