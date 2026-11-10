@@ -99,3 +99,11 @@
 .android-verse-lyrics{display:block;width:100%;min-height:112px;resize:vertical;box-sizing:border-box;border:1px solid #e5ebe6;border-radius:7px;padding:11px;background:#fff;color:#26392d;font:13px/1.9 ui-monospace,monospace;white-space:pre-wrap}
 .android-verse-lyrics:focus{outline:0;border-color:#9bb9a2;box-shadow:0 0 0 2px #eaf2ec}
 .android-section-card{box-shadow:none}
+
+/* Small visible nudge controls for chord positioning */
+.android-chord-positioner{position:absolute;top:0;display:inline-flex;align-items:center;gap:2px;transform:translateX(-3px);z-index:2}
+.android-chord-positioner .android-chord-chip{position:static;transform:none}
+.android-chord-nudge{display:inline-grid;place-items:center;min-width:17px;height:19px;padding:0 3px;border:1px solid #dce6de;border-radius:4px;background:#fff;color:#315b43;font-size:11px;line-height:1;cursor:pointer}
+.android-chord-nudge:hover:not(:disabled){background:#eaf3ec;border-color:#a9c5af}
+.android-chord-nudge:disabled{opacity:.3;cursor:not-allowed}
+.android-chord-label-track{min-height:25px;overflow:visible}
