@@ -1,210 +1,32 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { lyricsFromSections, parseLyrics } from "./songData";
-import { detectSectionsFromLyrics, nextSectionTitle, normalizeChordIndex } from "./songEditorModel";
-
-const ROOTS_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const ROOTS_FLAT = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
-const QUALITY = [
-  ["Major", [""]], ["Minor", ["m"]], ["7th", ["7"]], ["m7", ["m7"]],
-  ["Maj7", ["maj7"]], ["Sus", ["sus2","sus4"]], ["Dim/Aug", ["dim","dim7","aug"]],
-  ["9th/13th", ["9","add9","11","13"]]
-];
-const normalizeChord = value => String(value || "").trim().replace(/♯/g,"#").replace(/♭/g,"b");
-
-export default function SongEditorWorkspace({ value = "", onChange }) {
-  const [sections, setSections] = useState(() => parseLyrics(value));
-  const [selected, setSelected] = useState(null);
-  const [quality, setQuality] = useState("Major");
-  const [flats, setFlats] = useState(false);
-  const [locked, setLocked] = useState(false);
-  const [preview, setPreview] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [history, setHistory] = useState(() => [parseLyrics(value)]);
-  const [historyIndex, setHistoryIndex] = useState(0);
-  const [detectText, setDetectText] = useState("");
-  const [showDetect, setShowDetect] = useState(false);
-  const [notice, setNotice] = useState("");
-  const dragRef = useRef(null);
-  const lastPublishedRef = useRef(value);
-  const roots = flats ? ROOTS_FLAT : ROOTS_SHARP;
-  const palette = useMemo(() => {
-    const suffixes = QUALITY.find(item => item[0] === quality)?.[1] || [""];
-    return roots.flatMap(item => suffixes.map(suffix => item + suffix));
-  }, [roots, quality]);
-  const chordName = normalizeChord(selected);
-
-  useEffect(() => {
-    if (value === lastPublishedRef.current) return;
-    lastPublishedRef.current = value;
-    const parsed = parseLyrics(value);
-    setSections(parsed);
-    setHistory([parsed]);
-    setHistoryIndex(0);
-  }, [value]);
-
-  const publish = next => {
-    const serialized = lyricsFromSections(next);
-    lastPublishedRef.current = serialized;
-    setSections(next);
-    onChange?.(serialized);
-  };
-  const commit = next => {
-    if (locked) return;
-    const updated = [...history.slice(0, historyIndex + 1), next].slice(-50);
-    setHistory(updated);
-    setHistoryIndex(updated.length - 1);
-    publish(next);
-    setNotice("");
-  };
-  const undo = () => {
-    if (locked || historyIndex <= 0) return;
-    const index = historyIndex - 1;
-    setHistoryIndex(index);
-    publish(history[index]);
-  };
-  const redo = () => {
-    if (locked || historyIndex >= history.length - 1) return;
-    const index = historyIndex + 1;
-    setHistoryIndex(index);
-    publish(history[index]);
-  };
-  const updateSection = (sectionIndex, nextSection) => {
-    const next = sections.map((section, index) => index === sectionIndex ? nextSection : section);
-    commit(next);
-  };
-  const updateLine = (sectionIndex, lineIndex, nextLine) => {
-    const section = sections[sectionIndex];
-    if (!section) return;
-    updateSection(sectionIndex, {
-      ...section,
-      lines: section.lines.map((line, index) => index === lineIndex ? nextLine : line)
-    });
-  };
-  const addSection = type => {
-    if (locked) return;
-    const title = nextSectionTitle(type, sections);
-    commit([...sections, { type: title.toUpperCase().split(/\s+/)[0], title, lines: [{ text: "", chords: [] }] }]);
-  };
-  const addLine = sectionIndex => {
-    const section = sections[sectionIndex];
-    if (section) updateSection(sectionIndex, { ...section, lines: [...section.lines, { text: "", chords: [] }] });
-  };
-  const duplicateSection = index => {
-    const source = sections[index];
-    if (!source || locked) return;
-    const copy = { ...source, title: source.title + " (copy)", lines: source.lines.map(line => ({ ...line, chords: line.chords.map(chord => ({ ...chord })) })) };
-    const next = [...sections];
-    next.splice(index + 1, 0, copy);
-    commit(next);
-  };
-  const moveSection = (index, delta) => {
-    const target = index + delta;
-    if (locked || target < 0 || target >= sections.length) return;
-    const next = [...sections];
-    [next[index], next[target]] = [next[target], next[index]];
-    commit(next);
-  };
-  const deleteSection = index => {
-    if (locked || !window.confirm("Delete this section and its chords?")) return;
-    commit(sections.filter((_, current) => current !== index));
-  };
-  const placeChord = (sectionIndex, lineIndex, charIndex) => {
-    if (locked || !selected) return;
-    const line = sections[sectionIndex]?.lines[lineIndex];
-    if (!line) return;
-    const index = normalizeChordIndex(line.chords, charIndex, line.text.length);
-    if (index < 0) { setNotice("No free character position remains on this line."); return; }
-    updateLine(sectionIndex, lineIndex, { ...line, chords: [...line.chords, { chordName, charIndex: index }].sort((a,b) => a.charIndex - b.charIndex) });
-  };
-  const moveChord = (from, to, charIndex) => {
-    if (locked) return;
-    const source = sections[from.section]?.lines[from.line];
-    const target = sections[to.section]?.lines[to.line];
-    if (!source || !target) return;
-    const chord = source.chords[from.chord];
-    if (!chord) return;
-    const sourceLines = sections.map(section => ({ ...section, lines: section.lines.map(line => ({ ...line, chords: line.chords.map(item => ({ ...item })) })) }));
-    sourceLines[from.section].lines[from.line].chords.splice(from.chord, 1);
-    const targetLine = sourceLines[to.section].lines[to.line];
-    const index = normalizeChordIndex(targetLine.chords, charIndex, targetLine.text.length);
-    if (index < 0) { setNotice("No free character position remains on the target line."); return; }
-    targetLine.chords.push({ ...chord, charIndex: index });
-    targetLine.chords.sort((a,b) => a.charIndex - b.charIndex);
-    commit(sourceLines);
-  };
-  const editChord = (sectionIndex, lineIndex, chordIndex, name) => {
-    const line = sections[sectionIndex]?.lines[lineIndex];
-    if (!line || !name.trim()) return;
-    updateLine(sectionIndex, lineIndex, { ...line, chords: line.chords.map((chord,index) => index === chordIndex ? { ...chord, chordName: normalizeChord(name) } : chord) });
-  };
-  const deleteChord = (sectionIndex, lineIndex, chordIndex) => {
-    const line = sections[sectionIndex]?.lines[lineIndex];
-    if (line) updateLine(sectionIndex, lineIndex, { ...line, chords: line.chords.filter((_,index) => index !== chordIndex) });
-  };
-  const clearChords = () => {
-    if (locked || !sections.some(section => section.lines.some(line => line.chords.length))) return;
-    if (window.confirm("Remove all chords from this song?")) commit(sections.map(section => ({ ...section, lines: section.lines.map(line => ({ ...line, chords: [] })) })));
-  };
-  const runDetection = () => {
-    const detected = detectSectionsFromLyrics(detectText);
-    if (!detected.length) { setNotice("No lyrics found. Add [Verse 1] headings or separate sections with blank lines."); return; }
-    const oldByText = new Map();
-    sections.forEach(section => section.lines.forEach(line => {
-      const key = line.text.trim().toLocaleLowerCase();
-      if (key && !oldByText.has(key)) oldByText.set(key, line);
-    }));
-    const preserved = detected.map(section => {
-      const previousSection = sections.find(item => item.title.trim().toLocaleLowerCase() === section.title.trim().toLocaleLowerCase());
-      return {
-        ...(previousSection || {}),
-        ...section,
-        lines: section.lines.map(line => {
-          const old = previousSection?.lines.find(item => item.text.trim() === line.text.trim()) || oldByText.get(line.text.trim().toLocaleLowerCase());
-          return old ? { ...old, ...line, chords: old.chords.map(chord => ({ ...chord })) } : line;
-        })
-      };
-    });
-    commit(preserved);
-    setShowDetect(false);
-    setNotice("Sections detected. Review the section cards before saving.");
-  };
-  const beginEdit = (sectionIndex,lineIndex,chordIndex,chord) => setEditing({sectionIndex,lineIndex,chordIndex,name:chord.chordName});
-
-  return <div className="android-song-workspace">
-    <div className="android-section-toolbar">
-      <div className="android-section-add">{["Verse","Chorus","Bridge","Intro","Outro","Pre-Chorus","Tag"].map(type => <button type="button" key={type} disabled={locked} onClick={() => addSection(type)}>＋ {type}</button>)}</div>
-      <button type="button" className="android-detect-button" disabled={locked} onClick={() => { setDetectText(value.replace(/\{[^}]+\}/g,"")); setShowDetect(true); }}>✦ Auto-detect from lyrics</button>
-    </div>
-    {showDetect && <div className="android-detect-panel"><label>Paste or edit the complete lyrics<textarea rows="7" value={detectText} onChange={event => setDetectText(event.target.value)} placeholder={"[Verse 1]\nLyrics…\n\n[Chorus]\nLyrics…"}/></label><div><button type="button" onClick={runDetection}>Detect sections</button><button type="button" className="quiet" onClick={() => setShowDetect(false)}>Cancel</button></div></div>}
-    <div className="android-chord-toolbar">
-      <div className="android-chord-actions">
-        <button type="button" disabled={locked || historyIndex===0} onClick={undo}>↶ Undo</button>
-        <button type="button" disabled={locked || historyIndex===history.length-1} onClick={redo}>↷ Redo</button>
-        <button type="button" onClick={() => setLocked(current => !current)}>{locked ? "🔒 Unlock" : "🔓 Lock"}</button>
-        <button type="button" onClick={() => { setFlats(current => !current); setSelected(null); }}>{flats ? "Use sharps" : "Use flats"}</button>
-        <button type="button" onClick={() => setPreview(current => !current)}>{preview ? "Edit workspace" : "Preview"}</button>
-        <button type="button" className="danger" disabled={locked} onClick={clearChords}>Clear chords</button>
-      </div>
-      <div className="android-chord-palette">
-        <label>Quality<select value={quality} onChange={event => { setQuality(event.target.value); setSelected(null); }}>{QUALITY.map(([name]) => <option key={name}>{name}</option>)}</select></label>
-        <div className="android-chord-roots">{palette.map(name => <button type="button" key={name} className={selected===name?"selected":""} onClick={() => setSelected(name)}>{name}</button>)}</div>
-      </div>
-      <p className="android-selected-chord">Selected chord: <b>{selected || "Choose a chord"}</b></p>
-    </div>
-    {notice && <p className="android-editor-notice">{notice}</p>}
-    {!sections.length && <div className="android-empty-sections">Add a section or use Auto-detect to organize your lyrics.</div>}
-    {!preview && <div className="android-section-list">{sections.map((section,sectionIndex) => <section className="android-section-card" key={sectionIndex}>
-      <header><input aria-label="Section title" value={section.title} disabled={locked} onChange={event => updateSection(sectionIndex,{...section,title:event.target.value,type:event.target.value.toUpperCase().split(/\s+/)[0]})}/><div className="android-section-actions"><button type="button" disabled={locked||sectionIndex===0} onClick={() => moveSection(sectionIndex,-1)} title="Move up">↑</button><button type="button" disabled={locked||sectionIndex===sections.length-1} onClick={() => moveSection(sectionIndex,1)} title="Move down">↓</button><button type="button" disabled={locked} onClick={() => duplicateSection(sectionIndex)} title="Duplicate">⧉</button><button type="button" disabled={locked} onClick={() => deleteSection(sectionIndex)} title="Delete">×</button></div></header>
-      {section.lines.map((line,lineIndex) => <div className="android-chord-line" key={lineIndex}>
-        <div className="android-chord-label-track" style={{minHeight:line.chords.length?25:5}}>
-          {line.chords.map((chord,chordIndex) => <button type="button" draggable={!locked} key={chordIndex} className="android-chord-chip" style={{left:(chord.charIndex*0.8)+"em"}} onContextMenu={event => {event.preventDefault();beginEdit(sectionIndex,lineIndex,chordIndex,chord);}} onClick={() => beginEdit(sectionIndex,lineIndex,chordIndex,chord)} onDragStart={event => {dragRef.current={section:sectionIndex,line:lineIndex,chord:chordIndex};event.dataTransfer.effectAllowed="move";}}>{chord.chordName}</button>)}
-        </div>
-        <textarea rows="1" className="android-chord-lyric" value={line.text} disabled={locked} onChange={event => {const text=event.target.value;updateLine(sectionIndex,lineIndex,{...line,text,chords:line.chords.map(chord=>({...chord,charIndex:Math.min(chord.charIndex,text.length)}))});}} onClick={event => placeChord(sectionIndex,lineIndex,event.currentTarget.selectionStart)} onDragOver={event => event.preventDefault()} onDrop={event => {event.preventDefault();if(dragRef.current){const rect=event.currentTarget.getBoundingClientRect(),index=Math.round((event.clientX-rect.left)/7.2);moveChord(dragRef.current,{section:sectionIndex,line:lineIndex},index);dragRef.current=null;}}} placeholder="Type lyrics here; choose a chord then tap a character position…" />
-        <div className="android-line-actions"><button type="button" disabled={locked} onClick={() => updateLine(sectionIndex,lineIndex,{...line,text:line.text,chords:line.chords})}>Line {lineIndex+1}</button><button type="button" disabled={locked} onClick={() => {if(window.confirm("Delete this lyric line?"))updateSection(sectionIndex,{...section,lines:section.lines.filter((_,index)=>index!==lineIndex)});}}>Delete line</button></div>
-      </div>)}
-      <button type="button" className="android-add-line" disabled={locked} onClick={() => addLine(sectionIndex)}>＋ Add lyric line</button>
-    </section>)}</div>}
-    {preview && <div className="android-song-preview">{sections.map((section,index)=><section key={index}><h4>{section.title}</h4>{section.lines.map((line,lineIndex)=><div className="android-preview-line" key={lineIndex}><div>{line.chords.map((chord,chordIndex)=><span key={chordIndex} style={{left:(chord.charIndex*0.6)+"em"}}>{chord.chordName}</span>)}</div><p>{line.text || " "}</p></div>)}</section>)}</div>}
-    {editing && <div className="android-chord-modal-backdrop" role="presentation" onClick={() => setEditing(null)}><form className="android-chord-modal" onSubmit={event => {event.preventDefault();editChord(editing.sectionIndex,editing.lineIndex,editing.chordIndex,editing.name);setEditing(null);}} onClick={event => event.stopPropagation()}><h4>Edit chord</h4><label>Chord name<input autoFocus value={editing.name} onChange={event => setEditing(current=>({...current,name:event.target.value}))}/></label><div><button type="submit">Save</button><button type="button" className="danger" onClick={() => {deleteChord(editing.sectionIndex,editing.lineIndex,editing.chordIndex);setEditing(null);}}>Delete</button><button type="button" className="quiet" onClick={() => setEditing(null)}>Cancel</button></div></form></div>}
-  </div>;
+import React,{useEffect,useMemo,useState}from"react";
+import{detectSectionsFromLyrics,nextSectionTitle,normalizeChordIndex,normalizeSections}from"./songEditorModel";
+const SHARP=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],FLAT=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"],QUALITY=[["Major",[""]],["Minor",["m"]],["7th",["7"]],["m7",["m7"]],["Maj7",["maj7"]],["Sus",["sus2","sus4"]],["Dim/Aug",["dim","dim7","aug"]],["9th/13th",["9","add9","11","13"]]];
+const chordNorm=v=>String(v||"").trim().replace(/♯/g,"#").replace(/♭/g,"b"),clone=v=>normalizeSections(v).map(s=>({...s,lines:s.lines.map(l=>({...l,chords:l.chords.map(c=>({...c}))}))}));
+export default function SongEditorWorkspace({value=[],onChange}){
+ const[sections,S]=useState(()=>clone(value)),[selected,SS]=useState(null),[quality,SQ]=useState("Major"),[flats,SF]=useState(false),[locked,SL]=useState(false),[preview,SP]=useState(false),[editing,SE]=useState(null),[history,SH]=useState(()=>[clone(value)]),[hi,SI]=useState(0),[raw,SR]=useState(""),[importOpen,SIO]=useState(false),[notice,SN]=useState("");
+ const roots=flats?FLAT:SHARP,palette=useMemo(()=>{const suffix=QUALITY.find(x=>x[0]===quality)?.[1]||[""];return roots.flatMap(r=>suffix.map(s=>r+s));},[roots,quality]),chordName=chordNorm(selected);
+ useEffect(()=>{const n=clone(value);S(n);SH([n]);SI(0);},[value]);
+ const publish=n=>{const safe=clone(n);S(safe);onChange?.(safe);},commit=n=>{if(locked)return;const safe=clone(n),h=[...history.slice(0,hi+1),safe].slice(-50);SH(h);SI(h.length-1);publish(safe);SN("");};
+ const undo=()=>{if(!locked&&hi>0){const i=hi-1;SI(i);publish(history[i]);}},redo=()=>{if(!locked&&hi<history.length-1){const i=hi+1;SI(i);publish(history[i]);}};
+ const updateSection=(si,n)=>commit(sections.map((s,i)=>i===si?n:s)),updateLine=(si,li,n)=>{const s=sections[si];if(s)updateSection(si,{...s,lines:s.lines.map((l,i)=>i===li?n:l)});};
+ const addSection=t=>{if(locked)return;const title=nextSectionTitle(t,sections);commit([...sections,{type:title.toUpperCase().split(/\s+/)[0],title,lines:[{text:"",chords:[]}]}]);},addLine=si=>{const s=sections[si];if(s)updateSection(si,{...s,lines:[...s.lines,{text:"",chords:[]}]});};
+ const removeSection=i=>{if(!locked&&window.confirm("Delete this section and its chords?"))commit(sections.filter((_,x)=>x!==i));};
+ const place=(si,li,requested)=>{if(locked||!selected)return;const l=sections[si]?.lines[li];if(!l||!l.text){SN("Enter lyrics before attaching chords.");return;}const prefix=l.text.slice(0,Math.max(0,Math.min(requested,l.text.length))),m=prefix.match(/\S*$/),word=m?prefix.length-m[0].length:Math.max(0,Math.min(requested,l.text.length-1)),idx=normalizeChordIndex(l.chords,word,l.text.length);if(idx<0){SN("That word already has a chord. Edit or reposition it.");return;}updateLine(si,li,{...l,chords:[...l.chords,{chordName,charIndex:idx}].sort((a,b)=>a.charIndex-b.charIndex)});SN(chordName+" attached.");};
+ const edit=(si,li,ci,name,index)=>{const l=sections[si]?.lines[li];if(!l||!name.trim())return;const ix=Math.max(0,Math.min(Math.max(0,l.text.length-1),Number(index)||0));updateLine(si,li,{...l,chords:l.chords.map((c,i)=>i===ci?{...c,chordName:chordNorm(name),charIndex:ix}:c).sort((a,b)=>a.charIndex-b.charIndex)});},removeChord=(si,li,ci)=>{const l=sections[si]?.lines[li];if(l)updateLine(si,li,{...l,chords:l.chords.filter((_,i)=>i!==ci)});};
+ const clear=()=>{if(!locked&&sections.some(s=>s.lines.some(l=>l.chords.length))&&window.confirm("Remove all chords?"))commit(sections.map(s=>({...s,lines:s.lines.map(l=>({...l,chords:[]}))})));};
+ const organize=()=>{const detected=detectSectionsFromLyrics(raw);if(!detected.length){SN("No lyrics detected. Use [Verse 1] headings or blank-line separation.");return;}const old=new Map();sections.forEach(s=>s.lines.forEach(l=>{const k=l.text.trim().toLowerCase();if(k&&!old.has(k))old.set(k,l);}));const result=detected.map(s=>{const prev=sections.find(x=>x.title.toLowerCase()===s.title.toLowerCase());return{...s,lines:s.lines.map(l=>{const p=prev?.lines.find(x=>x.text.trim()===l.text.trim())||old.get(l.text.trim().toLowerCase());return p?{...l,chords:p.chords.map(c=>({...c}))}:l;})};});commit(result);SIO(false);SN("Lyrics organized. Add chords to individual words.");};
+ return <div className="android-song-workspace">
+ <div className="android-section-toolbar"><div className="android-section-add">{["Verse","Chorus","Bridge","Intro","Outro","Pre-Chorus","Tag"].map(t=><button type="button" key={t} disabled={locked} onClick={()=>addSection(t)}>＋ {t}</button>)}</div><button type="button" className="android-detect-button" disabled={locked} onClick={()=>{SR(sections.map(s=>"[ "+s.title+" ]\n"+s.lines.map(l=>l.text).join("\n")).join("\n\n"));SIO(true);}}>＋ Add / import lyrics</button></div>
+ {importOpen&&<div className="android-detect-panel"><label>Paste lyrics and optional section headings<textarea rows="8" value={raw} onChange={e=>SR(e.target.value)} placeholder={"[Verse 1]\nLyrics here…\n\n[Chorus]\nLyrics here…"}/></label><div><button type="button" onClick={organize}>Organize lyrics</button><button type="button" className="quiet" onClick={()=>SIO(false)}>Cancel</button></div></div>}
+ <div className="android-chord-toolbar"><div className="android-chord-actions"><button type="button" disabled={locked||hi===0} onClick={undo}>↶ Undo</button><button type="button" disabled={locked||hi===history.length-1} onClick={redo}>↷ Redo</button><button type="button" onClick={()=>SL(x=>!x)}>{locked?"Unlock editing":"Lock editing"}</button><button type="button" onClick={()=>{SF(x=>!x);SS(null);}}>{flats?"Use sharps":"Use flats"}</button><button type="button" onClick={()=>SP(x=>!x)}>{preview?"Edit":"Preview"}</button><button type="button" className="danger" disabled={locked} onClick={clear}>Clear chords</button></div><div className="android-chord-palette"><label>Chord type<select value={quality} onChange={e=>{SQ(e.target.value);SS(null);}}>{QUALITY.map(([n])=><option key={n}>{n}</option>)}</select></label><div className="android-chord-roots">{palette.map(n=><button type="button" key={n} className={selected===n?"selected":""} onClick={()=>SS(n)}>{n}</button>)}</div></div><p className="android-selected-chord">Selected chord: <b>{selected||"None"}</b> <span>Choose a chord, then click a word in the lyric line.</span></p></div>
+ {notice&&<p className="android-editor-notice">{notice}</p>}{!sections.length&&<div className="android-empty-sections">Import lyrics or add a section to begin.</div>}
+ {!preview&&<div className="android-section-list">{sections.map((s,si)=><section className="android-section-card" key={si}><header><input aria-label="Section title" value={s.title} disabled={locked} onChange={e=>updateSection(si,{...s,title:e.target.value,type:e.target.value.toUpperCase().split(/\s+/)[0]})}/><div className="android-section-actions"><button type="button" disabled={locked||si===0} onClick={()=>{const n=[...sections];[n[si],n[si-1]]=[n[si-1],n[si]];commit(n);}}>↑</button><button type="button" disabled={locked||si===sections.length-1} onClick={()=>{const n=[...sections];[n[si],n[si+1]]=[n[si+1],n[si]];commit(n);}}>↓</button><button type="button" disabled={locked} onClick={()=>{const n=[...sections];n.splice(si+1,0,{...s,title:s.title+" (copy)",lines:s.lines.map(l=>({...l,chords:l.chords.map(c=>({...c}))}))});commit(n);}}>⧉</button><button type="button" disabled={locked} onClick={()=>removeSection(si)}>×</button></div></header>
+ {s.lines.map((l,li)=><div className="android-chord-line" key={li}><div className="android-chord-label-track" style={{minHeight:l.chords.length?25:5}}>{l.chords.map((c,ci)=><button type="button" key={ci} className="android-chord-chip" style={{left:(c.charIndex*.62)+"em"}} onClick={()=>SE({si,li,ci,name:c.chordName,charIndex:c.charIndex})}>{c.chordName}</button>)}</div>
+ <div className="android-lyric-word-line" onClick={e=>{if(locked||!selected)return;const range=document.caretRangeFromPoint?.(e.clientX,e.clientY);if(range?.startContainer?.nodeType===Node.TEXT_NODE)place(si,li,range.startOffset);}} title={selected?"Click a word to attach "+selected:"Select a chord, then click a word"}><span>{l.text||"Add lyric text…"}</span></div>
+ <textarea rows="2" className="android-lyric-edit" value={l.text} disabled={locked} aria-label={"Edit lyrics "+s.title+" line "+(li+1)} onChange={e=>{const text=e.target.value;updateLine(si,li,{...l,text,chords:l.chords.map(c=>({...c,charIndex:Math.min(c.charIndex,Math.max(0,text.length-1))}))});}} placeholder="Edit lyrics separately from chord placement…"/>
+ <div className="android-line-actions"><span>Line {li+1}</span><button type="button" disabled={locked} onClick={()=>{if(window.confirm("Delete lyric line?"))updateSection(si,{...s,lines:s.lines.filter((_,i)=>i!==li)});}}>Delete line</button></div></div>)}
+ <button type="button" className="android-add-line" disabled={locked} onClick={()=>addLine(si)}>＋ Add lyric line</button></section>)}</div>}
+ {preview&&<div className="android-song-preview">{sections.map((s,i)=><section key={i}><h4>{s.title}</h4>{s.lines.map((l,j)=><div className="android-preview-line" key={j}><div>{l.chords.map((c,k)=><span key={k} style={{left:(c.charIndex*.62)+"em"}}>{c.chordName}</span>)}</div><p>{l.text||" "}</p></div>)}</section>)}</div>}
+ {editing&&<div className="android-chord-modal-backdrop" role="presentation" onClick={()=>SE(null)}><form className="android-chord-modal" onSubmit={e=>{e.preventDefault();edit(editing.si,editing.li,editing.ci,editing.name,editing.charIndex);SE(null);}} onClick={e=>e.stopPropagation()}><h4>Edit chord</h4><label>Chord name<input autoFocus value={editing.name} onChange={e=>SE(x=>({...x,name:e.target.value}))}/></label><label>Character position<input type="number" min="0" value={editing.charIndex} onChange={e=>SE(x=>({...x,charIndex:Number(e.target.value)}))}/></label><div><button type="submit">Save chord</button><button type="button" className="danger" onClick={()=>{removeChord(editing.si,editing.li,editing.ci);SE(null);}}>Delete</button><button type="button" className="quiet" onClick={()=>SE(null)}>Cancel</button></div></form></div>}
+ </div>;
 }
