@@ -14,7 +14,6 @@ const normalizeChord = value => String(value || "").trim().replace(/♯/g,"#").r
 export default function SongEditorWorkspace({ value = "", onChange }) {
   const [sections, setSections] = useState(() => parseLyrics(value));
   const [selected, setSelected] = useState("G");
-  const [root, setRoot] = useState("G");
   const [quality, setQuality] = useState("Major");
   const [flats, setFlats] = useState(false);
   const [locked, setLocked] = useState(false);
@@ -184,7 +183,7 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
       </div>
       <div className="android-chord-palette">
         <label>Quality<select value={quality} onChange={event => setQuality(event.target.value)}>{QUALITY.map(([name]) => <option key={name}>{name}</option>)}</select></label>
-        <div className="android-chord-roots">{palette.map(name => <button type="button" key={name} className={selected===name?"selected":""} onClick={() => {setRoot(name.replace(/(maj7|m7|sus2|sus4|dim7|add9|dim|aug|13|11|9|7|m)$/,""));setSelected(name);}}>{name}</button>)}</div>
+        <div className="android-chord-roots">{palette.map(name => <button type="button" key={name} className={selected===name?"selected":""} onClick={() => setSelected(name)}>{name}</button>)}</div>
       </div>
       <p className="android-selected-chord">Selected chord: <b>{selected || "Choose a chord"}</b></p>
     </div>
@@ -196,7 +195,7 @@ export default function SongEditorWorkspace({ value = "", onChange }) {
         <div className="android-chord-label-track" style={{minHeight:line.chords.length?25:5}}>
           {line.chords.map((chord,chordIndex) => <button type="button" draggable={!locked} key={chordIndex} className="android-chord-chip" style={{left:(chord.charIndex*0.6)+"em"}} onContextMenu={event => {event.preventDefault();beginEdit(sectionIndex,lineIndex,chordIndex,chord);}} onClick={() => beginEdit(sectionIndex,lineIndex,chordIndex,chord)} onDragStart={event => {dragRef.current={section:sectionIndex,line:lineIndex,chord:chordIndex};event.dataTransfer.effectAllowed="move";}}>{chord.chordName}</button>)}
         </div>
-        <textarea rows="1" className="android-chord-lyric" value={line.text} disabled={locked} onChange={event => {const text=event.target.value;updateLine(sectionIndex,lineIndex,{...line,text,chords:line.chords.map(chord=>({...chord,charIndex:Math.min(chord.charIndex,text.length)}))});}} onClick={event => placeChord(sectionIndex,lineIndex,event.currentTarget.selectionStart)} onDragOver={event => event.preventDefault()} onDrop={event => {event.preventDefault();if(dragRef.current){const rect=event.currentTarget.getBoundingClientRect(),ratio=(event.clientX-rect.left)/Math.max(1,rect.width);moveChord(dragRef.current,{section:sectionIndex,line:lineIndex},Math.round(ratio*line.text.length));dragRef.current=null;}}} placeholder="Type lyrics here; choose a chord then tap a character position…"} />
+        <textarea rows="1" className="android-chord-lyric" value={line.text} disabled={locked} onChange={event => {const text=event.target.value;updateLine(sectionIndex,lineIndex,{...line,text,chords:line.chords.map(chord=>({...chord,charIndex:Math.min(chord.charIndex,text.length)}))});}} onClick={event => placeChord(sectionIndex,lineIndex,event.currentTarget.selectionStart)} onDragOver={event => event.preventDefault()} onDrop={event => {event.preventDefault();if(dragRef.current){const rect=event.currentTarget.getBoundingClientRect(),index=Math.round((event.clientX-rect.left)/7.2);moveChord(dragRef.current,{section:sectionIndex,line:lineIndex},index);dragRef.current=null;}}} placeholder="Type lyrics here; choose a chord then tap a character position…"} />
         <div className="android-line-actions"><button type="button" disabled={locked} onClick={() => updateLine(sectionIndex,lineIndex,{...line,text:line.text,chords:line.chords})}>Line {lineIndex+1}</button><button type="button" disabled={locked} onClick={() => {if(window.confirm("Delete this lyric line?"))updateSection(sectionIndex,{...section,lines:section.lines.filter((_,index)=>index!==lineIndex)});}}>Delete line</button></div>
       </div>)}
       <button type="button" className="android-add-line" disabled={locked} onClick={() => addLine(sectionIndex)}>＋ Add lyric line</button>
