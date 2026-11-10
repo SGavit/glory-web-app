@@ -251,3 +251,8 @@ function App() {
 }
 
 export default App;
+
+
+## Glory CMS
+
+See [CMS setup and security checklist](docs/CMS_SETUP.md) for the new public worship portal, admin routes, Firebase paths, and production prerequisites.
