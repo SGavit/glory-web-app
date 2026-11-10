@@ -1,12 +1,13 @@
-import React,{useEffect,useMemo,useState}from"react";
+import React,{useEffect,useMemo,useRef,useState}from"react";
 import{detectSectionsFromLyrics,nextSectionTitle,normalizeChordIndex,normalizeSections}from"./songEditorModel";
 const SHARP=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],FLAT=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"],QUALITY=[["Major",[""]],["Minor",["m"]],["7th",["7"]],["m7",["m7"]],["Maj7",["maj7"]],["Sus",["sus2","sus4"]],["Dim/Aug",["dim","dim7","aug"]],["9th/13th",["9","add9","11","13"]]];
 const chordNorm=v=>String(v||"").trim().replace(/♯/g,"#").replace(/♭/g,"b"),clone=v=>normalizeSections(v).map(s=>({...s,lines:s.lines.map(l=>({...l,chords:l.chords.map(c=>({...c}))}))}));
 export default function SongEditorWorkspace({value=[],onChange}){
  const[sections,S]=useState(()=>clone(value)),[selected,SS]=useState(null),[quality,SQ]=useState("Major"),[flats,SF]=useState(false),[locked,SL]=useState(false),[preview,SP]=useState(false),[editing,SE]=useState(null),[history,SH]=useState(()=>[clone(value)]),[hi,SI]=useState(0),[raw,SR]=useState(""),[importOpen,SIO]=useState(false),[notice,SN]=useState("");
+ const lastPublishedRef=useRef(JSON.stringify(clone(value)));
  const roots=flats?FLAT:SHARP,palette=useMemo(()=>{const suffix=QUALITY.find(x=>x[0]===quality)?.[1]||[""];return roots.flatMap(r=>suffix.map(s=>r+s));},[roots,quality]),chordName=chordNorm(selected);
- useEffect(()=>{const n=clone(value);S(n);SH([n]);SI(0);},[value]);
- const publish=n=>{const safe=clone(n);S(safe);onChange?.(safe);},commit=n=>{if(locked)return;const safe=clone(n),h=[...history.slice(0,hi+1),safe].slice(-50);SH(h);SI(h.length-1);publish(safe);SN("");};
+ useEffect(()=>{const n=clone(value),serialized=JSON.stringify(n);if(serialized===lastPublishedRef.current)return;lastPublishedRef.current=serialized;S(n);SH([n]);SI(0);},[value]);
+ const publish=n=>{const safe=clone(n);lastPublishedRef.current=JSON.stringify(safe);S(safe);onChange?.(safe);},commit=n=>{if(locked)return;const safe=clone(n),h=[...history.slice(0,hi+1),safe].slice(-50);SH(h);SI(h.length-1);publish(safe);SN("");};
  const undo=()=>{if(!locked&&hi>0){const i=hi-1;SI(i);publish(history[i]);}},redo=()=>{if(!locked&&hi<history.length-1){const i=hi+1;SI(i);publish(history[i]);}};
  const updateSection=(si,n)=>commit(sections.map((s,i)=>i===si?n:s)),updateLine=(si,li,n)=>{const s=sections[si];if(s)updateSection(si,{...s,lines:s.lines.map((l,i)=>i===li?n:l)});};
  const addSection=t=>{if(locked)return;const title=nextSectionTitle(t,sections);commit([...sections,{type:title.toUpperCase().split(/\s+/)[0],title,lines:[{text:"",chords:[]}]}]);},addLine=si=>{const s=sections[si];if(s)updateSection(si,{...s,lines:[...s.lines,{text:"",chords:[]}]});};
