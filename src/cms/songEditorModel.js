@@ -1,12 +1,12 @@
 const asArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
 
-const cleanText = value => String(value || "").replace(/\\{[^}]+\\}/g, "").replace(/\\r\\n?/g, "\\n");
+const cleanText = value => String(value || "").replace(/\{[^}]+\}/g, "").replace(/\r\n?/g, "\n");
 
 export function detectSectionsFromLyrics(input) {
   const source = cleanText(input).trim();
   if (!source) return [];
-  const lines = source.split("\\n");
-  const hasHeadings = lines.some(line => /^\\s*\\[[^\\]]+\\]\\s*$/.test(line));
+  const lines = source.split("\n");
+  const hasHeadings = lines.some(line => /^\s*\[[^\]]+\]\s*$/.test(line));
   const sections = [];
 
   if (hasHeadings) {
@@ -15,11 +15,11 @@ export function detectSectionsFromLyrics(input) {
       if (current && current.lines.length) sections.push(current);
     };
     lines.forEach(raw => {
-      const heading = raw.match(/^\\s*\\[([^\\]]+)\\]\\s*$/);
+      const heading = raw.match(/^\s*\[([^\]]+)\]\s*$/);
       if (heading) {
         finish();
         const title = heading[1].trim();
-        current = { type: title.toUpperCase().split(/\\s+/)[0], title, lines: [] };
+        current = { type: title.toUpperCase().split(/\s+/)[0], title, lines: [] };
       } else if (current && raw.trim()) {
         current.lines.push({ text: raw.trimEnd(), chords: [] });
       }
@@ -28,8 +28,8 @@ export function detectSectionsFromLyrics(input) {
     return sections;
   }
 
-  const blocks = source.split(/\\n\\s*\\n+/)
-    .map(block => block.split("\\n").map(line => line.trimEnd()).filter(line => line.trim()))
+  const blocks = source.split(/\n\s*\n+/)
+    .map(block => block.split("\n").map(line => line.trimEnd()).filter(line => line.trim()))
     .filter(block => block.length);
   return blocks.map((block, index) => ({
     type: "VERSE",
@@ -42,7 +42,7 @@ export function nextSectionTitle(type, sections) {
   const standard = String(type || "Verse").trim();
   if (!/^(verse|chorus)$/i.test(standard)) return standard;
   const numbers = asArray(sections).map(section => {
-    const match = String(section.title || "").match(new RegExp("^" + standard + "\\s+(\\d+)$", "i"));
+    const match = String(section.title || "").match(new RegExp("^" + standard + "\s+(\d+)$", "i"));
     return match ? Number(match[1]) : 0;
   });
   return standard[0].toUpperCase() + standard.slice(1).toLowerCase() + " " + (Math.max(0, ...numbers) + 1);
