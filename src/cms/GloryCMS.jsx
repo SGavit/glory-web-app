@@ -110,7 +110,68 @@ function DailyVerses(){
 }
 
 function Settings(){const {value:s}=useData("songs"),{value:d,error}=useData("dailyVerses");const verses=Object.values(d||{}),active=verses.filter(x=>x?.active===true).length;return <><Heading title="System settings" sub="Firebase-backed content health and configuration."/><div className="stats">{[["Firebase project","glory-68505"],["Song records",Object.keys(s||{}).length],["Active daily verses",active],["Connection","Live"]].map(x=><div className="stat" key={x[0]}><small>{x[0]}</small><strong>{x[1]}</strong></div>)}</div><section className="panel editor daily"><h3>Daily Verse collection</h3><p className="hint">Daily scripture content is managed in the dedicated multilingual collection. The legacy /dailyVerse node is left untouched for rollback compatibility.</p>{error&&<p className="error-box">{error}</p>}<p><b>{verses.length}</b> total verses · <b>{active}</b> active in rotation</p><Link className="primary-btn" to="/admin/daily-verses">Manage Daily Verses →</Link></section><p className="notice">CMS does not change Firebase rules or Cloud Functions. Verify least-privilege rules for all managed RTDB paths before production.</p></>;}
-function PublicHome(){const {value:s}=usePublicSongs(),{value:d}=useData("dailyVerse"),[q,Q]=useState(""),rows=Object.entries(s||{}).map(([id,v])=>norm(id,v)).filter(x=>[x.songTitle,x.songLanguage,x.songCategory].join(" ").toLowerCase().includes(q.toLowerCase()));return <div className="public"><header><Link to="/" className="public-brand"><span className="brand-mark small">G</span> Glory</Link><Link className="secondary-btn" to="/login">Editor sign in</Link></header><section className="hero"><small>A LIBRARY FOR WORSHIP</small><h1>Sing with one heart.</h1><p>Find the songs, lyrics and chords that bring your community together.</p><input value={q} onChange={e=>Q(e.target.value)} placeholder="Search songs, languages or categories…"/></section>{d&&<section className="daily"><small>TODAY'S VERSE</small><p>“{d.text}”</p><b>{d.reference}</b></section>}<section className="library"><h2>Explore songs</h2><div className="public-grid">{rows.map(x=><Link to={"/song/"+x.firebaseKey} key={x.firebaseKey}><b>♫　{x.songTitle}</b><small>{x.songLanguage} · {x.songCategory}</small></Link>)}</div>{!rows.length&&<Empty title="No published songs found" text="Published public songs will appear here."/>}</section><footer>GLORY · WORSHIP LIBRARY</footer></div>;}
+const DEVANAGARI_LETTERS=["अ","आ","इ","ई","उ","ऊ","ए","ऐ","ओ","औ","क","ख","ग","घ","ङ","च","छ","ज","झ","ञ","ट","ठ","ड","ढ","ण","त","थ","द","ध","न","प","फ","ब","भ","म","य","र","ल","व","श","ष","स","ह"];
+const ENGLISH_LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+function PublicHome(){
+ const {value:s,error}=usePublicSongs(),{value:d}=useData("dailyVerse");
+ const [queryText,setQueryText]=useState(""),[activeTab,setActiveTab]=useState("songs"),[script,setScript]=useState("devanagari");
+ const [language,setLanguage]=useState("ALL"),[category,setCategory]=useState("ALL"),[sort,setSort]=useState("title"),[letter,setLetter]=useState(""),[visibleCount,setVisibleCount]=useState(12);
+ const allSongs=Object.entries(s||{}).map(([id,v])=>norm(id,v));
+ const languages=[...new Set(allSongs.map(x=>x.songLanguage).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ const categories=[...new Set(allSongs.map(x=>x.songCategory).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ const getFirstLetter=title=>{const value=String(title||"").trim();return value?Array.from(value)[0].toLocaleUpperCase():"";};
+ const isDevanagari=title=>/[\\u0900-\\u097F]/.test(String(title||"").trim());
+ const filtered=allSongs.filter(song=>{
+  const title=String(song.songTitle||"");
+  const matchesScript=script==="devanagari"?isDevanagari(title):!isDevanagari(title);
+  const matchesQuery=[song.songTitle,song.songNo,song.artist,song.author,song.songLanguage,song.songCategory].join(" ").toLocaleLowerCase().includes(queryText.trim().toLocaleLowerCase());
+  const matchesLanguage=language==="ALL"||song.songLanguage===language;
+  const matchesCategory=category==="ALL"||song.songCategory===category;
+  const matchesLetter=!letter||getFirstLetter(title)===letter;
+  return matchesScript&&matchesQuery&&matchesLanguage&&matchesCategory&&matchesLetter;
+ }).sort((a,b)=>{
+  if(sort==="title")return String(a.songTitle||"").localeCompare(String(b.songTitle||""),undefined,{sensitivity:"base"});
+  if(sort==="number")return (Number(a.songNo)||Infinity)-(Number(b.songNo)||Infinity)||String(a.songTitle||"").localeCompare(String(b.songTitle||""));
+  if(sort==="language")return String(a.songLanguage||"").localeCompare(String(b.songLanguage||""))||String(a.songTitle||"").localeCompare(String(b.songTitle||""));
+  if(sort==="recent")return (Number(b.updatedAt)||0)-(Number(a.updatedAt)||0);
+  return 0;
+ });
+ const letters=script==="devanagari"?DEVANAGARI_LETTERS:ENGLISH_LETTERS;
+ const availableLetters=new Set(allSongs.filter(song=>script==="devanagari"?isDevanagari(song.songTitle):!isDevanagari(song.songTitle)).map(song=>getFirstLetter(song.songTitle)));
+ const shown=filtered.slice(0,visibleCount);
+ const updateFilter=(setter,value)=>{setter(value);setVisibleCount(12);};
+ return <div className="public">
+  <header><Link to="/" className="public-brand"><span className="brand-mark small">G</span><span>Glory</span></Link><nav className="public-header-links"><a href="#explore">Explore</a><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
+  <section className="hero"><span className="hero-kicker">A LIBRARY FOR WORSHIP</span><h1>Sing with <em>one heart.</em></h1><p>Find the songs, lyrics and chords that bring your community together.</p>
+   <div className="public-search"><span aria-hidden="true">⌕</span><input value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Search songs, lyrics, language or category…" aria-label="Search songs"/>{queryText&&<button type="button" onClick={()=>updateFilter(setQueryText,"")} aria-label="Clear search">×</button>}<kbd>⌘ K</kbd></div>
+   <div className="hero-meta"><span>♫ {allSongs.length} songs in the library</span><span>·</span><span>Multiple languages</span></div>
+  </section>
+  {d&&<section className="daily"><small>TODAY'S VERSE</small><p>“{d.text}”</p><b>{d.reference}</b></section>}
+  <section className="library" id="explore">
+   <div className="library-heading"><div><span className="section-kicker">DISCOVER THE COLLECTION</span><h2>Explore the library</h2><p>Browse worship songs or find one by its first letter.</p></div><span className="library-count">{filtered.length} {filtered.length===1?"song":"songs"}</span></div>
+   <div className="public-tabs" role="tablist" aria-label="Library browsing mode">
+    <button type="button" role="tab" aria-selected={activeTab==="songs"} className={activeTab==="songs"?"active":""} onClick={()=>{setActiveTab("songs");setLetter("");setVisibleCount(12);}}>♫ <span>Songs</span></button>
+    <button type="button" role="tab" aria-selected={activeTab==="letters"} className={activeTab==="letters"?"active":""} onClick={()=>{setActiveTab("letters");setLetter("");setVisibleCount(12);}}>⌗ <span>Letters</span></button>
+   </div>
+   <div className="public-controls">
+    <label className="public-filter search-filter"><span>Search</span><div className="filter-search"><span>⌕</span><input value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Song title, number or artist"/></div></label>
+    <label className="public-filter"><span>Language</span><select value={language} onChange={e=>updateFilter(setLanguage,e.target.value)}><option value="ALL">All languages</option>{languages.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+    <label className="public-filter"><span>Category</span><select value={category} onChange={e=>updateFilter(setCategory,e.target.value)}><option value="ALL">All categories</option>{categories.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+    <label className="public-filter"><span>Sort by</span><select value={sort} onChange={e=>updateFilter(setSort,e.target.value)}><option value="title">Title (A–Z)</option><option value="number">Song number</option><option value="language">Language</option><option value="recent">Recently updated</option></select></label>
+    {(language!=="ALL"||category!=="ALL"||queryText||letter)&&<button className="clear-filters" type="button" onClick={()=>{setQueryText("");setLanguage("ALL");setCategory("ALL");setLetter("");setVisibleCount(12);}}>Clear filters</button>}
+   </div>
+   {activeTab==="letters"&&<div className="letter-browser"><div className="letter-browser-head"><div><b>Browse by first letter</b><small>Choose the writing system used by song titles.</small></div><div className="script-switch" role="group" aria-label="Letter script"><button type="button" className={script==="devanagari"?"active":""} onClick={()=>{setScript("devanagari");setLetter("");setVisibleCount(12);}}>देवनागरी</button><button type="button" className={script==="english"?"active":""} onClick={()=>{setScript("english");setLetter("");setVisibleCount(12);}}>English</button></div></div>
+    <div className="letter-list">{letters.map(char=><button type="button" key={char} disabled={!availableLetters.has(char)} className={letter===char?"selected":""} onClick={()=>updateFilter(setLetter,letter===char?"":char)}>{char}</button>)}</div>
+    <p className="letter-hint">{letter?<>Showing titles beginning with <b>{letter}</b>. <button type="button" onClick={()=>setLetter("")}>Show all letters</button></>:"Select a letter to narrow the song list."}</p>
+   </div>}
+   {error&&<p className="error-box">{error}</p>}
+   <div className="public-results-head"><span>{activeTab==="letters"?(letter?"Songs under "+letter:"All songs in selected script"):"All published songs"}</span><span>Showing {shown.length} of {filtered.length}</span></div>
+   {shown.length?<div className="public-grid">{shown.map((song,index)=><Link to={"/song/"+song.firebaseKey} key={song.firebaseKey} className="public-song-card"><span className="song-card-index">{String(index+1).padStart(2,"0")}</span><span className="song-card-main"><b>{song.songTitle}</b><small>{song.songLanguage||"Language not set"} <i>·</i> {song.songCategory||"Uncategorized"}</small></span><span className="song-card-arrow">↗</span></Link>)}</div>:<div className="public-empty"><span>♫</span><b>No songs found</b><p>Try another search, letter or filter to explore the library.</p><button type="button" onClick={()=>{setQueryText("");setLanguage("ALL");setCategory("ALL");setLetter("");}}>Reset search and filters</button></div>}
+   {shown.length<filtered.length&&<div className="load-more-wrap"><button type="button" className="load-more" onClick={()=>setVisibleCount(n=>n+12)}>Load 12 more songs <span>↓</span></button></div>}
+  </section>
+  <footer><span className="brand-mark small">G</span><b>Glory</b><span>Made for worship, shared in community.</span><small>GLORY · WORSHIP LIBRARY</small></footer>
+ </div>;
+}
 function PublicSong(){const {id}=useParams(),{value}=usePublicSongs(),s=value?.[id]&&norm(id,value[id]);return <div className="public-reader"><Link to="/">← Glory library</Link>{s?<article><small>{s.songLanguage} · {s.songCategory}</small><h1>{s.songTitle}</h1><p>{s.originalKey}{s.tempo?" · "+s.tempo+" BPM":""}</p>{s.sections.map((x,i)=><section key={i}><h3>{x.title}</h3>{x.lines.map((l,j)=><p key={j}>{l.text}</p>)}</section>)}</article>:<p>Loading song…</p>}</div>;}
 function Setlist(){const {shareId}=useParams(),{value}=useData("sharedSetlists/"+shareId),{value:songs}=usePublicSongs();return <div className="public-reader"><Link to="/">← Glory</Link><article><small>SHARED WORSHIP SETLIST</small><h1>{value?.name||value?.title||"Worship setlist"}</h1>{arr(value?.songs||value?.items).map((x,i)=>{let id=typeof x==="string"?x:x.songId||x.id;return <p key={i}>{i+1}.　{songs?.[id]?.songTitle||x.title||id}</p>;})}{!value&&<p>Loading setlist…</p>}</article></div>;}
 function Admin(){return <Shell><Routes><Route path="dashboard" element={<Dashboard/>}/><Route path="songs" element={<Songs/>}/><Route path="songs/new" element={<Guard permission="create"><SongEditor create/></Guard>}/><Route path="songs/:id/edit" element={<Guard permission="edit"><SongEditor/></Guard>}/><Route path="songs/:id/history" element={<History/>}/><Route path="reports" element={<Reports/>}/><Route path="taxonomy" element={<Guard permission="taxonomy"><Taxonomy/></Guard>}/><Route path="daily-verses" element={<Guard permission="dailyVerses"><DailyVerses/></Guard>}/><Route path="users" element={<Guard permission="roles"><Users/></Guard>}/><Route path="announcements" element={<Guard permission="announce"><Announcements/></Guard>}/><Route path="settings" element={<Guard permission="settings"><Settings/></Guard>}/><Route path="*" element={<Navigate to="dashboard" replace/>}/></Routes></Shell>;}
