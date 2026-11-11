@@ -2,7 +2,7 @@ import React, {useEffect,useState,createContext,useContext} from "react";
 import {HashRouter,Routes,Route,Navigate,NavLink,Link,useNavigate,useParams,useLocation} from "react-router-dom";
 import {onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut} from "firebase/auth";
 import {ref,onValue,get,set,update,push,remove,query,orderByChild,equalTo} from "firebase/database";
-import {normalizeSong as norm} from "./songData";
+import {normalizeSong as norm, buildSongIndexPayload} from "./songData";
 import {saveSongToFirebase} from "./songRepository";
 import SongEditorWorkspace from "./SongEditorWorkspace";
 import {auth,database} from "../firebaseConfig";
@@ -44,7 +44,112 @@ function Shell({children}){
 function Heading({title,sub,action}){return <div className="heading"><div><small>GLORY WORKSPACE</small><h1>{title}</h1><p>{sub}</p></div>{action}</div>;}
 function Empty({title,text}){return <div className="empty"><b>♫</b><h3>{title}</h3><p>{text}</p></div>;}
 function Dashboard(){const {role}=useAuth(),{value:s}=useData("songs"),{value:r}=useData("reports"),{value:roles}=useData("roles",role==="SUPER_ADMIN"),songs=Object.entries(s||{}).map(([id,v])=>norm(id,v)),reports=Object.values(r||{}),pending=reports.filter(x=>!["RESOLVED","REJECTED"].includes(x.status||"OPEN")).length,pub=songs.filter(x=>x.status==="PUBLISHED").length,man=Object.values(roles||{}).filter(x=>["ADMIN","CONTENT_MANAGER"].includes(typeof x==="string"?x:x?.role)).length,recent=[...songs].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);return <><Heading title="Good work starts here." sub="A clear view of the Glory library and the work that needs your attention." action={<Link className="primary-btn" to="/admin/songs/new">＋ New song</Link>}/><div className="stats">{[["Total songs",songs.length,"♫"],["Published",pub,"✓"],["Open reports",pending,"◎"],["Content managers",man,"♙"]].map(x=><div className="stat" key={x[0]}><i>{x[2]}</i><small>{x[0]}</small><strong>{x[1]}</strong></div>)}</div><div className="cols"><section className="panel"><div className="panel-title"><h3>Recently updated</h3><Link to="/admin/songs">View library ↗</Link></div>{recent.length?recent.map(x=><Link className="recent" key={x.firebaseKey} to={"/admin/songs/"+x.firebaseKey+"/edit"}><b>♫</b><span><strong>{x.songTitle}</strong><small>{x.songLanguage} · {x.songCategory}</small></span><em className={"pill "+x.status.toLowerCase()}>{x.status}</em></Link>):<Empty title="Your library is ready" text="Create your first song or connect existing songs in Firebase."/>}</section><section className="panel"><div className="panel-title"><h3>Content health</h3></div><div className="health"><strong>{songs.filter(x=>x.status==="DRAFT"||x.status==="REVIEW").length}</strong><span>Drafts & in review</span></div><div className="health"><strong>{pending}</strong><span>Reports awaiting review</span></div><Link className="text-link" to="/admin/reports">Open correction queue →</Link></section></div><div className="quick"><Link to="/admin/songs/new">＋　Add a song</Link><Link to="/admin/reports">◎　Review corrections</Link><Link to="/admin/announcements">◈　Publish an update</Link></div></>;}
-function Songs(){const {value,error}=useData("songs"),{role}=useAuth(),[q,Q]=useState(""),[status,S]=useState("ALL"),[lang,L]=useState("ALL"),songs=Object.entries(value||{}).map(([id,v])=>norm(id,v)),langs=[...new Set(songs.map(x=>x.songLanguage))],rows=songs.filter(x=>(status==="ALL"||x.status===status)&&(lang==="ALL"||x.songLanguage===lang)&&[x.songTitle,x.songNo,x.artist].join(" ").toLowerCase().includes(q.toLowerCase()));const archive=async s=>{if(!window.confirm("Archive "+s.songTitle+"?"))return;try{await saveSongToFirebase({database,songId:s.firebaseKey,existing:s,edited:{...s,status:"ARCHIVED",visibility:"PRIVATE"},uid:auth.currentUser.uid,changeNote:"Archived"});}catch(e){alert(e.message);}};return <><Heading title="Song library" sub="Manage songs, lyrics and chord charts." action={can(role,"create")&&<Link className="primary-btn" to="/admin/songs/new">＋ Add song</Link>}/><section className="panel table-panel"><div className="toolbar"><input placeholder="Search title, number or artist…" value={q} onChange={e=>Q(e.target.value)}/><select value={status} onChange={e=>S(e.target.value)}><option value="ALL">All statuses</option>{["DRAFT","REVIEW","PUBLISHED","ARCHIVED"].map(x=><option>{x}</option>)}</select><select value={lang} onChange={e=>L(e.target.value)}><option value="ALL">All languages</option>{langs.map(x=><option>{x}</option>)}</select><small>{rows.length} songs</small></div>{error&&<p className="error-box">{error}</p>}<div className="scroll"><table><thead><tr><th>SONG</th><th>LANGUAGE</th><th>CATEGORY</th><th>KEY</th><th>STATUS</th><th>UPDATED</th><th>ACTIONS</th></tr></thead><tbody>{rows.map(x=><tr key={x.firebaseKey}><td><b>{x.songTitle}</b><small>#{x.songNo||"—"} {x.artist||""}</small></td><td>{x.songLanguage}</td><td>{x.songCategory}</td><td>{x.originalKey}</td><td><em className={"pill "+x.status.toLowerCase()}>{x.status}</em></td><td>{x.updatedAt?new Date(x.updatedAt).toLocaleDateString():"—"}</td><td><Link to={"/admin/songs/"+x.firebaseKey+"/edit"}>Edit ↗</Link>　<Link to={"/admin/songs/"+x.firebaseKey+"/history"}>History</Link>　{can(role,"archive")&&<button className="link-button" onClick={()=>archive(x)}>Archive</button>}</td></tr>)}</tbody></table></div>{!rows.length&&<Empty title="No matching songs" text="Change your filters or add a song."/>}</section></>;}
+function Songs(){
+ const {value:index,error}=useData("songIndex"),{role}=useAuth();
+ const [q,Q]=useState(""),[status,S]=useState("ALL"),[lang,L]=useState("ALL"),[category,C]=useState("ALL"),[key,K]=useState("ALL");
+ const [sort,Sort]=useState("title"),[page,Page]=useState(1),[pageSize,PageSize]=useState(50),[selected,Select]=useState([]);
+ const [busy,B]=useState(false),[progress,Progress]=useState(""),[indexing,Indexing]=useState(false),[indexError,IndexError]=useState("");
+ const all=Object.entries(index||{}).map(([id,v])=>({...v,firebaseKey:id}));
+ const langs=[...new Set(all.map(x=>x.songLanguage).filter(Boolean))].sort();
+ const categories=[...new Set(all.map(x=>x.songCategory).filter(Boolean))].sort();
+ const keys=[...new Set(all.map(x=>x.originalKey).filter(Boolean))].sort();
+ const term=q.trim().toLocaleLowerCase();
+ const rows=all.filter(x=>
+  (status==="ALL"||x.status===status)&&
+  (lang==="ALL"||x.songLanguage===lang)&&
+  (category==="ALL"||x.songCategory===category)&&
+  (key==="ALL"||x.originalKey===key)&&
+  (!term||[x.songTitle,x.songNo,x.artist,x.songLanguage,x.songCategory,x.originalKey].join(" ").toLocaleLowerCase().includes(term))
+ ).sort((a,b)=>{
+  if(sort==="number")return Number(a.songNo||0)-Number(b.songNo||0)||String(a.songTitle).localeCompare(String(b.songTitle));
+  if(sort==="updated")return Number(b.updatedAt||0)-Number(a.updatedAt||0);
+  if(sort==="language")return String(a.songLanguage||"").localeCompare(String(b.songLanguage||""))||String(a.songTitle).localeCompare(String(b.songTitle));
+  return String(a.songTitle||"").localeCompare(String(b.songTitle||""),undefined,{sensitivity:"base"});
+ });
+ const pageCount=Math.max(1,Math.ceil(rows.length/pageSize));
+ const visible=rows.slice((page-1)*pageSize,page*pageSize);
+ const selectedVisible=visible.length>0&&visible.every(x=>selected.includes(x.firebaseKey));
+ useEffect(()=>{Page(1);Select([]);},[q,status,lang,category,key,sort,pageSize]);
+ useEffect(()=>{if(page>pageCount)Page(pageCount);},[page,pageCount]);
+ const toggleOne=(id,checked)=>Select(old=>checked?[...new Set([...old,id])]:old.filter(x=>x!==id));
+ const togglePage=checked=>Select(old=>checked?[...new Set([...old,...visible.map(x=>x.firebaseKey)])]:old.filter(id=>!visible.some(x=>x.firebaseKey===id)));
+ const archiveSong=async song=>{
+  const snap=await get(ref(database,"songs/"+song.firebaseKey));
+  if(!snap.exists())throw new Error("Song no longer exists: "+song.songTitle);
+  const existing=norm(song.firebaseKey,snap.val());
+  await saveSongToFirebase({database,songId:song.firebaseKey,existing,edited:{...existing,status:"ARCHIVED",visibility:"PRIVATE"},uid:auth.currentUser.uid,changeNote:"Archived from Song Library"});
+ };
+ const archiveSelected=async()=>{
+  if(!selected.length||busy)return;
+  const targets=all.filter(x=>selected.includes(x.firebaseKey));
+  if(!window.confirm("Archive "+targets.length+" selected song(s)? This changes status and visibility; it does not delete song data."))return;
+  B(true);Progress("Preparing bulk archive…");let done=0,failed=[];
+  try{
+   for(const song of targets){
+    Progress("Archiving "+(done+1)+" of "+targets.length+": "+song.songTitle);
+    try{await archiveSong(song);done++;}catch(e){failed.push(song.songTitle+": "+e.message);}
+   }
+   Select([]);
+   if(failed.length)alert(done+" song(s) archived. "+failed.length+" failed:\n"+failed.slice(0,8).join("\n"));
+   else alert(done+" song(s) archived successfully.");
+  }finally{B(false);Progress("");}
+ };
+ const rebuildIndex=async()=>{
+  if(indexing)return;
+  if(!window.confirm("Build or rebuild the Song Library search index from all existing songs? This reads existing song records and writes metadata-only records to /songIndex. Original songs, lyrics and chords will not be changed."))return;
+  Indexing(true);IndexError("");
+  try{
+   const snap=await get(ref(database,"songs")),source=snap.val()||{},entries=Object.entries(source);
+   if(!entries.length){await set(ref(database,"songIndex"),null);alert("No songs were found to index.");return;}
+   let total=0;
+   for(let offset=0;offset<entries.length;offset+=300){
+    const chunk=entries.slice(offset,offset+300),updates={};
+    chunk.forEach(([id,song])=>{updates["songIndex/"+id]=buildSongIndexPayload(id,norm(id,song));});
+    await update(ref(database),updates);total+=chunk.length;
+    Progress("Indexing "+total+" of "+entries.length+" songs…");
+   }
+   alert("Search index rebuilt for "+total+" songs. Your original song records were preserved.");
+  }catch(e){IndexError(e.message);}
+  finally{Indexing(false);Progress("");}
+ };
+ const singleArchive=async song=>{
+  if(!window.confirm("Archive "+song.songTitle+"? The song will remain in Firebase and can be edited later."))return;
+  B(true);try{await archiveSong(song);}catch(e){alert(e.message);}finally{B(false);}
+ };
+ const from=(page-1)*pageSize+1,to=Math.min(page*pageSize,rows.length);
+ return <>
+  <Heading title="Song library" sub="Search, organize and manage your worship catalogue." action={can(role,"create")&&<Link className="primary-btn" to="/admin/songs/new">＋ Add song</Link>}/>
+  <section className="panel table-panel song-library-panel">
+   <div className="song-library-toolbar">
+    <label className="song-library-search"><span>⌕</span><input aria-label="Search songs" placeholder="Search title, song number, artist, language…" value={q} onChange={e=>Q(e.target.value)}/>{q&&<button type="button" onClick={()=>Q("")} aria-label="Clear search">×</button>}</label>
+    <div className="song-library-filters">
+     <select aria-label="Filter by status" value={status} onChange={e=>S(e.target.value)}><option value="ALL">All statuses</option>{["DRAFT","REVIEW","PUBLISHED","ARCHIVED"].map(x=><option key={x} value={x}>{x}</option>)}</select>
+     <select aria-label="Filter by language" value={lang} onChange={e=>L(e.target.value)}><option value="ALL">All languages</option>{langs.map(x=><option key={x}>{x}</option>)}</select>
+     <select aria-label="Filter by category" value={category} onChange={e=>C(e.target.value)}><option value="ALL">All categories</option>{categories.map(x=><option key={x}>{x}</option>)}</select>
+     <select aria-label="Filter by key" value={key} onChange={e=>K(e.target.value)}><option value="ALL">All keys</option>{keys.map(x=><option key={x}>{x}</option>)}</select>
+    </div>
+    <div className="song-library-toolbar-bottom">
+     <label className="song-library-sort">Sort by <select value={sort} onChange={e=>Sort(e.target.value)}><option value="title">Title A–Z</option><option value="number">Song number</option><option value="language">Language</option><option value="updated">Recently updated</option></select></label>
+     <span className="song-library-count">{rows.length.toLocaleString()} matching songs · {all.length.toLocaleString()} total</span>
+    </div>
+   </div>
+   {error&&<p className="error-box">{error}</p>}
+   {indexError&&<p className="error-box">Could not build the search index: {indexError}. Check the /songIndex Realtime Database rules.</p>}
+   {index===null&&!error&&<div className="song-index-empty"><b>Song search index is not ready yet</b><p>Build a lightweight catalogue index once. Song lyrics and chord data remain in the existing /songs records.</p>{can(role,"settings")&&<button className="primary-btn" disabled={indexing} onClick={rebuildIndex}>{indexing?"Building index…":"Build song search index"}</button>}{progress&&<small>{progress}</small>}</div>}
+   {index!==null&&Object.keys(index||{}).length===0&&<div className="song-index-empty"><b>No indexed songs found</b><p>Build or rebuild the index from the existing song records.</p>{can(role,"settings")&&<button className="primary-btn" disabled={indexing} onClick={rebuildIndex}>Build song search index</button>}</div>}
+   {index&&Object.keys(index).length>0&&<>
+    {can(role,"settings")&&<div className="song-index-tools"><span>Lightweight search index · {all.length.toLocaleString()} records</span><button className="secondary-btn" disabled={indexing||busy} onClick={rebuildIndex}>{indexing?"Rebuilding…":"Rebuild index"}</button></div>}
+    {can(role,"archive")&&selected.length>0&&<div className="song-bulk-bar"><span>{selected.length} selected</span><button className="secondary-btn" onClick={()=>Select([])} disabled={busy}>Clear selection</button><button className="danger-btn" onClick={archiveSelected} disabled={busy}>{busy?"Working…":"Archive selected"}</button></div>}
+    {progress&&<div className="song-bulk-progress">{progress}</div>}
+    <div className="scroll song-library-table-wrap"><table className="song-library-table"><thead><tr>{can(role,"archive")&&<th className="song-select-cell"><input type="checkbox" aria-label="Select all songs on this page" checked={selectedVisible} onChange={e=>togglePage(e.target.checked)}/></th>}<th>SONG</th><th>LANGUAGE</th><th>CATEGORY</th><th>KEY</th><th>STATUS</th><th>UPDATED</th><th>ACTIONS</th></tr></thead><tbody>
+     {visible.map(x=><tr key={x.firebaseKey}>{can(role,"archive")&&<td className="song-select-cell"><input type="checkbox" aria-label={"Select "+x.songTitle} checked={selected.includes(x.firebaseKey)} onChange={e=>toggleOne(x.firebaseKey,e.target.checked)}/></td>}<td className="song-title-cell"><b>{x.songTitle}</b><small>#{x.songNo||"—"}{x.artist?" · "+x.artist:""}</small></td><td>{x.songLanguage}</td><td>{x.songCategory}</td><td>{x.originalKey}</td><td><em className={"pill "+String(x.status||"DRAFT").toLowerCase()}>{x.status||"DRAFT"}</em></td><td>{x.updatedAt?new Date(x.updatedAt).toLocaleDateString():"—"}</td><td><details className="song-row-actions"><summary aria-label={"Actions for "+x.songTitle}>•••</summary><div><Link to={"/admin/songs/"+x.firebaseKey+"/edit"}>Edit song</Link><Link to={"/admin/songs/"+x.firebaseKey+"/history"}>Version history</Link>{can(role,"archive")&&<button onClick={()=>singleArchive(x)} disabled={busy}>Archive</button>}</div></details></td></tr>)}
+    </tbody></table></div>
+    {!visible.length&&<Empty title="No matching songs" text="Change your search or filters."/>}
+    <div className="song-library-pagination"><span>Showing {rows.length?from:0}–{to} of {rows.length.toLocaleString()} matching songs</span><div className="song-pagination-controls"><label>Rows <select value={pageSize} onChange={e=>PageSize(Number(e.target.value))}><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><button className="secondary-btn" disabled={page<=1} onClick={()=>Page(p=>p-1)}>Previous</button><span>Page {page} of {pageCount}</span><button className="secondary-btn" disabled={page>=pageCount} onClick={()=>Page(p=>p+1)}>Next</button></div></div>
+   </>}
+  </section>
+ </>;
+}
 function SongEditor({create=false}){const {id}=useParams(),nav=useNavigate(),{user,role}=useAuth(),{value:remote}=useData("songs/"+(id||"none"),!!id),[f,F]=useState(null),[sections,T]=useState([]),[note,N]=useState(""),[error,E]=useState(""),[busy,B]=useState(false),[pendingSave,PS]=useState(null),[activeTab,AT]=useState("info");useEffect(()=>{if(remote&&id){const x=norm(id,remote);F(x);T(x.sections||[]);}},[remote,id]);useEffect(()=>{if(create)F({songNo:"",songTitle:"",songLanguage:"English",songCategory:"Worship",originalKey:"C",tempo:"",artist:"",author:"",composer:"",description:"",status:"DRAFT",visibility:"PRIVATE",version:0});},[create]);if(!f)return <div className="boot">Loading song…</div>;const field=(k,v)=>F({...f,[k]:v});const save=async publish=>{
  if(!f.songTitle?.trim()){E("Song title is required.");return;}
  const edited={...f,sections:sections,status:publish?"PUBLISHED":f.status,visibility:publish?"PUBLIC":f.visibility};
