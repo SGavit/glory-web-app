@@ -71,7 +71,13 @@ function Songs(){
  const visible=rows.slice((page-1)*pageSize,page*pageSize);
  const selectedVisible=visible.length>0&&visible.every(x=>selected.includes(x.firebaseKey));
  useEffect(()=>{Page(1);Select([]);},[q,status,lang,category,key,sort,pageSize]);
- useEffect(()=>{\n  const closeOnOutside=e=>{if(!e.target.closest(".song-row-actions"))setOpenActionId(null);};\n  const closeOnEscape=e=>{if(e.key==="Escape")setOpenActionId(null);};\n  document.addEventListener("pointerdown",closeOnOutside);\n  document.addEventListener("keydown",closeOnEscape);\n  return ()=>{document.removeEventListener("pointerdown",closeOnOutside);document.removeEventListener("keydown",closeOnEscape);};\n },[]);
+ useEffect(()=>{
+  const closeOnOutside=e=>{if(!e.target.closest(".song-row-actions"))setOpenActionId(null);};
+  const closeOnEscape=e=>{if(e.key==="Escape")setOpenActionId(null);};
+  document.addEventListener("pointerdown",closeOnOutside);
+  document.addEventListener("keydown",closeOnEscape);
+  return ()=>{document.removeEventListener("pointerdown",closeOnOutside);document.removeEventListener("keydown",closeOnEscape);};
+ },[]);
  useEffect(()=>{if(page>pageCount)Page(pageCount);},[page,pageCount]);
  const toggleOne=(id,checked)=>Select(old=>checked?[...new Set([...old,id])]:old.filter(x=>x!==id));
  const togglePage=checked=>Select(old=>checked?[...new Set([...old,...visible.map(x=>x.firebaseKey)])]:old.filter(id=>!visible.some(x=>x.firebaseKey===id)));
