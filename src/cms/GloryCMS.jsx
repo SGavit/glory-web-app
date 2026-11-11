@@ -2,7 +2,7 @@ import React, {useEffect,useState,createContext,useContext} from "react";
 import {HashRouter,Routes,Route,Navigate,NavLink,Link,useNavigate,useParams,useLocation} from "react-router-dom";
 import {onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut} from "firebase/auth";
 import {ref,onValue,get,set,update,push,remove,query,orderByChild,equalTo} from "firebase/database";
-import {normalizeSong as norm, buildSongIndexPayload} from "./songData";
+import {normalizeSong as norm} from "./songData";
 import {saveSongToFirebase} from "./songRepository";
 import SongEditorWorkspace from "./SongEditorWorkspace";
 import {auth,database} from "../firebaseConfig";
@@ -45,11 +45,11 @@ function Heading({title,sub,action}){return <div className="heading"><div><small
 function Empty({title,text}){return <div className="empty"><b>♫</b><h3>{title}</h3><p>{text}</p></div>;}
 function Dashboard(){const {role}=useAuth(),{value:s}=useData("songs"),{value:r}=useData("reports"),{value:roles}=useData("roles",role==="SUPER_ADMIN"),songs=Object.entries(s||{}).map(([id,v])=>norm(id,v)),reports=Object.values(r||{}),pending=reports.filter(x=>!["RESOLVED","REJECTED"].includes(x.status||"OPEN")).length,pub=songs.filter(x=>x.status==="PUBLISHED").length,man=Object.values(roles||{}).filter(x=>["ADMIN","CONTENT_MANAGER"].includes(typeof x==="string"?x:x?.role)).length,recent=[...songs].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);return <><Heading title="Good work starts here." sub="A clear view of the Glory library and the work that needs your attention." action={<Link className="primary-btn" to="/admin/songs/new">＋ New song</Link>}/><div className="stats">{[["Total songs",songs.length,"♫"],["Published",pub,"✓"],["Open reports",pending,"◎"],["Content managers",man,"♙"]].map(x=><div className="stat" key={x[0]}><i>{x[2]}</i><small>{x[0]}</small><strong>{x[1]}</strong></div>)}</div><div className="cols"><section className="panel"><div className="panel-title"><h3>Recently updated</h3><Link to="/admin/songs">View library ↗</Link></div>{recent.length?recent.map(x=><Link className="recent" key={x.firebaseKey} to={"/admin/songs/"+x.firebaseKey+"/edit"}><b>♫</b><span><strong>{x.songTitle}</strong><small>{x.songLanguage} · {x.songCategory}</small></span><em className={"pill "+x.status.toLowerCase()}>{x.status}</em></Link>):<Empty title="Your library is ready" text="Create your first song or connect existing songs in Firebase."/>}</section><section className="panel"><div className="panel-title"><h3>Content health</h3></div><div className="health"><strong>{songs.filter(x=>x.status==="DRAFT"||x.status==="REVIEW").length}</strong><span>Drafts & in review</span></div><div className="health"><strong>{pending}</strong><span>Reports awaiting review</span></div><Link className="text-link" to="/admin/reports">Open correction queue →</Link></section></div><div className="quick"><Link to="/admin/songs/new">＋　Add a song</Link><Link to="/admin/reports">◎　Review corrections</Link><Link to="/admin/announcements">◈　Publish an update</Link></div></>;}
 function Songs(){
- const {value:index,error}=useData("songIndex"),{role}=useAuth();
+ const {value:songsData,error}=useData("songs"),{role}=useAuth();
  const [q,Q]=useState(""),[status,S]=useState("ALL"),[lang,L]=useState("ALL"),[category,C]=useState("ALL"),[key,K]=useState("ALL");
  const [sort,Sort]=useState("title"),[page,Page]=useState(1),[pageSize,PageSize]=useState(50),[selected,Select]=useState([]);
- const [busy,B]=useState(false),[progress,Progress]=useState(""),[indexing,Indexing]=useState(false),[indexError,IndexError]=useState("");
- const all=Object.entries(index||{}).map(([id,v])=>({...v,firebaseKey:id}));
+ const [busy,B]=useState(false),[progress,Progress]=useState("");
+ const all=Object.entries(songsData||{}).map(([id,v])=>norm(id,v));
  const langs=[...new Set(all.map(x=>x.songLanguage).filter(Boolean))].sort();
  const categories=[...new Set(all.map(x=>x.songCategory).filter(Boolean))].sort();
  const keys=[...new Set(all.map(x=>x.originalKey).filter(Boolean))].sort();
@@ -94,24 +94,6 @@ function Songs(){
    else alert(done+" song(s) archived successfully.");
   }finally{B(false);Progress("");}
  };
- const rebuildIndex=async()=>{
-  if(indexing)return;
-  if(!window.confirm("Build or rebuild the Song Library search index from all existing songs? This reads existing song records and writes metadata-only records to /songIndex. Original songs, lyrics and chords will not be changed."))return;
-  Indexing(true);IndexError("");
-  try{
-   const snap=await get(ref(database,"songs")),source=snap.val()||{},entries=Object.entries(source);
-   if(!entries.length){await set(ref(database,"songIndex"),null);alert("No songs were found to index.");return;}
-   let total=0;
-   for(let offset=0;offset<entries.length;offset+=300){
-    const chunk=entries.slice(offset,offset+300),updates={};
-    chunk.forEach(([id,song])=>{updates["songIndex/"+id]=buildSongIndexPayload(id,norm(id,song));});
-    await update(ref(database),updates);total+=chunk.length;
-    Progress("Indexing "+total+" of "+entries.length+" songs…");
-   }
-   alert("Search index rebuilt for "+total+" songs. Your original song records were preserved.");
-  }catch(e){IndexError(e.message);}
-  finally{Indexing(false);Progress("");}
- };
  const singleArchive=async song=>{
   if(!window.confirm("Archive "+song.songTitle+"? The song will remain in Firebase and can be edited later."))return;
   B(true);try{await archiveSong(song);}catch(e){alert(e.message);}finally{B(false);}
@@ -134,11 +116,9 @@ function Songs(){
     </div>
    </div>
    {error&&<p className="error-box">{error}</p>}
-   {indexError&&<p className="error-box">Could not build the search index: {indexError}. Check the /songIndex Realtime Database rules.</p>}
-   {index===null&&!error&&<div className="song-index-empty"><b>Song search index is not ready yet</b><p>Build a lightweight catalogue index once. Song lyrics and chord data remain in the existing /songs records.</p>{can(role,"settings")&&<button className="primary-btn" disabled={indexing} onClick={rebuildIndex}>{indexing?"Building index…":"Build song search index"}</button>}{progress&&<small>{progress}</small>}</div>}
-   {index!==null&&Object.keys(index||{}).length===0&&<div className="song-index-empty"><b>No indexed songs found</b><p>Build or rebuild the index from the existing song records.</p>{can(role,"settings")&&<button className="primary-btn" disabled={indexing} onClick={rebuildIndex}>Build song search index</button>}</div>}
-   {index&&Object.keys(index).length>0&&<>
-    {can(role,"settings")&&<div className="song-index-tools"><span>Lightweight search index · {all.length.toLocaleString()} records</span><button className="secondary-btn" disabled={indexing||busy} onClick={rebuildIndex}>{indexing?"Rebuilding…":"Rebuild index"}</button></div>}
+   {!songsData&& !error&&<div className="song-index-empty"><b>Loading song library…</b></div>}
+   {songsData&&Object.keys(songsData).length===0&&<Empty title="No songs found" text="Your existing /songs collection is empty."/>}
+   {songsData&&Object.keys(songsData).length>0&&<>
     {can(role,"archive")&&selected.length>0&&<div className="song-bulk-bar"><span>{selected.length} selected</span><button className="secondary-btn" onClick={()=>Select([])} disabled={busy}>Clear selection</button><button className="danger-btn" onClick={archiveSelected} disabled={busy}>{busy?"Working…":"Archive selected"}</button></div>}
     {progress&&<div className="song-bulk-progress">{progress}</div>}
     <div className="scroll song-library-table-wrap"><table className="song-library-table"><thead><tr>{can(role,"archive")&&<th className="song-select-cell"><input type="checkbox" aria-label="Select all songs on this page" checked={selectedVisible} onChange={e=>togglePage(e.target.checked)}/></th>}<th>SONG</th><th>LANGUAGE</th><th>CATEGORY</th><th>KEY</th><th>STATUS</th><th>UPDATED</th><th>ACTIONS</th></tr></thead><tbody>
