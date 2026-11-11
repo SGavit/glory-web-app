@@ -1101,3 +1101,11 @@ body .shell[data-theme="dark"] .song-editor-tab-content .preview section{border-
  body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish,
  body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview{padding:14px!important}
 }
+
+
+/* Chord anchors and lyric text must share one unwrapped, measurable text run. */
+.shell .android-chord-target-line{min-width:0;overflow-x:auto;overflow-y:visible}
+.shell .android-lyric-word-line{display:block;min-width:0;overflow-x:auto;white-space:pre}
+.shell .android-lyric-word-line>span{display:inline-block;min-width:100%;width:max-content;white-space:pre;font:12px/1.8 ui-monospace,monospace}
+.shell .android-preview-line{min-width:0;overflow-x:auto}
+.shell .android-preview-line p{width:max-content;min-width:100%;white-space:pre;font:12px/1.8 ui-monospace,monospace}
