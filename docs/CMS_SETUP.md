@@ -49,6 +49,51 @@ The CMS reads the existing paths:
 
 It writes song records and version snapshots, report status changes, taxonomy under appConfig/categories and appConfig/languages, user role updates, announcements under announcements/$id, and the daily verse under dailyVerse.
 
+## CMS role model
+
+The CMS recognizes four roles. The role stored at `roles/{uid}/role` is authoritative; a legacy `users/{uid}/role` profile field is not used to grant CMS access.
+
+| Role | CMS capabilities |
+| --- | --- |
+| `SUPER_ADMIN` | Full CMS access, People & roles, role assignment, settings, announcements, taxonomy, song publishing and report resolution. |
+| `ADMIN` | Operational administration: songs, publishing, archiving, taxonomy, reports, announcements and operational settings. Cannot manage roles. |
+| `CONTENT_MANAGER` | Read, create and edit songs, and access the correction queue. Cannot publish/archive songs, manage roles, taxonomy, announcements or settings. |
+| `USER` | No CMS workspace access; uses public app features and own account data. |
+
+Only a SUPER_ADMIN can assign `ADMIN`, `CONTENT_MANAGER` or `USER`. The People & roles route and navigation item are restricted to SUPER_ADMIN. The current SUPER_ADMIN row and the signed-in account are displayed as locked in the role editor.
+
+### Realtime Database role-rule requirements
+
+The following is a focused rule fragment for the existing shared database, not a complete replacement for the production rules. Merge it into the current ruleset while preserving the existing song, report, favorites, setlist, notification and Android-specific paths:
+
+```json
+{
+  "users": {
+    ".read": "auth != null && root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN'",
+    "$uid": {
+      ".read": "auth != null && auth.uid == $uid",
+      ".write": "auth != null && auth.uid == $uid"
+    }
+  },
+  "roles": {
+    ".read": "auth != null && root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN'",
+    "$uid": {
+      ".read": "auth != null && (auth.uid == $uid || root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN')",
+      ".write": "auth != null && root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN' && auth.uid != $uid",
+      "role": {
+        ".validate": "newData.isString() && (newData.val() == 'USER' || newData.val() == 'ADMIN' || newData.val() == 'CONTENT_MANAGER')"
+      }
+    }
+  }
+}
+```
+
+Bootstrap the first SUPER_ADMIN manually through a trusted Firebase Console/owner process at `roles/{your-auth-uid}/role = "SUPER_ADMIN"`. Do not bootstrap it through the website. The fragment assumes role records use the object form `{ "role": "ADMIN", "updatedAt": 123, "updatedBy": "uid" }`. A legacy string role can be read by the CMS, but role writes from the CMS use the object form.
+
+The CMS now resolves authority only from `roles/{uid}`; it no longer trusts a role copied into the user's editable profile. This matters because users can write their own `users/{uid}` profile in the existing Android-compatible model.
+
+**Important limitation:** Realtime Database grants are additive down the tree. The existing `songs/{songId}/.write` rule that grants both ADMIN and CONTENT_MANAGER access also grants those managers permission to change every field in that song, including status/visibility. Hiding the Publish button in React is not sufficient to secure publishing. Before enforcing the review workflow, change the song write architecture/rules (or use a trusted Cloud Function) so only ADMIN/SUPER_ADMIN can change publication status and visibility.
+
 ## Production security checklist — required before launch
 
 1. Review the live RTDB rules against every path above. Do not deploy permissive rules.
