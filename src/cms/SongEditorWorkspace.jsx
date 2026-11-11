@@ -1,5 +1,5 @@
 import React,{useEffect,useLayoutEffect,useMemo,useRef,useState}from"react";
-import{detectSectionsFromLyrics,graphemeBoundaries,nextSectionTitle,normalizeChordIndex,normalizeSections,remapChordsAfterTextEdit,remapLinesAfterEdit,snapUtf16Offset,wordStartAtUtf16Offset}from"./songEditorModel";
+import{detectSectionsFromLyrics,graphemeBoundaries,nextSectionTitle,normalizeChordIndex,normalizeSections,remapLinesAfterEdit,snapUtf16Offset,wordStartAtUtf16Offset}from"./songEditorModel";
 const SHARP=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],FLAT=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"],QUALITY=[["Major",[""]],["Minor",["m"]],["7th",["7"]],["m7",["m7"]],["Maj7",["maj7"]],["Sus",["sus2","sus4"]],["Dim/Aug",["dim","dim7","aug"]],["9th/13th",["9","add9","11","13"]]];
 const chordNorm=v=>String(v||"").trim().replace(/♯/g,"#").replace(/♭/g,"b"),clone=v=>normalizeSections(v).map(s=>({...s,lines:s.lines.map(l=>({...l,chords:l.chords.map(c=>({...c}))}))}));
 export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics"}){
