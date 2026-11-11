@@ -45,6 +45,18 @@ export function remapChordsAfterTextEdit(oldText,newText,chords=[]){
  }).sort((a,b)=>a.charIndex-b.charIndex);
  return{chords:mapped,changedAnchors};
 }
+export function remapLinesAfterEdit(oldLines,newTexts){
+ const old=asArray(oldLines),next=asArray(newTexts).map(String),n=old.length,k=next.length;
+ const dp=Array.from({length:n+1},()=>Array(k+1).fill(0));
+ for(let i=n-1;i>=0;i--)for(let j=k-1;j>=0;j--)dp[i][j]=String(old[i].text||"")===next[j]?1+dp[i+1][j+1]:Math.max(dp[i+1][j],dp[i][j+1]);
+ const pairs=new Map(),usedOld=new Set(),usedNew=new Set();let i=0,j=0;
+ while(i<n&&j<k){if(String(old[i].text||"")===next[j]){pairs.set(j,i);usedOld.add(i);usedNew.add(j);i++;j++;}else if(dp[i+1][j]>=dp[i][j+1])i++;else j++;}
+ const remainingOld=old.map((_,x)=>x).filter(x=>!usedOld.has(x)),remainingNew=next.map((_,x)=>x).filter(x=>!usedNew.has(x));
+ remainingNew.forEach((newIndex,index)=>{if(remainingOld[index]!=null)pairs.set(newIndex,remainingOld[index]);});
+ let changedAnchors=0;
+ const lines=next.map((text,newIndex)=>{const oldIndex=pairs.get(newIndex);if(oldIndex==null)return{text,chords:[]};const mapped=remapChordsAfterTextEdit(old[oldIndex].text,text,old[oldIndex].chords||[]);changedAnchors+=mapped.changedAnchors;return{text,chords:mapped.chords};});
+ return{lines,changedAnchors};
+}
 export function detectSectionsFromLyrics(input){
  const source=cleanText(input).trim();if(!source)return[];const lines=source.split("\n"),explicit=lines.some(x=>/^\s*\[[^\]]+\]\s*$/.test(x));
  if(explicit){const out=[];let current=null;const finish=()=>{if(current&&current.lines.length)out.push(current);};lines.forEach(raw=>{const m=raw.match(/^\s*\[([^\]]+)\]\s*$/);if(m){finish();const title=m[1].trim();current={type:title.toUpperCase().split(/\s+/)[0],title,lines:[]};}else if(current&&raw.trim())current.lines.push({text:raw.trimEnd(),chords:[]});});finish();return out;}
