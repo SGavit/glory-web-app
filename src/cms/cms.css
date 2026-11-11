@@ -107,3 +107,39 @@
 .android-chord-nudge:hover:not(:disabled){background:#eaf3ec;border-color:#a9c5af}
 .android-chord-nudge:disabled{opacity:.3;cursor:not-allowed}
 .android-chord-label-track{min-height:25px;overflow:visible}
+
+
+/* Multilingual Daily Verse CMS */
+.daily-verse-summary{display:grid;grid-template-columns:130px 130px 130px 1fr;gap:10px;align-items:stretch;margin:0 0 15px}
+.daily-verse-summary>div{display:grid;align-content:center;gap:4px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:10px}
+.daily-verse-summary strong{font:800 22px Manrope;color:var(--ink)}
+.daily-verse-summary span{font-size:9px;color:var(--muted)}
+.daily-verse-summary>p{display:flex;align-items:center;margin:0;padding:13px 15px;border:1px solid #dce9df;border-radius:10px;background:#f0f6f1;color:#607568;font-size:10px;line-height:1.6}
+.daily-verse-editor{margin:0 0 15px}
+.daily-verse-editor>.panel-title{margin-bottom:17px}
+.daily-verse-editor>.panel-title h3{margin:5px 0 0}
+.daily-verse-language-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.daily-verse-language{display:grid;gap:10px;padding:14px;border:1px solid var(--line);border-radius:9px;background:#fbfcfb}
+.daily-verse-language header{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.daily-verse-language header b{font:700 12px Manrope;color:#33483a}
+.daily-verse-language header span{font-size:8px;font-weight:800;letter-spacing:1px;color:#64836d}
+.daily-verse-language label{display:grid;gap:6px;color:#6d7b71;font-size:9px;font-weight:700}
+.daily-verse-language textarea,.daily-verse-language input,.daily-verse-options input[type=number]{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;padding:10px;background:#fff;color:#34443a;font:11px/1.7 'DM Sans',sans-serif}
+.daily-verse-language textarea{resize:vertical;min-height:85px}
+.daily-verse-language textarea:focus,.daily-verse-language input:focus,.daily-verse-options input:focus{outline:0;border-color:#8bb59a;box-shadow:0 0 0 3px #286b5212}
+.daily-verse-options{display:flex;align-items:end;gap:24px;flex-wrap:wrap;margin:15px 0}
+.daily-verse-options>label:first-child{display:grid;gap:6px;max-width:150px;color:#6d7b71;font-size:9px;font-weight:700}
+.daily-verse-active{display:flex;align-items:center;gap:8px;padding:10px 0;color:#526258;font-size:10px}
+.daily-verse-active input{accent-color:var(--green)}
+.daily-verse-form-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:13px;border-top:1px solid var(--line)}
+.daily-verse-list{margin-top:14px;padding:16px 0 0}
+.daily-verse-list>.panel-title{padding:0 16px 12px}
+.daily-verse-list .scroll{border-top:1px solid var(--line)}
+.daily-verse-language-tags{display:flex;gap:4px}
+.daily-verse-language-tags span{padding:4px 5px;border-radius:4px;font-size:8px;font-weight:800}
+.daily-verse-language-tags .complete{background:#e8f4ec;color:#3d805a}
+.daily-verse-language-tags .incomplete{background:#f1f2f1;color:#a0a8a2}
+.danger-link{color:#a34d4d!important}
+.daily-verse-success{padding:10px 12px;border:1px solid #d7e9dc;border-radius:7px;background:#eef7f0;color:#3b7650;font-size:10px}
+@media(max-width:850px){.daily-verse-summary{grid-template-columns:repeat(3,1fr)}.daily-verse-summary>p{grid-column:1/-1}}
+@media(max-width:650px){.daily-verse-language-grid{grid-template-columns:1fr}.daily-verse-summary{grid-template-columns:repeat(2,1fr)}.daily-verse-summary>p{grid-column:1/-1}.daily-verse-form-actions{justify-content:stretch}.daily-verse-form-actions button{flex:1}}
