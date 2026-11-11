@@ -96,28 +96,6 @@ export function lyricsFromSections(sections) {
 }
 
 
-/**
- * Compact metadata-only record for the CMS catalogue.
- * Keep lyrics/chords out of songIndex so browsing thousands of songs is cheap.
- */
-export function buildSongIndexPayload(songId, song = {}) {
-  const title = String(song.songTitle || "Untitled song").trim();
-  const artist = String(song.artist || "").trim();
-  return {
-    firebaseKey: songId,
-    songTitle: title,
-    titleLower: title.toLocaleLowerCase(),
-    songNo: Number(song.songNo || 0),
-    songLanguage: song.songLanguage || "English",
-    songCategory: song.songCategory || "Worship",
-    originalKey: song.originalKey || "C",
-    status: song.status || "DRAFT",
-    visibility: song.visibility || "PRIVATE",
-    artist,
-    artistLower: artist.toLocaleLowerCase(),
-    updatedAt: Number(song.updatedAt || Date.now())
-  };
-}
 
 export function buildSongPayload(existing, edited, uid, now) {
   const old = existing || {};
