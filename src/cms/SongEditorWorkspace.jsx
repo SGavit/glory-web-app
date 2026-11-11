@@ -18,7 +18,7 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
     if(!node?.isConnected)return;
     const textNode=node.firstChild,text=String(node.textContent||"");
     if(!textNode||textNode.nodeType!==Node.TEXT_NODE)return;
-    const match=lineKey.match(/^(target|preview):(\\d+):(\\d+)$/);
+    const match=lineKey.match(/^(target|preview):(\d+):(\d+)$/);
     if(!match)return;
     const line=sections[Number(match[2])]?.lines[Number(match[3])];
     if(!line)return;
