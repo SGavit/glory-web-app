@@ -1,5 +1,5 @@
 import { ref, push, runTransaction, set, get } from "firebase/database";
-import { buildSongPayload, buildSongIndexPayload } from "./songData";
+import { buildSongPayload } from "./songData";
 
 const makeOperationId = () => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
@@ -39,13 +39,6 @@ export async function saveSongToFirebase({
     if (recordedVersion === proposed.version) {
       const current = await get(ref(database, `songs/${targetId}`));
       const replayedSong = current.val() || previousHistory.child("snapshot").val();
-      if (replayedSong) {
-        try {
-          await set(ref(database, `songIndex/${targetId}`), buildSongIndexPayload(targetId, replayedSong));
-        } catch (indexError) {
-          console.warn("Song save was already committed, but its catalogue index could not be updated. Rebuild the index from the CMS.", indexError);
-        }
-      }
       return {
         songId: targetId,
         song: replayedSong,
@@ -94,15 +87,6 @@ export async function saveSongToFirebase({
     changeNote: changeNote || (baseVersion === 0 ? "Initial Create" : "Updated"),
     snapshot: committedSong
   });
-
-  // Keep the lightweight catalogue index in sync without copying lyrics or chords.
-  // Index failures must not turn an already-committed song save into a reported failure;
-  // an administrator can safely rebuild the index from /songs.
-  try {
-    await set(ref(database, `songIndex/${targetId}`), buildSongIndexPayload(targetId, committedSong));
-  } catch (indexError) {
-    console.warn("Song saved, but its catalogue index could not be updated. Rebuild the Song Library index from the CMS.", indexError);
-  }
 
   return { songId: targetId, song: committedSong, operationId, replayed: false };
 }
