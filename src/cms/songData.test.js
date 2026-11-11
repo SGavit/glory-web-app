@@ -1,3 +1,4 @@
+import { graphemeBoundaries, snapUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit } from "./songEditorModel";
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
@@ -67,5 +68,36 @@ describe("Android song model compatibility", () => {
 
   test("builds Android status visibility field", () => {
     expect(toStatusVisibility("PUBLISHED", "PUBLIC")).toBe("PUBLISHED_PUBLIC");
+  });
+});
+
+
+describe("Unicode-safe chord editor positions", () => {
+  test("uses UTF-16 offsets but never splits a grapheme", () => {
+    expect(graphemeBoundaries("A😀किB")).toEqual([0, 1, 3, 5, 6]);
+    expect(snapUtf16Offset("A😀B", 2, "backward")).toBe(1);
+    expect(snapUtf16Offset("A😀B", 2, "forward")).toBe(3);
+  });
+
+  test("attaches a chord to the beginning of a clicked Hindi word", () => {
+    const line = "प्रभु का धन्यवाद करूँगा";
+    expect(wordStartAtUtf16Offset(line, 8)).toBe(line.indexOf("का"));
+    expect(wordStartAtUtf16Offset(line, line.indexOf("धन्यवाद") + 3)).toBe(line.indexOf("धन्यवाद"));
+  });
+
+  test("shifts chord anchors when text is inserted before them", () => {
+    const result = remapChordsAfterTextEdit("Amazing grace", "Very Amazing grace", [
+      { chordName: "G", charIndex: 8 }
+    ]);
+    expect(result.chords[0].charIndex).toBe(13);
+    expect(result.changedAnchors).toBe(0);
+  });
+
+  test("flags chord anchors whose original lyric segment was replaced", () => {
+    const result = remapChordsAfterTextEdit("Amazing grace", "Amazing peace", [
+      { chordName: "D", charIndex: 8 }
+    ]);
+    expect(result.changedAnchors).toBe(1);
+    expect(result.chords[0].charIndex).toBe(8);
   });
 });
