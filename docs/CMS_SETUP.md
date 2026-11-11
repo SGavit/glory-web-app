@@ -51,29 +51,11 @@ The CMS reads the existing paths:
 It writes song records and version snapshots, report status changes, taxonomy under appConfig/categories and appConfig/languages, user role updates, announcements under announcements/$id, and multilingual Daily Verse records under dailyVerses/$verseId. The legacy dailyVerse node is left untouched.
 
 
-## Song Library index and large-catalogue browsing
+## Song Library and large-catalogue browsing
 
-The CMS Song Library reads lightweight metadata from `songIndex/{songId}` rather than subscribing to every full song record. Full lyrics, sections and chord objects remain authoritative under `songs/{songId}`. The index is rebuilt from existing song records using **Song library → Build song search index** (or **Rebuild index**). Run this once after deploying the index rule. The rebuild reads existing songs and writes metadata-only records in batches; it does not alter or delete song content.
+The CMS Song Library reads the existing `songs/{songId}` records directly. It does not create or depend on a separate `/songIndex` node. Lyrics, sections, chords and metadata remain in the existing Android-compatible song records. The table supports client-side search, filters, sorting and 25/50/100-row pagination. Because it subscribes to the full `/songs` collection, the browser still downloads the complete song collection; this is a usability pagination feature, not server-side pagination or indexed search.
 
-New song saves update their index record after the versioned song/history save. If the index write is denied, the song save remains successful and the browser console records the index warning; rebuild the index after correcting rules. Archived songs remain in the index with their updated status.
-
-The catalogue filters/searches lightweight metadata and renders 50 rows per page by default (25/50/100 selectable). Bulk archive fetches each selected full song record and uses the existing version-checked save flow; it does not hard-delete records. Existing role checks remain: SUPER_ADMIN/ADMIN can archive; CONTENT_MANAGER can browse/create/edit but does not see archive selection or bulk actions.
-
-### Required Realtime Database rule fragment
-
-No database rules file is maintained in this repository, and the live deployed rules were not available for inspection through this repository. Merge this fragment into the existing production rules; do not replace the ruleset. Preserve all Android and existing CMS paths.
-
-```json
-{
-  "songIndex": {
-    ".read": "auth != null && (root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN' || root.child('roles').child(auth.uid).child('role').val() == 'ADMIN' || root.child('roles').child(auth.uid).child('role').val() == 'CONTENT_MANAGER')",
-    ".write": "auth != null && (root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN' || root.child('roles').child(auth.uid).child('role').val() == 'ADMIN' || root.child('roles').child(auth.uid).child('role').val() == 'CONTENT_MANAGER')",
-    ".indexOn": ["titleLower", "artistLower", "songNo", "status", "songLanguage", "songCategory", "originalKey", "updatedAt"]
-  }
-}
-```
-
-The fragment is for the CMS catalogue index only. Validate it against the live rules and the exact role data shape before deployment. Firebase Realtime Database rules are additive; do not add a broader parent grant that bypasses existing restrictions.
+Bulk archive fetches each selected full song record and uses the existing version-checked save flow; it does not hard-delete records. Existing role checks remain: SUPER_ADMIN/ADMIN can archive; CONTENT_MANAGER can browse/create/edit but does not see archive selection or bulk actions.
 
 ## CMS role model
 
