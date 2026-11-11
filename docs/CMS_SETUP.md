@@ -44,10 +44,11 @@ The CMS reads the existing paths:
 - reports/$reportId
 - roles/$uid
 - users/$uid
-- dailyVerse
+- dailyVerses/$verseId (multilingual Daily Verse collection; CMS management)
+- dailyVerse (legacy single-verse node retained for rollback; not used by the new CMS manager)
 - sharedSetlists/$shareId
 
-It writes song records and version snapshots, report status changes, taxonomy under appConfig/categories and appConfig/languages, user role updates, announcements under announcements/$id, and the daily verse under dailyVerse.
+It writes song records and version snapshots, report status changes, taxonomy under appConfig/categories and appConfig/languages, user role updates, announcements under announcements/$id, and multilingual Daily Verse records under dailyVerses/$verseId. The legacy dailyVerse node is left untouched.
 
 ## CMS role model
 
@@ -93,6 +94,28 @@ Bootstrap the first SUPER_ADMIN manually through a trusted Firebase Console/owne
 The CMS now resolves authority only from `roles/{uid}`; it no longer trusts a role copied into the user's editable profile. This matters because users can write their own `users/{uid}` profile in the existing Android-compatible model.
 
 **Important limitation:** Realtime Database grants are additive down the tree. The existing `songs/{songId}/.write` rule that grants both ADMIN and CONTENT_MANAGER access also grants those managers permission to change every field in that song, including status/visibility. Hiding the Publish button in React is not sufficient to secure publishing. Before enforcing the review workflow, change the song write architecture/rules (or use a trusted Cloud Function) so only ADMIN/SUPER_ADMIN can change publication status and visibility.
+
+
+## Daily Verse management
+
+The **Daily verses** workspace is available at `/#/admin/daily-verses` to `SUPER_ADMIN` and `ADMIN` only. It creates, edits, and deletes records at `dailyVerses/{verseId}` and stores English (`en`), Hindi (`hi`), Marathi (`mr`), and Gujarati (`gu`) text and Bible references, plus `order` and `active`. All four language texts and references are required by the CMS form. The `order` field is retained for collection organization; Android's random daily selector does not use it to choose the verse.
+
+Android reads this collection and does not write to it. The old `dailyVerse` single-record node is not migrated or deleted by the CMS.
+
+### Required Realtime Database rule fragment
+
+Merge this under the existing root `rules` object. Do not replace the production ruleset:
+
+```json
+{
+  "dailyVerses": {
+    ".read": true,
+    ".write": "auth != null && (root.child('roles').child(auth.uid).child('role').val() == 'SUPER_ADMIN' || root.child('roles').child(auth.uid).child('role').val() == 'ADMIN')"
+  }
+}
+```
+
+The currently discussed rule that also grants `CONTENT_MANAGER` write access is broader than the CMS role policy. Remove `CONTENT_MANAGER` from the deployed `dailyVerses/.write` expression if only SUPER_ADMIN and ADMIN should manage verses. The React route guard is a usability control; the RTDB rule is the actual security boundary. Public read access is required by the Android app's anonymous and signed-in readers.
 
 ## Production security checklist — required before launch
 
