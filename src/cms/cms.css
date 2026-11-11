@@ -1052,3 +1052,52 @@ button,a,input,select,textarea{max-width:100%}
 .shell[data-theme="dark"] .publish input,.shell[data-theme="dark"] .publish select{background:#111d2e;border-color:#40546e;color:#edf3fb}
 .shell[data-theme="dark"] .publish .hint{color:#9eafc5}
 @media(max-width:700px){.android-chord-palette{align-items:flex-start;flex-direction:column}.android-chord-roots{width:100%}.android-chord-roots button{min-width:34px}.android-chord-actions button{min-height:34px}.android-section-card>header{align-items:flex-start}.android-section-actions{flex-shrink:0}.android-verse-lyrics{font-size:12px;line-height:1.8}}
+
+
+/* Song editor dark-mode audit: parent surfaces and nested editor wrappers */
+body .shell[data-theme="dark"] .song-editor-tab-content > div > section.panel.editor,
+body .shell[data-theme="dark"] .song-editor-tab-content > aside > section.panel.publish,
+body .shell[data-theme="dark"] .song-editor-tab-content > aside > section.panel.preview{
+ background:#182438!important;
+ border-color:#344963!important;
+ color:#e8eef7!important;
+ box-shadow:0 8px 26px rgba(0,0,0,.16)!important;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor>h3,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish>h3,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview>h3{color:#edf3fb!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor>.hint,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish>.hint,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview>p{color:#aabbd0!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-song-workspace,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-editor-step,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-step{background:transparent!important;color:#e8eef7!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-section-list,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-targets{background:transparent!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-section-card,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-song-preview,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-toolbar,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-detect-panel{
+ background:#121e30!important;border-color:#3a4e68!important;color:#e8eef7!important
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-verse-lyrics,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-detect-panel textarea{
+ background:#0f1a2a!important;border-color:#40546e!important;color:#f0f4fa!important
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-target-line,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-section-card>header input{border-color:#344860!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-targets h5,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-section-card>header input{color:#dce8f8!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-lyric-word-line,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-lyric-word-line span,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-preview-line p{color:#e5edf8!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip{background:#294866!important;border-color:#54769c!important;color:#f0f6ff!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .publish label{color:#c0cde0!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .publish input,
+body .shell[data-theme="dark"] .song-editor-tab-content .publish select{background:#111d2e!important;border-color:#40546e!important;color:#edf3fb!important}
+body .shell[data-theme="dark"] .song-editor-tab-content .preview section{border-color:#344860!important}
+@media(max-width:700px){
+ body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor,
+ body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish,
+ body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview{padding:14px!important}
+}
