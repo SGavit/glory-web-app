@@ -120,7 +120,7 @@ function PublicHome(){
  const languages=[...new Set(allSongs.map(x=>x.songLanguage).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  const categories=[...new Set(allSongs.map(x=>x.songCategory).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  const getFirstLetter=title=>{const value=String(title||"").trim();return value?Array.from(value)[0].toLocaleUpperCase():"";};
- const isDevanagari=title=>/[\\u0900-\\u097F]/.test(String(title||"").trim());
+ const isDevanagari=title=>/[\u0900-\u097F]/.test(String(title||"").trim());
  const isEnglish=title=>/[A-Za-z]/.test(String(title||"").trim());
  const filtered=allSongs.filter(song=>{
   const title=String(song.songTitle||"");
