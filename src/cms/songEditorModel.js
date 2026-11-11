@@ -13,6 +13,16 @@ export function graphemeBoundaries(text){
  }
  return boundaries;
 }
+/** Convert between user-facing grapheme indexes and Android UTF-16 offsets. */
+export function graphemeIndexToUtf16Offset(text,index){
+ const bounds=graphemeBoundaries(text),position=Math.max(0,Math.min(bounds.length-1,Number(index)||0));
+ return bounds[position]??0;
+}
+export function utf16OffsetToGraphemeIndex(text,offset){
+ const bounds=graphemeBoundaries(text),safe=snapUtf16Offset(text,offset,"backward");
+ const index=bounds.indexOf(safe);
+ return index<0?0:index;
+}
 export function snapUtf16Offset(text,offset,direction="nearest"){
  const value=String(text||""),target=Math.max(0,Math.min(value.length,Number(offset)||0)),bounds=graphemeBoundaries(value);
  if(bounds.includes(target))return target;
