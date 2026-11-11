@@ -1015,3 +1015,40 @@ button,a,input,select,textarea{max-width:100%}
  .shell .song-pagination-controls{gap:6px}
  .shell .song-pagination-controls .secondary-btn{padding:0 7px}
 }
+
+
+/* Song editor dark theme: readable lyrics, chord tools and responsive controls */
+.shell[data-theme="dark"] .song-editor-tab-content .panel{color:var(--cms-text)}
+.shell[data-theme="dark"] .song-editor-tabs{background:#121d2d;border-color:#394b63}
+.shell[data-theme="dark"] .song-editor-tabs button{color:#aab8ca}
+.shell[data-theme="dark"] .song-editor-tabs button span{background:#26364d;color:#c0ccdc}
+.shell[data-theme="dark"] .song-editor-tabs button.active{background:#263a58;border-color:#496486;color:#f1f5fb;box-shadow:none}
+.shell[data-theme="dark"] .song-editor-tabs button.active span{background:#3b5579;color:#fff}
+.shell[data-theme="dark"] .android-section-add button,.shell[data-theme="dark"] .android-section-actions button,.shell[data-theme="dark"] .android-chord-actions button,.shell[data-theme="dark"] .android-chord-roots button,.shell[data-theme="dark"] .android-chord-palette select,.shell[data-theme="dark"] .android-detect-panel button,.shell[data-theme="dark"] .android-chord-modal button{border-color:#435873;background:#263a55;color:#e8eef7}
+.shell[data-theme="dark"] .android-detect-button{background:#29445f;border-color:#486788;color:#e5efff}
+.shell[data-theme="dark"] .android-chord-actions .danger,.shell[data-theme="dark"] .android-chord-modal .danger{background:#492f3a;border-color:#754758;color:#ffc4c4}
+.shell[data-theme="dark"] .android-chord-actions .quiet,.shell[data-theme="dark"] .android-chord-modal .quiet{background:#1b2a40;color:#d4deeb}
+.shell[data-theme="dark"] .android-detect-panel,.shell[data-theme="dark"] .android-chord-toolbar{background:#121e30;border-color:#40546e}
+.shell[data-theme="dark"] .android-detect-panel label,.shell[data-theme="dark"] .android-chord-palette label,.shell[data-theme="dark"] .android-selected-chord,.shell[data-theme="dark"] .android-editor-notice,.shell[data-theme="dark"] .android-verse-lyrics-label{color:#b8c6d8}
+.shell[data-theme="dark"] .android-detect-panel textarea,.shell[data-theme="dark"] .android-chord-palette select,.shell[data-theme="dark"] .android-chord-modal input,.shell[data-theme="dark"] .android-verse-lyrics{background:#111d2e;border-color:#40546e;color:#f0f4fa}
+.shell[data-theme="dark"] .android-verse-lyrics::placeholder,.shell[data-theme="dark"] .android-detect-panel textarea::placeholder{color:#788ba4}
+.shell[data-theme="dark"] .android-verse-lyrics:focus{border-color:#7899c2;box-shadow:0 0 0 2px #496b9638}
+.shell[data-theme="dark"] .android-section-card,.shell[data-theme="dark"] .android-song-preview,.shell[data-theme="dark"] .android-chord-targets .android-section-card{background:#121e30;border-color:#3a4e68;color:#e8eef7}
+.shell[data-theme="dark"] .android-section-card>header input{border-bottom-color:#40546e;color:#d9e7fa}
+.shell[data-theme="dark"] .android-chord-targets .android-section-card h5,.shell[data-theme="dark"] .android-song-preview section h4{color:#c5d8f2}
+.shell[data-theme="dark"] .android-chord-target-line,.shell[data-theme="dark"] .android-chord-line{border-color:#344860}
+.shell[data-theme="dark"] .android-lyric-word-line,.shell[data-theme="dark"] .android-lyric-word-line span,.shell[data-theme="dark"] .android-preview-line p{color:#e5edf8}
+.shell[data-theme="dark"] .android-chord-chip{background:#294866;border-color:#54769c;color:#f0f6ff}
+.shell[data-theme="dark"] .android-chord-positioner .android-chord-chip.is-moving{background:#385f88;border-color:#8db5e3}
+.shell[data-theme="dark"] .android-chord-nudge{background:#1c2d43;border-color:#465d79;color:#dce8f8}
+.shell[data-theme="dark"] .android-chord-nudge:hover:not(:disabled){background:#304967;border-color:#7899c2}
+.shell[data-theme="dark"] .android-chord-roots .selected{background:#496b96;border-color:#7899c2;color:#fff}
+.shell[data-theme="dark"] .android-selected-chord b{color:#c9ddf7}
+.shell[data-theme="dark"] .android-editor-notice{background:#243a55;color:#d4e4f7}
+.shell[data-theme="dark"] .android-empty-sections{border-color:#40546e;color:#aab8ca}
+.shell[data-theme="dark"] .android-chord-modal{background:#1a2940;border:1px solid #435873;color:#edf3fb}
+.shell[data-theme="dark"] .android-chord-modal-backdrop{background:#050b14b8}
+.shell[data-theme="dark"] .publish label{color:#aab8ca}
+.shell[data-theme="dark"] .publish input,.shell[data-theme="dark"] .publish select{background:#111d2e;border-color:#40546e;color:#edf3fb}
+.shell[data-theme="dark"] .publish .hint{color:#9eafc5}
+@media(max-width:700px){.android-chord-palette{align-items:flex-start;flex-direction:column}.android-chord-roots{width:100%}.android-chord-roots button{min-width:34px}.android-chord-actions button{min-height:34px}.android-section-card>header{align-items:flex-start}.android-section-actions{flex-shrink:0}.android-verse-lyrics{font-size:12px;line-height:1.8}}
