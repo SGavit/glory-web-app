@@ -21,7 +21,7 @@ export function snapUtf16Offset(text,offset,direction="nearest"){
 }
 export function wordStartAtUtf16Offset(text,offset){
  const value=String(text||""),safe=snapUtf16Offset(value,offset,"backward"),prefix=value.slice(0,safe);
- const match=prefix.match(/[\\p{L}\\p{N}\\p{M}_]*$/u);
+ const match=prefix.match(/[\p{L}\p{N}\p{M}_]*$/u);
  return snapUtf16Offset(value,match?prefix.length-match[0].length:safe,"backward");
 }
 /** Map existing chord anchors through one contiguous text edit. */
@@ -46,11 +46,11 @@ export function remapChordsAfterTextEdit(oldText,newText,chords=[]){
  return{chords:mapped,changedAnchors};
 }
 export function detectSectionsFromLyrics(input){
- const source=cleanText(input).trim();if(!source)return[];const lines=source.split("\n"),explicit=lines.some(x=>/^\\s*\\[[^\\]]+\\]\\s*$/.test(x));
- if(explicit){const out=[];let current=null;const finish=()=>{if(current&&current.lines.length)out.push(current);};lines.forEach(raw=>{const m=raw.match(/^\\s*\\[([^\\]]+)\\]\\s*$/);if(m){finish();const title=m[1].trim();current={type:title.toUpperCase().split(/\\s+/)[0],title,lines:[]};}else if(current&&raw.trim())current.lines.push({text:raw.trimEnd(),chords:[]});});finish();return out;}
- return source.split(/\\n\\s*\\n+/).map(b=>b.split("\n").map(x=>x.trimEnd()).filter(x=>x.trim())).filter(b=>b.length).map((b,i)=>({type:"VERSE",title:"Verse "+(i+1),lines:b.map(text=>({text,chords:[]}))}));
+ const source=cleanText(input).trim();if(!source)return[];const lines=source.split("\n"),explicit=lines.some(x=>/^\s*\[[^\]]+\]\s*$/.test(x));
+ if(explicit){const out=[];let current=null;const finish=()=>{if(current&&current.lines.length)out.push(current);};lines.forEach(raw=>{const m=raw.match(/^\s*\[([^\]]+)\]\s*$/);if(m){finish();const title=m[1].trim();current={type:title.toUpperCase().split(/\s+/)[0],title,lines:[]};}else if(current&&raw.trim())current.lines.push({text:raw.trimEnd(),chords:[]});});finish();return out;}
+ return source.split(/\n\s*\n+/).map(b=>b.split("\n").map(x=>x.trimEnd()).filter(x=>x.trim())).filter(b=>b.length).map((b,i)=>({type:"VERSE",title:"Verse "+(i+1),lines:b.map(text=>({text,chords:[]}))}));
 }
-export function nextSectionTitle(type,sections){const t=String(type||"Verse").trim();if(!/^(verse|chorus)$/i.test(t))return t;const nums=asArray(sections).map(s=>{const m=String(s.title||"").match(new RegExp("^"+t+"\\\\s+(\\\\d+)$","i"));return m?Number(m[1]):0;});return t[0].toUpperCase()+t.slice(1).toLowerCase()+" "+(Math.max(0,...nums)+1);}
+export function nextSectionTitle(type,sections){const t=String(type||"Verse").trim();if(!/^(verse|chorus)$/i.test(t))return t;const nums=asArray(sections).map(s=>{const m=String(s.title||"").match(new RegExp("^"+t+"\\s+(\\d+)$","i"));return m?Number(m[1]):0;});return t[0].toUpperCase()+t.slice(1).toLowerCase()+" "+(Math.max(0,...nums)+1);}
 export function normalizeChordIndex(chords,requested,length,exclude=-1){
  const size=Math.max(0,Number(length)||0),used=new Set(asArray(chords).filter((_,i)=>i!==exclude).map(c=>Number(c.charIndex)||0));
  const target=Math.max(0,Math.min(Math.max(0,size-1),Number(requested)||0));
@@ -58,4 +58,4 @@ export function normalizeChordIndex(chords,requested,length,exclude=-1){
  for(let d=1;d<=size;d++){if(target-d>=0&&!used.has(target-d))return target-d;if(target+d<size&&!used.has(target+d))return target+d;}
  return -1;
 }
-export function normalizeSections(sections){return asArray(sections).map(s=>({type:String(s.type||s.title||"VERSE").toUpperCase().split(/\\s+/)[0],...(s.sectionNo==null?{}:{sectionNo:Number(s.sectionNo)}),title:String(s.title||s.type||"Verse"),lines:asArray(s.lines).map(l=>{const text=String(l.text||"");return{text,chords:asArray(l.chords).map(c=>({chordName:String(c.chordName||"").trim().replace("♯","#").replace("♭","b"),charIndex:snapUtf16Offset(text,Math.max(0,Math.min(Math.max(0,text.length-1),Number(c.charIndex)||0)),"backward")})).filter(c=>c.chordName).sort((x,y)=>x.charIndex-y.charIndex)};})}));}
+export function normalizeSections(sections){return asArray(sections).map(s=>({type:String(s.type||s.title||"VERSE").toUpperCase().split(/\s+/)[0],...(s.sectionNo==null?{}:{sectionNo:Number(s.sectionNo)}),title:String(s.title||s.type||"Verse"),lines:asArray(s.lines).map(l=>{const text=String(l.text||"");return{text,chords:asArray(l.chords).map(c=>({chordName:String(c.chordName||"").trim().replace("♯","#").replace("♭","b"),charIndex:snapUtf16Offset(text,Math.max(0,Math.min(Math.max(0,text.length-1),Number(c.charIndex)||0)),"backward")})).filter(c=>c.chordName).sort((x,y)=>x.charIndex-y.charIndex)};})}));}
