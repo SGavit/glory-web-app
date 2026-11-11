@@ -121,9 +121,10 @@ function PublicHome(){
  const categories=[...new Set(allSongs.map(x=>x.songCategory).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  const getFirstLetter=title=>{const value=String(title||"").trim();return value?Array.from(value)[0].toLocaleUpperCase():"";};
  const isDevanagari=title=>/[\\u0900-\\u097F]/.test(String(title||"").trim());
+ const isEnglish=title=>/[A-Za-z]/.test(String(title||"").trim());
  const filtered=allSongs.filter(song=>{
   const title=String(song.songTitle||"");
-  const matchesScript=script==="devanagari"?isDevanagari(title):!isDevanagari(title);
+  const matchesScript=activeTab!=="letters"||(script==="devanagari"?isDevanagari(title):isEnglish(title));
   const matchesQuery=[song.songTitle,song.songNo,song.artist,song.author,song.songLanguage,song.songCategory].join(" ").toLocaleLowerCase().includes(queryText.trim().toLocaleLowerCase());
   const matchesLanguage=language==="ALL"||song.songLanguage===language;
   const matchesCategory=category==="ALL"||song.songCategory===category;
@@ -137,7 +138,7 @@ function PublicHome(){
   return 0;
  });
  const letters=script==="devanagari"?DEVANAGARI_LETTERS:ENGLISH_LETTERS;
- const availableLetters=new Set(allSongs.filter(song=>script==="devanagari"?isDevanagari(song.songTitle):!isDevanagari(song.songTitle)).map(song=>getFirstLetter(song.songTitle)));
+ const availableLetters=new Set(allSongs.filter(song=>script==="devanagari"?isDevanagari(song.songTitle):isEnglish(song.songTitle)).map(song=>getFirstLetter(song.songTitle)));
  const shown=filtered.slice(0,visibleCount);
  const updateFilter=(setter,value)=>{setter(value);setVisibleCount(12);};
  return <div className="public">
@@ -154,7 +155,6 @@ function PublicHome(){
     <button type="button" role="tab" aria-selected={activeTab==="letters"} className={activeTab==="letters"?"active":""} onClick={()=>{setActiveTab("letters");setLetter("");setVisibleCount(12);}}>⌗ <span>Letters</span></button>
    </div>
    <div className="public-controls">
-    <label className="public-filter search-filter"><span>Search</span><div className="filter-search"><span>⌕</span><input value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Song title, number or artist"/></div></label>
     <label className="public-filter"><span>Language</span><select value={language} onChange={e=>updateFilter(setLanguage,e.target.value)}><option value="ALL">All languages</option>{languages.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
     <label className="public-filter"><span>Category</span><select value={category} onChange={e=>updateFilter(setCategory,e.target.value)}><option value="ALL">All categories</option>{categories.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
     <label className="public-filter"><span>Sort by</span><select value={sort} onChange={e=>updateFilter(setSort,e.target.value)}><option value="title">Title (A–Z)</option><option value="number">Song number</option><option value="language">Language</option><option value="recent">Recently updated</option></select></label>
