@@ -1,4 +1,4 @@
-import { graphemeBoundaries, snapUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, remapLinesAfterEdit } from "./songEditorModel";
+import { graphemeBoundaries, snapUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, remapLinesAfterEdit, graphemeIndexToUtf16Offset, utf16OffsetToGraphemeIndex } from "./songEditorModel";
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
@@ -83,7 +83,18 @@ describe("Android song model compatibility", () => {
 
 
 describe("Unicode-safe chord editor positions", () => {
-  test("uses UTF-16 offsets but never splits a grapheme", () => {
+
+  test("uses visible Hindi graphemes for editor indexes and UTF-16 for storage", () => {
+    const line = "प्रभु का धन्यवाद करूँगा";
+    const bounds = graphemeBoundaries(line);
+    expect(utf16OffsetToGraphemeIndex(line, bounds[0])).toBe(0);
+    expect(utf16OffsetToGraphemeIndex(line, bounds[1])).toBe(1);
+    expect(graphemeIndexToUtf16Offset(line, 0)).toBe(0);
+    expect(graphemeIndexToUtf16Offset(line, 1)).toBe(bounds[1]);
+    expect(line.slice(graphemeIndexToUtf16Offset(line, 0), graphemeIndexToUtf16Offset(line, 1))).toBe("प्र");
+    expect(line.slice(graphemeIndexToUtf16Offset(line, 1), graphemeIndexToUtf16Offset(line, 2))).toBe("भु");
+  });
+\n  test("uses UTF-16 offsets but never splits a grapheme", () => {
     expect(graphemeBoundaries("A😀किB")).toEqual([0, 1, 3, 5, 6]);
     expect(snapUtf16Offset("A😀B", 2, "backward")).toBe(1);
     expect(snapUtf16Offset("A😀B", 2, "forward")).toBe(3);
