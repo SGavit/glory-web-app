@@ -1,4 +1,4 @@
-import { graphemeBoundaries, snapUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit } from "./songEditorModel";
+import { graphemeBoundaries, snapUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, remapLinesAfterEdit } from "./songEditorModel";
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
@@ -69,6 +69,16 @@ describe("Android song model compatibility", () => {
   test("builds Android status visibility field", () => {
     expect(toStatusVisibility("PUBLISHED", "PUBLIC")).toBe("PUBLISHED_PUBLIC");
   });
+  test("keeps chord indexes with their original lines when a lyric line is inserted", () => {
+    const result = remapLinesAfterEdit([
+      { text: "First line", chords: [{ chordName: "C", charIndex: 0 }] },
+      { text: "Second line", chords: [{ chordName: "G", charIndex: 7 }] }
+    ], ["New inserted line", "First line", "Second line"]);
+    expect(result.lines[0].chords).toEqual([]);
+    expect(result.lines[1].chords[0].chordName).toBe("C");
+    expect(result.lines[2].chords[0].charIndex).toBe(7);
+  });
+
 });
 
 
