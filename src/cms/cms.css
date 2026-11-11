@@ -140,7 +140,7 @@
 .android-song-preview section h4{margin:0 0 10px;color:#286b52;font:700 12px Inter}
 .android-preview-line{margin:8px 0 13px}
 .android-preview-line>div{height:20px;position:relative}
-.android-preview-line span{position:absolute;color:#286b52;font:bold 10px sans-serif;white-space:nowrap}
+.android-preview-line>div span{position:absolute;color:#286b52;font:bold 10px sans-serif;white-space:nowrap}
 .android-preview-line p{margin:0;font:12px/1.8 ui-monospace,monospace;white-space:pre-wrap}
 .android-chord-modal-backdrop{position:fixed;inset:0;z-index:50;background:#15251d66;display:grid;place-items:center;padding:16px}
 .android-chord-modal{width:min(340px,100%);display:grid;gap:12px;padding:18px;border-radius:12px;background:#fff;box-shadow:0 15px 50px #0003}
