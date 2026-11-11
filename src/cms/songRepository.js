@@ -38,9 +38,17 @@ export async function saveSongToFirebase({
     const recordedVersion = Number(previousHistory.child("version").val() || 0);
     if (recordedVersion === proposed.version) {
       const current = await get(ref(database, `songs/${targetId}`));
+      const replayedSong = current.val() || previousHistory.child("snapshot").val();
+      if (replayedSong) {
+        try {
+          await set(ref(database, `songIndex/${targetId}`), buildSongIndexPayload(targetId, replayedSong));
+        } catch (indexError) {
+          console.warn("Song save was already committed, but its catalogue index could not be updated. Rebuild the index from the CMS.", indexError);
+        }
+      }
       return {
         songId: targetId,
-        song: current.val() || previousHistory.child("snapshot").val(),
+        song: replayedSong,
         operationId,
         replayed: true
       };
