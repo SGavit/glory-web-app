@@ -1,7 +1,7 @@
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
-  toStatusVisibility, buildSongPayload, DuplicateMatchType
+  toStatusVisibility, buildSongPayload, buildSongIndexPayload, DuplicateMatchType
 } from "./songData";
 
 describe("Android song model compatibility", () => {
@@ -62,6 +62,23 @@ describe("Android song model compatibility", () => {
     expect(next.sections[0].custom).toBe(7);
     expect(next.sections[0].sectionNo).toBeUndefined();
     expect(next.sections[0].lines[0].customLine).toBe(true);
+  });
+
+
+  test("builds a compact search index without lyrics or chord sections", () => {
+    const index = buildSongIndexPayload("song-7", {
+      songTitle: "Amazing Grace", songNo: "7", songLanguage: "English",
+      songCategory: "Worship", originalKey: "G", status: "PUBLISHED",
+      visibility: "PUBLIC", artist: "John Newton", updatedAt: 123,
+      sections: [{ title: "Verse 1", lines: [{ text: "Amazing grace", chords: [{ chordName: "G" }] }] }]
+    });
+    expect(index.firebaseKey).toBe("song-7");
+    expect(index.titleLower).toBe("amazing grace");
+    expect(index.artistLower).toBe("john newton");
+    expect(index.songNo).toBe(7);
+    expect(index.updatedAt).toBe(123);
+    expect(index.sections).toBeUndefined();
+    expect(index.lyrics).toBeUndefined();
   });
 
   test("builds Android status visibility field", () => {
