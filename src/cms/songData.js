@@ -97,10 +97,28 @@ export function lyricsFromSections(sections) {
 
 
 
+export function validateChordOffsets(sections = []) {
+  asArray(sections).forEach((section, sectionIndex) => {
+    asArray(section?.lines).forEach((line, lineIndex) => {
+      const text = String(line?.text || "");
+      asArray(line?.chords).forEach((chord, chordIndex) => {
+        const offset = Number(chord?.charIndex);
+        if (!Number.isInteger(offset) || offset < 0 || offset >= text.length) {
+          throw new Error(
+            `Invalid chord position in section ${sectionIndex + 1}, line ${lineIndex + 1}, chord ${chordIndex + 1}. Expected a 0-based UTF-16 offset from 0 to ${Math.max(0, text.length - 1)}.`
+          );
+        }
+      });
+    });
+  });
+}
+
 export function buildSongPayload(existing, edited, uid, now) {
   const old = existing || {};
   const status = edited.status || old.status || "DRAFT";
   const visibility = edited.visibility || old.visibility || "PRIVATE";
+  const sections = asArray(edited.sections);
+  validateChordOffsets(sections);
   return {
     ...old,
     ...edited,
@@ -120,7 +138,7 @@ export function buildSongPayload(existing, edited, uid, now) {
     tags: asArray(edited.tags ?? old.tags),
     aliases: asArray(edited.aliases ?? old.aliases),
     preferredKeys: asArray(edited.preferredKeys ?? old.preferredKeys),
-    sections: asArray(edited.sections),
+    sections,
     status,
     visibility,
     statusVisibility: toStatusVisibility(status, visibility),
