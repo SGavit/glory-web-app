@@ -1103,9 +1103,10 @@ body .shell[data-theme="dark"] .song-editor-tab-content .preview section{border-
 }
 
 
-/* Chord anchors and lyric text must share one unwrapped, measurable text run. */
+/* Chord anchors and lyric text share one readable, measurable text run. */
 .shell .android-chord-target-line{min-width:0;overflow-x:auto;overflow-y:visible}
 .shell .android-lyric-word-line{display:block;min-width:0;overflow-x:auto;white-space:pre}
-.shell .android-lyric-word-line>span{display:inline-block;min-width:100%;width:max-content;white-space:pre;font:12px/1.8 ui-monospace,monospace}
+.shell .android-lyric-word-line>span{display:inline-block;min-width:100%;width:max-content;white-space:pre;font:18px/1.9 ui-monospace,monospace;letter-spacing:0}
+.shell .android-chord-chip{font-size:14px;padding:4px 8px;line-height:1.35}
 .shell .android-preview-line{min-width:0;overflow-x:auto}
-.shell .android-preview-line p{width:max-content;min-width:100%;white-space:pre;font:12px/1.8 ui-monospace,monospace}
+.shell .android-preview-line p{width:max-content;min-width:100%;white-space:pre;font:18px/1.9 ui-monospace,monospace;letter-spacing:0}
