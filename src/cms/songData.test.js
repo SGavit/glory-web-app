@@ -1,4 +1,4 @@
-import { graphemeBoundaries, snapUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, remapLinesAfterEdit, graphemeIndexToUtf16Offset, utf16OffsetToGraphemeIndex } from "./songEditorModel";
+import { clampUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, remapLinesAfterEdit, normalizeChordIndex, normalizeSections } from "./songEditorModel";
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
@@ -82,28 +82,56 @@ describe("Android song model compatibility", () => {
 });
 
 
-describe("Unicode-safe chord editor positions", () => {
-
-  test("uses visible Hindi graphemes for editor indexes and UTF-16 for storage", () => {
+describe("UTF-16 chord editor positions (Android/Firebase contract)", () => {
+  test("uses the exact Android UTF-16 offsets for the Hindi test lyric", () => {
     const line = "प्रभु का धन्यवाद करूँगा";
-    const bounds = graphemeBoundaries(line);
-    expect(utf16OffsetToGraphemeIndex(line, bounds[0])).toBe(0);
-    expect(utf16OffsetToGraphemeIndex(line, bounds[1])).toBe(1);
-    expect(graphemeIndexToUtf16Offset(line, 0)).toBe(0);
-    expect(graphemeIndexToUtf16Offset(line, 1)).toBe(bounds[1]);
-    expect(line.slice(graphemeIndexToUtf16Offset(line, 0), graphemeIndexToUtf16Offset(line, 1))).toBe("प्र");
-    expect(line.slice(graphemeIndexToUtf16Offset(line, 1), graphemeIndexToUtf16Offset(line, 2))).toBe("भु");
-  });
-\n  test("uses UTF-16 offsets but never splits a grapheme", () => {
-    expect(graphemeBoundaries("A😀किB")).toEqual([0, 1, 3, 5, 6]);
-    expect(snapUtf16Offset("A😀B", 2, "backward")).toBe(1);
-    expect(snapUtf16Offset("A😀B", 2, "forward")).toBe(3);
+    expect(line.length).toBe(23);
+    expect(line.indexOf("प्र")).toBe(0);
+    expect(line.indexOf("भु")).toBe(3);
+    expect(line.indexOf("का")).toBe(6);
+    expect(line.indexOf("ध")).toBe(9);
   });
 
-  test("attaches a chord to the beginning of a clicked Hindi word", () => {
+  test("keeps Firebase charIndex values unchanged when normalizing Devanagari chords", () => {
+    const sections = normalizeSections([{
+      title: "Verse 1",
+      lines: [{
+        text: "प्रभु का धन्यवाद करूँगा",
+        chords: [
+          { chordName: "G", charIndex: 0 },
+          { chordName: "C", charIndex: 3 },
+          { chordName: "D", charIndex: 6 },
+          { chordName: "Em", charIndex: 9 }
+        ]
+      }]
+    }]);
+    expect(sections[0].lines[0].chords.map(chord => chord.charIndex)).toEqual([0, 3, 6, 9]);
+  });
+
+  test("uses DOM word offsets as native JavaScript UTF-16 positions", () => {
     const line = "प्रभु का धन्यवाद करूँगा";
     expect(wordStartAtUtf16Offset(line, 8)).toBe(line.indexOf("का"));
     expect(wordStartAtUtf16Offset(line, line.indexOf("धन्यवाद") + 3)).toBe(line.indexOf("धन्यवाद"));
+  });
+
+  test("clamps UTF-16 offsets without converting them to visible grapheme indexes", () => {
+    const line = "प्रभु का धन्यवाद करूँगा";
+    expect(clampUtf16Offset(line, 3)).toBe(3);
+    expect(clampUtf16Offset(line, 6)).toBe(6);
+    expect(clampUtf16Offset(line, 9)).toBe(9);
+    expect(clampUtf16Offset(line, 999)).toBe(22);
+    expect(clampUtf16Offset("", 0)).toBe(0);
+  });
+
+  test("parses inline chord markers into UTF-16 offsets for Devanagari", () => {
+    const parsed = parseLyrics("[Verse 1]\nप्र{G}भु {C}का {D}धन्यवाद");
+    expect(parsed[0].lines[0].text).toBe("प्रभु का धन्यवाद");
+    expect(parsed[0].lines[0].chords.map(chord => chord.charIndex)).toEqual([2, 6, 9]);
+  });
+
+  test("moves chord anchors by one UTF-16 code unit", () => {
+    expect(clampUtf16Offset("प्रभु", 3 + 1)).toBe(4);
+    expect(clampUtf16Offset("प्रभु", 3 - 1)).toBe(2);
   });
 
   test("shifts chord anchors when text is inserted before them", () => {
@@ -120,5 +148,11 @@ describe("Unicode-safe chord editor positions", () => {
     ]);
     expect(result.changedAnchors).toBe(1);
     expect(result.chords[0].charIndex).toBe(8);
+  });
+
+  test("keeps a requested position within the valid UTF-16 range", () => {
+    expect(normalizeChordIndex([], 8, 8)).toBe(7);
+    expect(normalizeChordIndex([], 2, 8)).toBe(2);
+    expect(normalizeChordIndex([], 0, 0)).toBe(-1);
   });
 });
