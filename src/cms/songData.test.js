@@ -2,7 +2,7 @@ import { clampUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, rem
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
-  toStatusVisibility, buildSongPayload, DuplicateMatchType, validateChordOffsets
+  toStatusVisibility, buildSongPayload, getNextSongNo, DuplicateMatchType, validateChordOffsets
 } from "./songData";
 
 describe("Android song model compatibility", () => {
@@ -181,5 +181,41 @@ describe("UTF-16 chord editor positions (Android/Firebase contract)", () => {
     expect(normalizeChordIndex([], 8, 8)).toBe(7);
     expect(normalizeChordIndex([], 2, 8)).toBe(2);
     expect(normalizeChordIndex([], 0, 0)).toBe(-1);
+  });
+});
+
+
+describe("automatic song numbering", () => {
+  test("assigns the next number after the highest existing Firebase song number", () => {
+    expect(getNextSongNo({
+      oldA: { songNo: "698" },
+      oldB: { songNo: 700 },
+      archived: { songNo: "699" },
+      noNumber: { songTitle: "Legacy song" }
+    })).toBe(701);
+  });
+
+  test("starts numbering at 1 when the Firebase song collection is empty", () => {
+    expect(getNextSongNo(null)).toBe(1);
+  });
+
+  test("does not allow an edited song number to overwrite the existing number", () => {
+    const payload = buildSongPayload(
+      { firebaseKey: "song-700", songNo: "700", version: 3 },
+      { songTitle: "Edited title", songNo: 999, sections: [] },
+      "uid",
+      100
+    );
+    expect(payload.songNo).toBe(700);
+  });
+
+  test("uses the generated number for a new song", () => {
+    const payload = buildSongPayload(
+      { firebaseKey: "new-song-key" },
+      { songTitle: "New song", songNo: 701, sections: [] },
+      "uid",
+      100
+    );
+    expect(payload.songNo).toBe(701);
   });
 });
