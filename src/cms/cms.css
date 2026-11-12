@@ -1125,3 +1125,7 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  box-shadow:none!important;
  padding:0!important;
 }
+
+
+/* Exact chord anchor: do not offset the label from the measured grapheme start. */
+.shell .android-chord-targets .android-chord-positioner{transform:none!important}
