@@ -1134,3 +1134,12 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 /* Lyrics section toolbar actions */
 .shell .android-lyrics-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 @media(max-width:700px){.shell .android-lyrics-tools{width:100%}.shell .android-lyrics-tools button{flex:1}}
+
+/* Compact repeat-count stepper; existing section action buttons remain unchanged. */
+.android-section-actions .android-repeat-stepper,.android-section-actions .android-repeat-value{height:24px;min-width:20px;padding:0 5px;display:inline-grid;place-items:center;border:1px solid var(--line);background:#f3f5f4;color:#40564a;font-size:10px;line-height:1;font-weight:600}
+.android-section-actions .android-repeat-stepper:first-child{border-radius:7px 0 0 7px}
+.android-section-actions .android-repeat-value{min-width:18px;padding:0 3px;border-left:0;border-right:0;border-radius:0;font-size:11px;color:#24382c}
+.android-section-actions .android-repeat-stepper:nth-child(3){border-radius:0 7px 7px 0}
+.android-section-actions .android-repeat-stepper:hover:not(:disabled),.android-section-actions .android-repeat-value:hover:not(:disabled){background:#e8eee9}
+.android-section-actions .android-repeat-value.is-active,.android-section-actions .android-repeat-stepper.is-active{background:#e4eee6;border-color:#a9c3ae;color:#24563b}
+.android-section-actions .android-repeat-stepper:disabled,.android-section-actions .android-repeat-value:disabled{opacity:.4;cursor:not-allowed}
