@@ -2,7 +2,7 @@ import { clampUtf16Offset, wordStartAtUtf16Offset, remapChordsAfterTextEdit, rem
 import {
   normalizeSong, parseLyrics, lyricsFromSections, normalizeForDuplicate,
   normalizeLyricsForDuplicate, jaccardSimilarity, checkDuplicateSongs,
-  toStatusVisibility, buildSongPayload, DuplicateMatchType
+  toStatusVisibility, buildSongPayload, DuplicateMatchType, validateChordOffsets
 } from "./songData";
 
 describe("Android song model compatibility", () => {
@@ -148,6 +148,33 @@ describe("UTF-16 chord editor positions (Android/Firebase contract)", () => {
     ]);
     expect(result.changedAnchors).toBe(1);
     expect(result.chords[0].charIndex).toBe(8);
+  });
+
+  test("rejects invalid chord offsets before a Firebase payload is built", () => {
+    expect(() => validateChordOffsets([{
+      lines: [{ text: "प्रभु", chords: [{ chordName: "C", charIndex: 99 }] }]
+    }])).toThrow(/UTF-16 offset/);
+    expect(() => validateChordOffsets([{
+      lines: [{ text: "प्रभु", chords: [{ chordName: "C", charIndex: 1.5 }] }]
+    }])).toThrow(/UTF-16 offset/);
+  });
+
+  test("allows valid Android UTF-16 offsets in the song payload", () => {
+    const sections = [{
+      type: "VERSE",
+      title: "Verse 1",
+      lines: [{
+        text: "प्रभु का धन्यवाद करूँगा",
+        chords: [
+          { chordName: "G", charIndex: 0 },
+          { chordName: "C", charIndex: 3 },
+          { chordName: "D", charIndex: 6 },
+          { chordName: "Em", charIndex: 9 }
+        ]
+      }]
+    }];
+    const payload = buildSongPayload({}, { songTitle: "Test", sections }, "uid", 100);
+    expect(payload.sections[0].lines[0].chords.map(chord => chord.charIndex)).toEqual([0, 3, 6, 9]);
   });
 
   test("keeps a requested position within the valid UTF-16 range", () => {
