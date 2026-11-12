@@ -113,6 +113,17 @@ export function validateChordOffsets(sections = []) {
   });
 }
 
+export function getNextSongNo(songs) {
+  const values = Array.isArray(songs)
+    ? songs
+    : songs && typeof songs === "object" ? Object.values(songs) : [];
+  const highest = values.reduce((max, song) => {
+    const number = Number(song?.songNo);
+    return Number.isFinite(number) ? Math.max(max, number) : max;
+  }, 0);
+  return Math.floor(highest) + 1;
+}
+
 export function buildSongPayload(existing, edited, uid, now) {
   const old = existing || {};
   const status = edited.status || old.status || "DRAFT";
@@ -123,7 +134,7 @@ export function buildSongPayload(existing, edited, uid, now) {
     ...old,
     ...edited,
     firebaseKey: edited.firebaseKey || old.firebaseKey,
-    songNo: Number(edited.songNo || 0),
+    songNo: old.songNo == null || old.songNo === "" ? Number(edited.songNo || 0) : Number(old.songNo),
     songTitle: String(edited.songTitle || "").trim(),
     songLanguage: edited.songLanguage || "English",
     songCategory: edited.songCategory || "Worship",
