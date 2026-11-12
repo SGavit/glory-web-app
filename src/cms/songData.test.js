@@ -126,7 +126,7 @@ describe("UTF-16 chord editor positions (Android/Firebase contract)", () => {
   test("parses inline chord markers into UTF-16 offsets for Devanagari", () => {
     const parsed = parseLyrics("[Verse 1]\nप्र{G}भु {C}का {D}धन्यवाद");
     expect(parsed[0].lines[0].text).toBe("प्रभु का धन्यवाद");
-    expect(parsed[0].lines[0].chords.map(chord => chord.charIndex)).toEqual([2, 6, 9]);
+    expect(parsed[0].lines[0].chords.map(chord => chord.charIndex)).toEqual([3, 6, 9]);
   });
 
   test("moves chord anchors by one UTF-16 code unit", () => {
