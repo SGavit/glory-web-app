@@ -221,7 +221,7 @@ export function normalizeSections(sections) {
         chords: asArray(line.chords)
           .map(chord => ({
             chordName: String(chord.chordName || "").trim().replace("♯", "#").replace("♭", "b"),
-            charIndex: clampUtf16Offset(text, chord.charIndex)
+            charIndex: Number(chord.charIndex ?? 0)
           }))
           .filter(chord => chord.chordName)
           .sort((a, b) => a.charIndex - b.charIndex)
