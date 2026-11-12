@@ -2,6 +2,14 @@ import React,{useEffect,useLayoutEffect,useMemo,useRef,useState}from"react";
 import{detectSectionsFromLyrics,clampUtf16Offset,nextSectionTitle,normalizeChordIndex,normalizeSections,remapLinesAfterEdit,wordStartAtUtf16Offset}from"./songEditorModel";
 const SHARP=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],FLAT=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"],QUALITY=[["Major",[""]],["Minor",["m"]],["7th",["7"]],["m7",["m7"]],["Maj7",["maj7"]],["Sus",["sus2","sus4"]],["Dim/Aug",["dim","dim7","aug"]],["9th/13th",["9","add9","11","13"]]];
 const chordNorm=v=>String(v||"").trim().replace(/♯/g,"#").replace(/♭/g,"b"),clone=v=>normalizeSections(v).map(s=>({...s,lines:s.lines.map(l=>({...l,chords:l.chords.map(c=>({...c}))}))}));
+const graphemeSegmenter=typeof Intl!=="undefined"&&Intl.Segmenter?new Intl.Segmenter(undefined,{granularity:"grapheme"}):null;
+const graphemeEndAt=(text,start)=>{
+ if(start>=text.length)return start;
+ if(graphemeSegmenter){for(const part of graphemeSegmenter.segment(text)){if(part.index===start)return start+part.segment.length;if(part.index>start)break;}}
+ let end=start+String.fromCodePoint(text.codePointAt(start)).length;
+ while(end<text.length){const cp=String.fromCodePoint(text.codePointAt(end));if(!/[\\p{M}\\u200d\\ufe0e\\ufe0f]/u.test(cp))break;end+=cp.length;}
+ return end;
+};
 export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics"}){
  const[sections,S]=useState(()=>clone(value)),[selected,SS]=useState(null),[movingChord,SMC]=useState(null),[quality,SQ]=useState("Major"),[flats,SF]=useState(false),[locked,SL]=useState(false),[preview,SP]=useState(false),[editing,SE]=useState(null),[history,SH]=useState(()=>[clone(value)]),[hi,SI]=useState(0),[raw,SR]=useState(""),[importOpen,SIO]=useState(false),[notice,SN]=useState("");
  const lastPublishedRef=useRef(JSON.stringify(clone(value)));
@@ -25,18 +33,16 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
     const lineRect=node.getBoundingClientRect();
     line.chords.forEach((ch,ci)=>{
      const offset=Math.max(0,Math.min(text.length,Number(ch.charIndex)||0));
-     // A collapsed caret can snap to the start of a Devanagari shaping cluster.
-     // Measure the rendered prefix instead: its right edge is the visual start
-     // of the character at this UTF-16 offset, without changing the stored index.
-     let visualLeft=0;
-     if(offset>0){
-      const range=document.createRange();
-      range.setStart(textNode,0);
-      range.setEnd(textNode,offset);
-      const rect=range.getBoundingClientRect();
-      visualLeft=rect.right-lineRect.left;
-     }
-     next[lineKey+":"+ci]=Math.max(0,visualLeft);
+     // Select the complete grapheme beginning at the stored UTF-16 offset.
+     // This lets the browser shape Devanagari conjuncts and vowel marks as a
+     // unit, then anchors the chord to that grapheme's actual rendered left edge.
+     const end=graphemeEndAt(text,offset);
+     const range=document.createRange();
+     range.setStart(textNode,offset);
+     range.setEnd(textNode,Math.max(offset,end));
+     const rects=range.getClientRects();
+     const rect=rects.length?rects[0]:range.getBoundingClientRect();
+     next[lineKey+":"+ci]=Math.max(0,rect.left-lineRect.left);
     });
    });
    setChordOffsets(next);
