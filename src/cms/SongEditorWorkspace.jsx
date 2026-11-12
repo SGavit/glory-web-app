@@ -69,7 +69,7 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
  const leftAlignAllSections=()=>{
   if(locked)return;
   const next=sections.map(section=>({...section,lines:section.lines.map(line=>{
-   const leading=line.text.match(/^[\\t \\u00a0\\u3000]+/)?.[0]||"";
+   const leading=line.text.match(/^\s+/u)?.[0]||"";
    if(!leading)return line;
    return{...line,text:line.text.slice(leading.length),chords:line.chords.map(ch=>({...ch,charIndex:Math.max(0,(Number(ch.charIndex)||0)-leading.length)}))};
   })}));
