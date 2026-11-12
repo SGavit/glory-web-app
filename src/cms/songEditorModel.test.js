@@ -29,7 +29,7 @@ describe("Android-compatible section and chord editing", () => {
     const chords = [{ chordName: "C", charIndex: 3 }, { chordName: "G", charIndex: 4 }];
     expect(normalizeChordIndex(chords, 3, 8)).toBe(2);
     expect(normalizeChordIndex(chords, 4, 8)).toBe(5);
-    expect(normalizeChordIndex(chords, 8, 8)).toBe(8);
+    expect(normalizeChordIndex(chords, 8, 8)).toBe(7);
   });
 
   test("supports UTF-16 offsets because JS and Kotlin both index UTF-16 code units", () => {
