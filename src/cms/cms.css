@@ -1110,3 +1110,18 @@ body .shell[data-theme="dark"] .song-editor-tab-content .preview section{border-
 .shell .android-chord-chip{font-size:14px;padding:4px 8px;line-height:1.35}
 .shell .android-preview-line{min-width:0;overflow-x:auto}
 .shell .android-preview-line p{width:max-content;min-width:100%;white-space:pre;font:18px/1.9 ui-monospace,monospace;letter-spacing:0}
+
+
+/* Lyrics chord labels: keep the chord text, remove the card treatment only. */
+.shell .android-chord-targets .android-chord-chip,
+.shell .android-chord-targets .android-chord-chip:hover,
+.shell .android-chord-targets .android-chord-chip:focus-visible,
+.shell .android-chord-targets .android-chord-chip.is-moving,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip,
+body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-moving{
+ background:transparent!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ padding:0!important;
+}
