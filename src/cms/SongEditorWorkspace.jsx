@@ -25,11 +25,18 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
     const lineRect=node.getBoundingClientRect();
     line.chords.forEach((ch,ci)=>{
      const offset=Math.max(0,Math.min(text.length,Number(ch.charIndex)||0));
-     const range=document.createRange();
-     range.setStart(textNode,offset);
-     range.collapse(true);
-     const rect=range.getBoundingClientRect();
-     next[lineKey+":"+ci]=Math.max(0,rect.left-lineRect.left);
+     // A collapsed caret can snap to the start of a Devanagari shaping cluster.
+     // Measure the rendered prefix instead: its right edge is the visual start
+     // of the character at this UTF-16 offset, without changing the stored index.
+     let visualLeft=0;
+     if(offset>0){
+      const range=document.createRange();
+      range.setStart(textNode,0);
+      range.setEnd(textNode,offset);
+      const rect=range.getBoundingClientRect();
+      visualLeft=rect.right-lineRect.left;
+     }
+     next[lineKey+":"+ci]=Math.max(0,visualLeft);
     });
    });
    setChordOffsets(next);
