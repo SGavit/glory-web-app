@@ -80,7 +80,7 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
    return{...line,text:line.text.slice(leading.length),chords:line.chords.map(ch=>({...ch,charIndex:Math.max(0,(Number(ch.charIndex)||0)-leading.length)}))};
   })}));
   if(JSON.stringify(next)!==JSON.stringify(sections)){
-   commit(next);
+   commitDomain(next,"lyrics");
    SN("Lyrics left-aligned across all sections. Chord positions were adjusted to preserve their word anchors.");
   }else SN("Lyrics are already left-aligned across all sections.");
  };
