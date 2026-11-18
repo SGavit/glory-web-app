@@ -15,6 +15,7 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
  const lastPublishedRef=useRef(JSON.stringify(clone(value)));
  const lyricTextRefs=useRef(new Map());
  const lyricInputRefs=useRef(new Map());
+ const historyActionsRef=useRef({});
  const [chordOffsets,setChordOffsets]=useState({});
  const registerLyricText=(key,node)=>{if(node)lyricTextRefs.current.set(key,node);else lyricTextRefs.current.delete(key);};
  useLayoutEffect(()=>{
@@ -55,7 +56,6 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
   if(document.fonts?.ready)document.fonts.ready.then(measure);
   return()=>{cancelled=true;observer?.disconnect();window.removeEventListener("resize",measure);};
  },[activeTab,sections,preview]);
- useEffect(()=>{const handle=e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;const key=e.key.toLowerCase();if(key!=="z"&&key!=="y")return;e.preventDefault();if(activeTab==="lyrics"){if(key==="z"&&e.shiftKey)redoLyrics();else if(key==="z")undoLyrics();else redoLyrics();}else if(activeTab==="chords"){if(key==="z"&&e.shiftKey)redoChords();else if(key==="z")undoChords();else redoChords();}};window.addEventListener("keydown",handle);return()=>window.removeEventListener("keydown",handle);},[activeTab,lyricsHi,lyricsHistory,chordHi,chordHistory,locked,redoChords,redoLyrics,undoChords,undoLyrics]);
  const roots=flats?FLAT:SHARP,palette=useMemo(()=>{const suffix=QUALITY.find(x=>x[0]===quality)?.[1]||[""];return roots.flatMap(r=>suffix.map(s=>r+s));},[roots,quality]),chordName=chordNorm(selected);
  useEffect(()=>{const n=clone(value),serialized=JSON.stringify(n);if(serialized===lastPublishedRef.current)return;lastPublishedRef.current=serialized;S(n);SLH([n]);SLI(0);SCH([n]);SCI(0);},[value]);
  const publish=n=>{const safe=clone(n);lastPublishedRef.current=JSON.stringify(safe);S(safe);onChange?.(safe);};
@@ -65,6 +65,8 @@ export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics
  const publishHistory=(snapshot,domain)=>publish(domain==="lyrics"?mergeLyrics(snapshot,sections):mergeChords(snapshot,sections));
  const undoLyrics=()=>{if(!locked&&lyricsHi>0){const i=lyricsHi-1;SLI(i);publishHistory(lyricsHistory[i],"lyrics");}},redoLyrics=()=>{if(!locked&&lyricsHi<lyricsHistory.length-1){const i=lyricsHi+1;SLI(i);publishHistory(lyricsHistory[i],"lyrics");}};
  const undoChords=()=>{if(!locked&&chordHi>0){const i=chordHi-1;SCI(i);publishHistory(chordHistory[i],"chords");}},redoChords=()=>{if(!locked&&chordHi<chordHistory.length-1){const i=chordHi+1;SCI(i);publishHistory(chordHistory[i],"chords");}};
+ historyActionsRef.current={undoLyrics,redoLyrics,undoChords,redoChords};
+ useEffect(()=>{const handle=e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;const key=e.key.toLowerCase();if(key!=="z"&&key!=="y")return;e.preventDefault();const actions=historyActionsRef.current;if(activeTab==="lyrics"){if(key==="z"&&e.shiftKey)actions.redoLyrics();else if(key==="z")actions.undoLyrics();else actions.redoLyrics();}else if(activeTab==="chords"){if(key==="z"&&e.shiftKey)actions.redoChords();else if(key==="z")actions.undoChords();else actions.redoChords();}};window.addEventListener("keydown",handle);return()=>window.removeEventListener("keydown",handle);},[activeTab]);
  const updateSection=(si,n,domain="lyrics")=>commitDomain(sections.map((s,i)=>i===si?n:s),domain),updateLine=(si,li,n)=>{const s=sections[si];if(s)updateSection(si,{...s,lines:s.lines.map((l,i)=>i===li?n:l)},"chords");};
  const clearCurrentLine=si=>{const node=lyricInputRefs.current.get(sections[si]?.sectionId);if(!node||locked)return;const source=sections[si].lines.map(line=>line.text).join("\n"),caret=node.selectionStart??0,lineIndex=source.slice(0,caret).split("\n").length-1;const section=sections[si];if(!section.lines[lineIndex])return;const lines=section.lines.map((line,index)=>index===lineIndex?{...line,text:"",chords:[]}:line);commitDomain(sections.map((item,index)=>index===si?{...item,lines}:item),"lyrics");SN("Current lyric line cleared. Use Lyrics Undo to restore it.");};
  const addSection=t=>{if(locked)return;const title=nextSectionTitle(t,sections);commitDomain([...sections,{sectionId:createSectionId(),type:title.toUpperCase().split(/\s+/)[0],title,lines:[{text:"",chords:[]}]}],"lyrics");};
