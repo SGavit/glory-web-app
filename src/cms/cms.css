@@ -729,7 +729,6 @@ button,a,input,select,textarea{max-width:100%}
 .shell[data-theme="dark"] .report-list>button.selected{background:#263A58;border-color:#49617F}
 .shell[data-theme="dark"] .report-detail h2,.shell[data-theme="dark"] .report-detail dd{color:#E8EEF7}
 .shell[data-theme="dark"] .report-detail dt{color:#A5B3C8}
-.shell[data-theme="dark"] .login-screen,.shell[data-theme="dark"] .login-panel{background:#101827;color:#E8EEF7}
 .shell[data-theme="dark"] .login-art{background:#111D31}
 .shell[data-theme="dark"] .login-form h2{color:#E8EEF7}
 .shell[data-theme="dark"] .login-form input{background:#182438;border-color:#304057;color:#E8EEF7}
@@ -1081,112 +1080,6 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .android-section-actions .android-repeat-value.is-active,.android-section-actions .android-repeat-stepper.is-active{background:#e4eee6;border-color:#a9c3ae;color:#24563b}
 .android-section-actions .android-repeat-stepper:disabled,.android-section-actions .android-repeat-value:disabled{opacity:.4;cursor:not-allowed}
 
-
-/* Login screen follows the saved CMS theme even outside the admin shell. */
-.login-screen[data-theme="dark"]{background:#101827;color:#E8EEF7;color-scheme:dark}
-.login-screen[data-theme="dark"] .login-art{background:#111D31;color:#F1F5FB}
-.login-screen[data-theme="dark"] .login-art .brand-mark{background:#E8EEF8;color:#243B64}
-.login-screen[data-theme="dark"] .login-art p{color:#B8C6D8}
-.login-screen[data-theme="dark"] .login-art>small{color:#A5B3C8}
-.login-screen[data-theme="dark"] .login-panel{background:#182438;color:#E8EEF7}
-.login-screen[data-theme="dark"] .login-form h2{color:#E8EEF7}
-.login-screen[data-theme="dark"] .login-form p,.login-screen[data-theme="dark"] .login-form .muted{color:#A5B3C8}
-.login-screen[data-theme="dark"] .login-form input{background:#111D2E;border-color:#394B63;color:#E8EEF7}
-.login-screen[data-theme="dark"] .login-form input::placeholder{color:#8393AA}
-.login-screen[data-theme="dark"] .login-form .secondary-btn{background:#1E2C42;border-color:#304057;color:#E8EEF7}
-.login-screen[data-theme="dark"] .login-form .or{color:#A5B3C8}
-.login-screen[data-theme="dark"] .login-form .text-btn{color:#9CB6DF}
-.login-screen[data-theme="dark"] .login-form .tiny-note{color:#A5B3C8}
-
-
-/* Theme consistency pass — login and repeat controls */
-.login-screen[data-theme="light"]{
- background:#F4F6FA;
- color:#1D2C43;
- color-scheme:light;
-}
-.login-screen[data-theme="light"] .login-art{
- background:#111D31;
- color:#F1F5FB;
-}
-.login-screen[data-theme="light"] .login-art .eyebrow{color:#AFC0D8}
-.login-screen[data-theme="light"] .login-art .brand-mark{
- background:#E8EEF8;
- color:#243B64;
-}
-.login-screen[data-theme="light"] .login-art p{color:#B8C6D8}
-.login-screen[data-theme="light"] .login-art>small{color:#A5B3C8}
-.login-screen[data-theme="light"] .login-panel{
- background:#FFFFFF;
- color:#1D2C43;
-}
-.login-screen[data-theme="light"] .login-form h2{color:#1D2C43}
-.login-screen[data-theme="light"] .login-form p,
-.login-screen[data-theme="light"] .login-form .muted,
-.login-screen[data-theme="light"] .login-form .or{color:#68778D}
-.login-screen[data-theme="light"] .login-form label{color:#33445C}
-.login-screen[data-theme="light"] .login-form input{
- background:#FFFFFF;
- border-color:#E2E8F0;
- color:#1D2C43;
-}
-.login-screen[data-theme="light"] .login-form input:focus{
- border-color:#7892B7;
- box-shadow:0 0 0 3px #5278B81A;
- outline:0;
-}
-.login-screen[data-theme="light"] .login-form .primary-btn{
- background:#243B64;
- border-color:#243B64;
- color:#FFFFFF;
-}
-.login-screen[data-theme="light"] .login-form .primary-btn:hover{
- background:#1B2F50;
- border-color:#1B2F50;
-}
-.login-screen[data-theme="light"] .login-form .secondary-btn{
- background:#F8FAFC;
- border-color:#E2E8F0;
- color:#33445C;
-}
-.login-screen[data-theme="light"] .login-form .secondary-btn:hover{
- background:#EAF0F8;
- border-color:#C7D2E0;
-}
-.login-screen[data-theme="light"] .login-form .text-btn{color:#39577F}
-.login-screen[data-theme="light"] .login-form .tiny-note{color:#718096}
-.login-screen[data-theme="light"] .login-form .error-box{
- background:#FAEDED;
- border-color:#F0D9D9;
- color:#A83F3F;
-}
-
-/* Login is outside .shell, so give its dark controls their own theme scope. */
-.login-screen[data-theme="dark"] .login-form label{color:#D2DCEB}
-.login-screen[data-theme="dark"] .login-form .primary-btn{
- background:#496A9C;
- border-color:#496A9C;
- color:#FFFFFF;
-}
-.login-screen[data-theme="dark"] .login-form .primary-btn:hover{
- background:#5879AB;
- border-color:#5879AB;
-}
-.login-screen[data-theme="dark"] .login-form .secondary-btn{
- background:#1E2C42;
- border-color:#304057;
- color:#E8EEF7;
-}
-.login-screen[data-theme="dark"] .login-form .secondary-btn:hover{
- background:#263A58;
- border-color:#465B78;
-}
-.login-screen[data-theme="dark"] .login-form .error-box{
- background:#3C292D;
- border-color:#5B3C43;
- color:#E2A6AC;
-}
-
 /* Repeat controls inherit the CMS palette instead of legacy green literals. */
 .shell .android-section-actions .android-repeat-stepper,
 .shell .android-section-actions .android-repeat-value{
@@ -1206,6 +1099,9 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  color:var(--cms-accent);
 }
 
+
+
+/* Legacy theme-specific login colour rules removed; login palette is defined below. */
 
 /* Glory CMS theme refresh — Deep Teal + Charcoal
    Colour-only override: preserve existing layout, dimensions and interactions. */
@@ -1360,6 +1256,10 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .login-screen[data-theme="light"] .login-form .or,.login-screen[data-theme="light"] .login-form .tiny-note{color:#71808A!important}
 .login-screen[data-theme="light"] .login-form input{background:#F4F7F8!important;border-color:#E2E9EB!important;color:#17252D!important}
 .login-screen[data-theme="light"] .login-form input:focus{border-color:#168F84!important;box-shadow:0 0 0 3px #DDF4F0!important}
+.login-screen[data-theme="light"] .login-form input::placeholder{color:#71808A!important;opacity:.8}
+.login-screen[data-theme="light"] .login-form .primary-btn:hover{background:#11796F!important;border-color:#11796F!important}
+.login-screen[data-theme="light"] .login-form .secondary-btn:hover{background:#DDF4F0!important;border-color:#168F84!important;color:#11796F!important}
+.login-screen[data-theme="light"] .login-form .error-box{background:#FCEBEC!important;border-color:#F2D4D7!important;color:#A83F4B!important}
 .login-screen[data-theme="light"] .login-form .primary-btn{background:#168F84!important;border-color:#168F84!important;color:#FFFFFF!important}
 .login-screen[data-theme="light"] .login-form .secondary-btn{background:#F4F7F8!important;border-color:#E2E9EB!important;color:#17252D!important}
 .login-screen[data-theme="light"] .login-form .text-btn{color:#168F84!important}
@@ -1373,6 +1273,10 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .login-screen[data-theme="dark"] .login-form .or,.login-screen[data-theme="dark"] .login-form .tiny-note{color:#A5B9B7!important}
 .login-screen[data-theme="dark"] .login-form input{background:#14262B!important;border-color:#345054!important;color:#F0F5F4!important}
 .login-screen[data-theme="dark"] .login-form input:focus{border-color:#367D78!important;box-shadow:0 0 0 3px #21464A!important}
+.login-screen[data-theme="dark"] .login-form input::placeholder{color:#A5B9B7!important;opacity:.8}
+.login-screen[data-theme="dark"] .login-form .primary-btn:hover{background:#2B6B67!important;border-color:#2B6B67!important}
+.login-screen[data-theme="dark"] .login-form .secondary-btn:hover{background:#21464A!important;border-color:#367D78!important;color:#F0F5F4!important}
+.login-screen[data-theme="dark"] .login-form .error-box{background:#3C292D!important;border-color:#5B3C43!important;color:#E2A6AC!important}
 .login-screen[data-theme="dark"] .login-form .primary-btn{background:#367D78!important;border-color:#367D78!important;color:#FFFFFF!important}
 .login-screen[data-theme="dark"] .login-form .secondary-btn{background:#14262B!important;border-color:#345054!important;color:#F0F5F4!important}
 .login-screen[data-theme="dark"] .login-form .text-btn{color:#75B8B0!important}
