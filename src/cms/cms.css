@@ -1803,7 +1803,10 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  border-radius:8px;
  background:var(--navy-surface,#FFFFFF);
  color:var(--navy-muted,#68778D);
- font:600 12px/1.2 inherit;
+ font-family:inherit;
+ font-size:12px;
+ font-weight:600;
+ line-height:1.2;
  cursor:pointer;
  transition:background .15s ease,border-color .15s ease,color .15s ease;
 }
