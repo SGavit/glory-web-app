@@ -1097,3 +1097,111 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .login-screen[data-theme="dark"] .login-form .or{color:#A5B3C8}
 .login-screen[data-theme="dark"] .login-form .text-btn{color:#9CB6DF}
 .login-screen[data-theme="dark"] .login-form .tiny-note{color:#A5B3C8}
+
+
+/* Theme consistency pass — login and repeat controls */
+.login-screen[data-theme="light"]{
+ background:#F4F6FA;
+ color:#1D2C43;
+ color-scheme:light;
+}
+.login-screen[data-theme="light"] .login-art{
+ background:#111D31;
+ color:#F1F5FB;
+}
+.login-screen[data-theme="light"] .login-art .eyebrow{color:#AFC0D8}
+.login-screen[data-theme="light"] .login-art .brand-mark{
+ background:#E8EEF8;
+ color:#243B64;
+}
+.login-screen[data-theme="light"] .login-art p{color:#B8C6D8}
+.login-screen[data-theme="light"] .login-art>small{color:#A5B3C8}
+.login-screen[data-theme="light"] .login-panel{
+ background:#FFFFFF;
+ color:#1D2C43;
+}
+.login-screen[data-theme="light"] .login-form h2{color:#1D2C43}
+.login-screen[data-theme="light"] .login-form p,
+.login-screen[data-theme="light"] .login-form .muted,
+.login-screen[data-theme="light"] .login-form .or{color:#68778D}
+.login-screen[data-theme="light"] .login-form label{color:#33445C}
+.login-screen[data-theme="light"] .login-form input{
+ background:#FFFFFF;
+ border-color:#E2E8F0;
+ color:#1D2C43;
+}
+.login-screen[data-theme="light"] .login-form input:focus{
+ border-color:#7892B7;
+ box-shadow:0 0 0 3px #5278B81A;
+ outline:0;
+}
+.login-screen[data-theme="light"] .login-form .primary-btn{
+ background:#243B64;
+ border-color:#243B64;
+ color:#FFFFFF;
+}
+.login-screen[data-theme="light"] .login-form .primary-btn:hover{
+ background:#1B2F50;
+ border-color:#1B2F50;
+}
+.login-screen[data-theme="light"] .login-form .secondary-btn{
+ background:#F8FAFC;
+ border-color:#E2E8F0;
+ color:#33445C;
+}
+.login-screen[data-theme="light"] .login-form .secondary-btn:hover{
+ background:#EAF0F8;
+ border-color:#C7D2E0;
+}
+.login-screen[data-theme="light"] .login-form .text-btn{color:#39577F}
+.login-screen[data-theme="light"] .login-form .tiny-note{color:#718096}
+.login-screen[data-theme="light"] .login-form .error-box{
+ background:#FAEDED;
+ border-color:#F0D9D9;
+ color:#A83F3F;
+}
+
+/* Login is outside .shell, so give its dark controls their own theme scope. */
+.login-screen[data-theme="dark"] .login-form label{color:#D2DCEB}
+.login-screen[data-theme="dark"] .login-form .primary-btn{
+ background:#496A9C;
+ border-color:#496A9C;
+ color:#FFFFFF;
+}
+.login-screen[data-theme="dark"] .login-form .primary-btn:hover{
+ background:#5879AB;
+ border-color:#5879AB;
+}
+.login-screen[data-theme="dark"] .login-form .secondary-btn{
+ background:#1E2C42;
+ border-color:#304057;
+ color:#E8EEF7;
+}
+.login-screen[data-theme="dark"] .login-form .secondary-btn:hover{
+ background:#263A58;
+ border-color:#465B78;
+}
+.login-screen[data-theme="dark"] .login-form .error-box{
+ background:#3C292D;
+ border-color:#5B3C43;
+ color:#E2A6AC;
+}
+
+/* Repeat controls inherit the CMS palette instead of legacy green literals. */
+.shell .android-section-actions .android-repeat-stepper,
+.shell .android-section-actions .android-repeat-value{
+ border-color:var(--cms-line);
+ background:var(--cms-surface-soft);
+ color:var(--cms-text);
+}
+.shell .android-section-actions .android-repeat-value{color:var(--cms-text)}
+.shell .android-section-actions .android-repeat-stepper:hover:not(:disabled),
+.shell .android-section-actions .android-repeat-value:hover:not(:disabled){
+ background:var(--cms-accent-soft);
+}
+.shell .android-section-actions .android-repeat-value.is-active,
+.shell .android-section-actions .android-repeat-stepper.is-active{
+ background:var(--cms-accent-soft);
+ border-color:var(--cms-accent);
+ color:var(--cms-accent);
+}
