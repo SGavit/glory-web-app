@@ -1280,3 +1280,68 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .login-screen[data-theme="dark"] .login-form .primary-btn{background:#367D78!important;border-color:#367D78!important;color:#FFFFFF!important}
 .login-screen[data-theme="dark"] .login-form .secondary-btn{background:#14262B!important;border-color:#345054!important;color:#F0F5F4!important}
 .login-screen[data-theme="dark"] .login-form .text-btn{color:#75B8B0!important}
+
+/* Final song-editor dark palette correction.
+   Overrides the earlier high-specificity navy audit rules without changing layout. */
+body .shell[data-theme="dark"] .song-editor-tab-content > div > section.panel.editor,
+body .shell[data-theme="dark"] .song-editor-tab-content > aside > section.panel.publish,
+body .shell[data-theme="dark"] .song-editor-tab-content > aside > section.panel.preview{
+  background:#1A3035!important;
+  border-color:#345054!important;
+  color:#F0F5F4!important;
+  box-shadow:none!important;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor>h3,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish>h3,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview>h3,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor label,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish label,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview b{
+  color:#F0F5F4!important;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor>.hint,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish>.hint,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.preview>p,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish>small{
+  color:#A5B9B7!important;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor input,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor select,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.editor textarea,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish input,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish select{
+  background:#14262B!important;
+  border-color:#345054!important;
+  color:#F0F5F4!important;
+  color-scheme:dark;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish input::placeholder{
+  color:#A5B9B7!important;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish .primary-btn,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish .publish-btn{
+  background:#367D78!important;
+  border-color:#367D78!important;
+  color:#FFFFFF!important;
+}
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish .primary-btn:hover,
+body .shell[data-theme="dark"] .song-editor-tab-content .panel.publish .publish-btn:hover{
+  background:#2B6B67!important;
+  border-color:#2B6B67!important;
+}
+body .shell[data-theme="dark"] .song-editor-tabs button.active{
+  background:#21464A!important;
+  border-color:#367D78!important;
+  color:#F0F5F4!important;
+}
+body .shell[data-theme="dark"] .song-editor-tabs button.active span{
+  background:#367D78!important;
+  color:#FFFFFF!important;
+}
+body .shell[data-theme="dark"] .song-editor-tabs button:not(.active){
+  color:#A5B9B7!important;
+}
+body .shell[data-theme="dark"] .song-editor-tabs button:not(.active) span{
+  background:#21464A!important;
+  color:#A5B9B7!important;
+}
