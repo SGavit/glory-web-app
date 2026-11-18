@@ -55,10 +55,8 @@ function Dashboard(){
  const {value:s,error:songError,loaded:songsLoaded}=useData("songs");
  const {value:r,error:reportError,loaded:reportsLoaded}=useData("reports");
  const {value:roles,error:roleError,loaded:rolesLoaded}=useData("roles",role==="SUPER_ADMIN");
- const loading=!songsLoaded||!reportsLoaded||(role==="SUPER_ADMIN"&&!rolesLoaded);
  const error=songError||reportError||(role==="SUPER_ADMIN"?roleError:"");
  if(error)return <><Heading title="Overview" sub="A clear view of the Glory library and the work that needs your attention."/><div className="error-box" role="alert">Dashboard data could not be loaded: {error}. Check your Firebase connection and database read permissions, then refresh.</div></>;
- if(loading)return <><Heading title="Overview" sub="A clear view of the Glory library and the work that needs your attention."/><div className="panel dashboard-loading" role="status" aria-live="polite">Loading your library overview…</div></>;
  const songs=Object.entries(s||{}).map(([id,v])=>norm(id,v));
  const reports=Object.values(r||{});
  const pending=reports.filter(x=>!["RESOLVED","REJECTED"].includes(x.status||"OPEN")).length;
