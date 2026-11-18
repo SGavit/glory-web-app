@@ -10,34 +10,20 @@ const makeOperationId = () => {
 };
 
 /**
- * Atomically reserves the next catalogue number.
+ * Determines the next catalogue number from the existing songs.
  *
- * The initial high-water mark is read from the existing song collection so
- * older catalogues keep their current numbering. The transaction serializes
- * concurrent CMS allocations at appConfig/songNumberCounter. Failed song
- * saves may leave gaps; numbers are never reused.
+ * This preserves the original CMS behaviour and does not require a separate
+ * appConfig counter or additional Firebase write permissions.
  */
 export async function allocateNextSongNo(database) {
   const songsSnapshot = await get(ref(database, "songs"));
   const songs = songsSnapshot.val() || {};
   const highestExisting = Object.values(songs).reduce((max, song) => {
     const value = Number(song?.songNo);
-    return Number.isFinite(value) ? Math.max(max, value) : max;
+    return Number.isFinite(value) ? Math.max(max, Math.floor(value)) : max;
   }, 0);
 
-  const counterRef = ref(database, "appConfig/songNumberCounter");
-  const result = await runTransaction(counterRef, current => {
-    const currentNumber = Number(current);
-    const highWaterMark = Number.isFinite(currentNumber)
-      ? Math.max(currentNumber, highestExisting)
-      : highestExisting;
-    return Math.floor(highWaterMark) + 1;
-  }, { applyLocally: false });
-
-  if (!result.committed || !Number.isInteger(Number(result.snapshot.val()))) {
-    throw new Error("Could not reserve a unique song number. Please try again.");
-  }
-  return Number(result.snapshot.val());
+  return highestExisting + 1;
 }
 
 /**
