@@ -13,7 +13,8 @@ const graphemeEndAt=(text,start)=>{
 export default function SongEditorWorkspace({value=[],onChange,activeTab="lyrics"}){
  const[sections,S]=useState(()=>clone(value)),[selected,SS]=useState(null),[movingChord,SMC]=useState(null),[repeatCounts,SRC]=useState({}),[activeRepeatSection,SARS]=useState(null),[quality,SQ]=useState("Major"),[flats,SF]=useState(false),[locked,SL]=useState(false),[preview,SP]=useState(false),[editing,SE]=useState(null),[lyricsHistory,SLH]=useState(()=>[clone(value)]),[lyricsHi,SLI]=useState(0),[chordHistory,SCH]=useState(()=>[clone(value)]),[chordHi,SCI]=useState(0),[raw,SR]=useState(""),[importOpen,SIO]=useState(false),[notice,SN]=useState("");
  const lastPublishedRef=useRef(JSON.stringify(clone(value)));
- const lyricTextRefs=useRef(new Map());\n const lyricInputRefs=useRef(new Map());
+ const lyricTextRefs=useRef(new Map());
+ const lyricInputRefs=useRef(new Map());
  const [chordOffsets,setChordOffsets]=useState({});
  const registerLyricText=(key,node)=>{if(node)lyricTextRefs.current.set(key,node);else lyricTextRefs.current.delete(key);};
  useLayoutEffect(()=>{
