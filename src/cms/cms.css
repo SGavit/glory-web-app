@@ -1743,3 +1743,103 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 @media(prefers-reduced-motion:reduce){
  .public *, .public-reader *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* People & roles: compact role filters and account search */
+.people-panel .people-heading{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:16px;
+ padding:16px 16px 12px;
+}
+.people-heading>div{min-width:0}
+.people-heading h3{margin:0 0 4px}
+.people-heading small{color:var(--navy-muted,#68778D)}
+.people-search{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ width:min(100%,340px);
+ min-height:40px;
+ padding:0 11px;
+ border:1px solid var(--navy-border,#DCE3ED);
+ border-radius:9px;
+ background:var(--navy-surface-soft,#F8FAFC);
+ color:var(--navy-muted,#68778D);
+}
+.people-search input{
+ flex:1;
+ min-width:0;
+ width:100%;
+ border:0!important;
+ outline:0!important;
+ box-shadow:none!important;
+ background:transparent!important;
+ color:var(--navy-text,#1D2C43)!important;
+ font:inherit;
+}
+.people-search button{
+ border:0;
+ background:transparent;
+ color:inherit;
+ font-size:20px;
+ line-height:1;
+ cursor:pointer;
+}
+.people-role-filters{
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ padding:0 16px 14px;
+}
+.people-role-filters button{
+ display:inline-flex;
+ align-items:center;
+ gap:9px;
+ min-height:34px;
+ padding:5px 10px;
+ border:1px solid var(--navy-border,#DCE3ED);
+ border-radius:8px;
+ background:var(--navy-surface,#FFFFFF);
+ color:var(--navy-muted,#68778D);
+ font:600 12px/1.2 inherit;
+ cursor:pointer;
+ transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.people-role-filters button b{
+ display:inline-grid;
+ place-items:center;
+ min-width:20px;
+ height:20px;
+ padding:0 5px;
+ border-radius:6px;
+ background:var(--navy-surface-soft,#F4F6FA);
+ color:var(--navy-text,#1D2C43);
+ font-size:11px;
+ font-variant-numeric:tabular-nums;
+}
+.people-role-filters button:hover,
+.people-role-filters button.active{
+ border-color:var(--navy-accent,#496A9C);
+ background:var(--navy-accent-soft,#E8EEF7);
+ color:var(--navy-accent-strong,#243B64);
+}
+.people-role-filters button.active b{
+ background:var(--navy-accent,#496A9C);
+ color:#FFFFFF;
+}
+.people-loading{
+ margin-top:14px;
+ padding:22px;
+ color:var(--navy-muted,#68778D);
+}
+@media(max-width:680px){
+ .people-panel .people-heading{align-items:stretch;flex-direction:column}
+ .people-search{width:100%;box-sizing:border-box}
+ .people-role-filters{gap:7px}
+ .people-role-filters button{flex:1 1 calc(50% - 7px);justify-content:space-between}
+}
+@media(prefers-reduced-motion:reduce){
+ .people-role-filters button{transition:none}
+}
