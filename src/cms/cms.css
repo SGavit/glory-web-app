@@ -1143,3 +1143,20 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .android-section-actions .android-repeat-stepper:hover:not(:disabled),.android-section-actions .android-repeat-value:hover:not(:disabled){background:#e8eee9}
 .android-section-actions .android-repeat-value.is-active,.android-section-actions .android-repeat-stepper.is-active{background:#e4eee6;border-color:#a9c3ae;color:#24563b}
 .android-section-actions .android-repeat-stepper:disabled,.android-section-actions .android-repeat-value:disabled{opacity:.4;cursor:not-allowed}
+
+
+/* Login screen follows the saved CMS theme even outside the admin shell. */
+.login-screen[data-theme="dark"]{background:#101827;color:#E8EEF7;color-scheme:dark}
+.login-screen[data-theme="dark"] .login-art{background:#111D31;color:#F1F5FB}
+.login-screen[data-theme="dark"] .login-art .brand-mark{background:#E8EEF8;color:#243B64}
+.login-screen[data-theme="dark"] .login-art p{color:#B8C6D8}
+.login-screen[data-theme="dark"] .login-art>small{color:#A5B3C8}
+.login-screen[data-theme="dark"] .login-panel{background:#182438;color:#E8EEF7}
+.login-screen[data-theme="dark"] .login-form h2{color:#E8EEF7}
+.login-screen[data-theme="dark"] .login-form p,.login-screen[data-theme="dark"] .login-form .muted{color:#A5B3C8}
+.login-screen[data-theme="dark"] .login-form input{background:#111D2E;border-color:#394B63;color:#E8EEF7}
+.login-screen[data-theme="dark"] .login-form input::placeholder{color:#8393AA}
+.login-screen[data-theme="dark"] .login-form .secondary-btn{background:#1E2C42;border-color:#304057;color:#E8EEF7}
+.login-screen[data-theme="dark"] .login-form .or{color:#A5B3C8}
+.login-screen[data-theme="dark"] .login-form .text-btn{color:#9CB6DF}
+.login-screen[data-theme="dark"] .login-form .tiny-note{color:#A5B3C8}
