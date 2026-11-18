@@ -1,6 +1,6 @@
-import React, {useEffect,useState,createContext,useContext} from "react";
+import React, {useEffect,useState,useCallback,createContext,useContext} from "react";
 import {createPortal} from "react-dom";
-import {HashRouter,Routes,Route,Navigate,NavLink,Link,useNavigate,useParams,useLocation} from "react-router-dom";
+import {HashRouter,Routes,Route,Navigate,NavLink,Link,useNavigate,useParams,useLocation,useSearchParams} from "react-router-dom";
 import {onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut} from "firebase/auth";
 import {ref,onValue,get,set,update,push,remove,query,orderByChild,equalTo} from "firebase/database";
 import {normalizeSong as norm,getNextSongNo} from "./songData";
@@ -46,11 +46,22 @@ function Heading({title,sub,action}){return <div className="heading"><div><small
 function Empty({title,text}){return <div className="empty"><b>♫</b><h3>{title}</h3><p>{text}</p></div>;}
 function Dashboard(){const {role}=useAuth(),{value:s}=useData("songs"),{value:r}=useData("reports"),{value:roles}=useData("roles",role==="SUPER_ADMIN"),songs=Object.entries(s||{}).map(([id,v])=>norm(id,v)),reports=Object.values(r||{}),pending=reports.filter(x=>!["RESOLVED","REJECTED"].includes(x.status||"OPEN")).length,pub=songs.filter(x=>x.status==="PUBLISHED").length,man=Object.values(roles||{}).filter(x=>["ADMIN","CONTENT_MANAGER"].includes(typeof x==="string"?x:x?.role)).length,recent=[...songs].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);return <><Heading title="Good work starts here." sub="A clear view of the Glory library and the work that needs your attention." action={<Link className="primary-btn" to="/admin/songs/new">＋ New song</Link>}/><div className="stats">{[["Total songs",songs.length,"♫"],["Published",pub,"✓"],["Open reports",pending,"◎"],["Content managers",man,"♙"]].map(x=><div className="stat" key={x[0]}><i>{x[2]}</i><small>{x[0]}</small><strong>{x[1]}</strong></div>)}</div><div className="cols"><section className="panel"><div className="panel-title"><h3>Recently updated</h3><Link to="/admin/songs">View library ↗</Link></div>{recent.length?recent.map(x=><Link className="recent" key={x.firebaseKey} to={"/admin/songs/"+x.firebaseKey+"/edit"}><b>♫</b><span><strong>{x.songTitle}</strong><small>{x.songLanguage} · {x.songCategory}</small></span><em className={"pill "+x.status.toLowerCase()}>{x.status}</em></Link>):<Empty title="Your library is ready" text="Create your first song or connect existing songs in Firebase."/>}</section><section className="panel"><div className="panel-title"><h3>Content health</h3></div><div className="health"><strong>{songs.filter(x=>x.status==="DRAFT"||x.status==="REVIEW").length}</strong><span>Drafts & in review</span></div><div className="health"><strong>{pending}</strong><span>Reports awaiting review</span></div><Link className="text-link" to="/admin/reports">Open correction queue →</Link></section></div><div className="quick"><Link to="/admin/songs/new">＋　Add a song</Link><Link to="/admin/reports">◎　Review corrections</Link><Link to="/admin/announcements">◈　Publish an update</Link></div></>;}
 function Songs(){
- const {value:songsData,error}=useData("songs"),{role}=useAuth();
- const [q,Q]=useState(""),[status,S]=useState("ALL"),[lang,L]=useState("ALL"),[category,C]=useState("ALL"),[key,K]=useState("ALL");
- const [sort,Sort]=useState("title"),[page,Page]=useState(1),[pageSize,PageSize]=useState(50),[selected,Select]=useState([]);
+ const {value:songsData,error}=useData("songs"),{role}=useAuth(),location=useLocation(),[searchParams,setSearchParams]=useSearchParams();
+ const q=searchParams.get("q")||"",status=["ALL","DRAFT","REVIEW","PUBLISHED","ARCHIVED"].includes(searchParams.get("status"))?searchParams.get("status"):"ALL",lang=searchParams.get("lang")||"ALL",category=searchParams.get("category")||"ALL",key=searchParams.get("key")||"ALL";
+ const sort=["title","number","language","updated"].includes(searchParams.get("sort"))?searchParams.get("sort"):"title",requestedPage=Number(searchParams.get("page")||1),page=Number.isInteger(requestedPage)&&requestedPage>0?requestedPage:1,requestedPageSize=Number(searchParams.get("pageSize")),pageSize=[25,50,100].includes(requestedPageSize)?requestedPageSize:50;
+ const [selected,Select]=useState([]);
  const [openActionId,setOpenActionId]=useState(null),[actionMenuPosition,setActionMenuPosition]=useState({top:0,left:0});
  const [busy,B]=useState(false),[progress,Progress]=useState("");
+ const returnTo=location.pathname+location.search;
+ const updateLibraryParams=useCallback((changes,{resetPage=false}={})=>setSearchParams(current=>{
+  const next=new URLSearchParams(current);
+  Object.entries(changes).forEach(([name,value])=>{
+   if(value==null||value===""||value==="ALL"||(name==="sort"&&value==="title")||(name==="pageSize"&&Number(value)===50)||(name==="page"&&Number(value)===1))next.delete(name);
+   else next.set(name,String(value));
+  });
+  if(resetPage)next.delete("page");
+  return next;
+ },{replace:true}),[setSearchParams]);
  const all=Object.entries(songsData||{}).map(([id,v])=>norm(id,v));
  const langs=[...new Set(all.map(x=>x.songLanguage).filter(Boolean))].sort();
  const categories=[...new Set(all.map(x=>x.songCategory).filter(Boolean))].sort();
@@ -71,7 +82,7 @@ function Songs(){
  const pageCount=Math.max(1,Math.ceil(rows.length/pageSize));
  const visible=rows.slice((page-1)*pageSize,page*pageSize);
  const selectedVisible=visible.length>0&&visible.every(x=>selected.includes(x.firebaseKey));
- useEffect(()=>{Page(1);Select([]);},[q,status,lang,category,key,sort,pageSize]);
+ useEffect(()=>{Select([]);},[q,status,lang,category,key,sort,pageSize]);
  useEffect(()=>{
   const closeOnOutside=e=>{if(!e.target.closest(".song-row-actions")&&!e.target.closest(".song-action-menu"))setOpenActionId(null);};
   const closeOnEscape=e=>{if(e.key==="Escape")setOpenActionId(null);};
@@ -79,7 +90,7 @@ function Songs(){
   document.addEventListener("keydown",closeOnEscape);
   return ()=>{document.removeEventListener("pointerdown",closeOnOutside);document.removeEventListener("keydown",closeOnEscape);};
  },[]);
- useEffect(()=>{if(page>pageCount)Page(pageCount);},[page,pageCount]);
+ useEffect(()=>{if(songsData&&page>pageCount)updateLibraryParams({page:pageCount});},[songsData,page,pageCount,updateLibraryParams]);
  const toggleOne=(id,checked)=>Select(old=>checked?[...new Set([...old,id])]:old.filter(x=>x!==id));
  const togglePage=checked=>Select(old=>checked?[...new Set([...old,...visible.map(x=>x.firebaseKey)])]:old.filter(id=>!visible.some(x=>x.firebaseKey===id)));
  const archiveSong=async song=>{
@@ -112,15 +123,16 @@ function Songs(){
   <Heading title="Song library" sub="Search, organize and manage your worship catalogue." action={can(role,"create")&&<Link className="primary-btn" to="/admin/songs/new">＋ Add song</Link>}/>
   <section className="panel table-panel song-library-panel">
    <div className="song-library-toolbar">
-    <label className="song-library-search"><span>⌕</span><input aria-label="Search songs" placeholder="Search title, song number, artist, language…" value={q} onChange={e=>Q(e.target.value)}/>{q&&<button type="button" onClick={()=>Q("")} aria-label="Clear search">×</button>}</label>
+    <label className="song-library-search"><span>⌕</span><input aria-label="Search songs" placeholder="Search title, song number, artist, language…" value={q} onChange={e=>updateLibraryParams({q:e.target.value},{resetPage:true})}/>{q&&<button type="button" onClick={()=>updateLibraryParams({q:""},{resetPage:true})} aria-label="Clear search">×</button>}</label>
     <div className="song-library-filters">
-     <select aria-label="Filter by status" value={status} onChange={e=>S(e.target.value)}><option value="ALL">All statuses</option>{["DRAFT","REVIEW","PUBLISHED","ARCHIVED"].map(x=><option key={x} value={x}>{x}</option>)}</select>
-     <select aria-label="Filter by language" value={lang} onChange={e=>L(e.target.value)}><option value="ALL">All languages</option>{langs.map(x=><option key={x}>{x}</option>)}</select>
-     <select aria-label="Filter by category" value={category} onChange={e=>C(e.target.value)}><option value="ALL">All categories</option>{categories.map(x=><option key={x}>{x}</option>)}</select>
-     <select aria-label="Filter by key" value={key} onChange={e=>K(e.target.value)}><option value="ALL">All keys</option>{keys.map(x=><option key={x}>{x}</option>)}</select>
+     <select aria-label="Filter by status" value={status} onChange={e=>updateLibraryParams({status:e.target.value},{resetPage:true})}><option value="ALL">All statuses</option>{["DRAFT","REVIEW","PUBLISHED","ARCHIVED"].map(x=><option key={x} value={x}>{x}</option>)}</select>
+     <select aria-label="Filter by language" value={lang} onChange={e=>updateLibraryParams({lang:e.target.value},{resetPage:true})}><option value="ALL">All languages</option>{langs.map(x=><option key={x}>{x}</option>)}</select>
+     <select aria-label="Filter by category" value={category} onChange={e=>updateLibraryParams({category:e.target.value},{resetPage:true})}><option value="ALL">All categories</option>{categories.map(x=><option key={x}>{x}</option>)}</select>
+     <select aria-label="Filter by key" value={key} onChange={e=>updateLibraryParams({key:e.target.value},{resetPage:true})}><option value="ALL">All keys</option>{keys.map(x=><option key={x}>{x}</option>)}</select>
     </div>
     <div className="song-library-toolbar-bottom">
-     <label className="song-library-sort">Sort by <select value={sort} onChange={e=>Sort(e.target.value)}><option value="title">Title A–Z</option><option value="number">Song number</option><option value="language">Language</option><option value="updated">Recently updated</option></select></label>
+     <label className="song-library-sort">Sort by <select value={sort} onChange={e=>updateLibraryParams({sort:e.target.value},{resetPage:true})}><option value="title">Title A–Z</option><option value="number">Song number</option><option value="language">Language</option><option value="updated">Recently updated</option></select></label>
+     <button type="button" className="secondary-btn" onClick={()=>{setSearchParams({}, {replace:true});Select([]);}}>Reset filters</button>
      <span className="song-library-count">{rows.length.toLocaleString()} matching songs · {all.length.toLocaleString()} total</span>
     </div>
    </div>
@@ -131,15 +143,15 @@ function Songs(){
     {can(role,"archive")&&selected.length>0&&<div className="song-bulk-bar"><span>{selected.length} selected</span><button className="secondary-btn" onClick={()=>Select([])} disabled={busy}>Clear selection</button><button className="danger-btn" onClick={archiveSelected} disabled={busy}>{busy?"Working…":"Archive selected"}</button></div>}
     {progress&&<div className="song-bulk-progress">{progress}</div>}
     <div className="scroll song-library-table-wrap"><table className="song-library-table"><thead><tr>{can(role,"archive")&&<th className="song-select-cell"><input type="checkbox" aria-label="Select all songs on this page" checked={selectedVisible} onChange={e=>togglePage(e.target.checked)}/></th>}<th>SONG</th><th>LANGUAGE</th><th>CATEGORY</th><th>KEY</th><th>STATUS</th><th>UPDATED</th><th>ACTIONS</th></tr></thead><tbody>
-     {visible.map(x=><tr key={x.firebaseKey}>{can(role,"archive")&&<td className="song-select-cell"><input type="checkbox" aria-label={"Select "+x.songTitle} checked={selected.includes(x.firebaseKey)} onChange={e=>toggleOne(x.firebaseKey,e.target.checked)}/></td>}<td className="song-title-cell"><b>{x.songTitle}</b><small>#{x.songNo||"—"}{x.artist?" · "+x.artist:""}</small></td><td>{x.songLanguage}</td><td>{x.songCategory}</td><td>{x.originalKey}</td><td><em className={"pill "+String(x.status||"DRAFT").toLowerCase()}>{x.status||"DRAFT"}</em></td><td>{x.updatedAt?new Date(x.updatedAt).toLocaleDateString():"—"}</td><td><div className="song-row-actions"><button type="button" className="song-row-action-trigger" aria-label={"Actions for "+x.songTitle} aria-expanded={openActionId===x.firebaseKey} onClick={e=>{const rect=e.currentTarget.getBoundingClientRect();const menuHeight=can(role,"archive")?126:92;const top=rect.bottom+menuHeight+8>window.innerHeight?Math.max(8,rect.top-menuHeight-8):rect.bottom+6;const left=Math.max(8,Math.min(window.innerWidth-164,rect.right-154));setActionMenuPosition({top,left});setOpenActionId(current=>current===x.firebaseKey?null:x.firebaseKey);}}>•••</button>{openActionId===x.firebaseKey&&createPortal(<div className="song-action-menu" style={actionMenuPosition}><Link to={"/admin/songs/"+x.firebaseKey+"/edit"} onClick={()=>setOpenActionId(null)}>Edit song</Link><Link to={"/admin/songs/"+x.firebaseKey+"/history"} onClick={()=>setOpenActionId(null)}>Version history</Link>{can(role,"archive")&&<button onClick={()=>{setOpenActionId(null);singleArchive(x);}} disabled={busy}>Archive</button>}</div>,document.querySelector(".shell")||document.body)}</div></td></tr>)}
+     {visible.map(x=><tr key={x.firebaseKey}>{can(role,"archive")&&<td className="song-select-cell"><input type="checkbox" aria-label={"Select "+x.songTitle} checked={selected.includes(x.firebaseKey)} onChange={e=>toggleOne(x.firebaseKey,e.target.checked)}/></td>}<td className="song-title-cell"><b>{x.songTitle}</b><small>#{x.songNo||"—"}{x.artist?" · "+x.artist:""}</small></td><td>{x.songLanguage}</td><td>{x.songCategory}</td><td>{x.originalKey}</td><td><em className={"pill "+String(x.status||"DRAFT").toLowerCase()}>{x.status||"DRAFT"}</em></td><td>{x.updatedAt?new Date(x.updatedAt).toLocaleDateString():"—"}</td><td><div className="song-row-actions"><button type="button" className="song-row-action-trigger" aria-label={"Actions for "+x.songTitle} aria-expanded={openActionId===x.firebaseKey} onClick={e=>{const rect=e.currentTarget.getBoundingClientRect();const menuHeight=can(role,"archive")?126:92;const top=rect.bottom+menuHeight+8>window.innerHeight?Math.max(8,rect.top-menuHeight-8):rect.bottom+6;const left=Math.max(8,Math.min(window.innerWidth-164,rect.right-154));setActionMenuPosition({top,left});setOpenActionId(current=>current===x.firebaseKey?null:x.firebaseKey);}}>•••</button>{openActionId===x.firebaseKey&&createPortal(<div className="song-action-menu" style={actionMenuPosition}><Link to={"/admin/songs/"+x.firebaseKey+"/edit"} state={{returnTo}} onClick={()=>setOpenActionId(null)}>Edit song</Link><Link to={"/admin/songs/"+x.firebaseKey+"/history"} onClick={()=>setOpenActionId(null)}>Version history</Link>{can(role,"archive")&&<button onClick={()=>{setOpenActionId(null);singleArchive(x);}} disabled={busy}>Archive</button>}</div>,document.querySelector(".shell")||document.body)}</div></td></tr>)}
     </tbody></table></div>
     {!visible.length&&<Empty title="No matching songs" text="Change your search or filters."/>}
-    <div className="song-library-pagination"><span>Showing {rows.length?from:0}–{to} of {rows.length.toLocaleString()} matching songs</span><div className="song-pagination-controls"><label>Rows <select value={pageSize} onChange={e=>PageSize(Number(e.target.value))}><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><button className="secondary-btn" disabled={page<=1} onClick={()=>Page(p=>p-1)}>Previous</button><span>Page {page} of {pageCount}</span><button className="secondary-btn" disabled={page>=pageCount} onClick={()=>Page(p=>p+1)}>Next</button></div></div>
+    <div className="song-library-pagination"><span>Showing {rows.length?from:0}–{to} of {rows.length.toLocaleString()} matching songs</span><div className="song-pagination-controls"><label>Rows <select value={pageSize} onChange={e=>updateLibraryParams({pageSize:Number(e.target.value)},{resetPage:true})}><option value={25}>25</option><option value={50}>50</option><option value={100}>100</option></select></label><button className="secondary-btn" disabled={page<=1} onClick={()=>updateLibraryParams({page:page-1})}>Previous</button><span>Page {page} of {pageCount}</span><button className="secondary-btn" disabled={page>=pageCount} onClick={()=>updateLibraryParams({page:page+1})}>Next</button></div></div>
    </>}
   </section>
  </>;
 }
-function SongEditor({create=false}){const {id}=useParams(),nav=useNavigate(),{user,role}=useAuth(),{value:remote}=useData("songs/"+(id||"none"),!!id),[f,F]=useState(null),[sections,T]=useState([]),[note,N]=useState(""),[error,E]=useState(""),[busy,B]=useState(false),[pendingSave,PS]=useState(null),[activeTab,AT]=useState("info"),[nextSongNo,NSN]=useState(null),[numberLoading,NL]=useState(false);useEffect(()=>{if(remote&&id){const x=norm(id,remote);F(x);T(x.sections||[]);}},[remote,id]);useEffect(()=>{if(!create)return;F({songNo:"",songTitle:"",songLanguage:"English",songCategory:"Worship",originalKey:"C",tempo:"",artist:"",author:"",composer:"",description:"",status:"DRAFT",visibility:"PRIVATE",version:0});let active=true;NL(true);get(ref(database,"songs")).then(snapshot=>{if(active)NSN(getNextSongNo(snapshot.val()));}).catch(err=>{if(active)E("Could not determine the next song number: "+err.message);}).finally(()=>{if(active)NL(false);});return()=>{active=false;};},[create]);if(!f)return <div className="boot">Loading song…</div>;const field=(k,v)=>F({...f,[k]:v});const save=async publish=>{
+function SongEditor({create=false}){const {id}=useParams(),nav=useNavigate(),location=useLocation(),{user,role}=useAuth(),{value:remote}=useData("songs/"+(id||"none"),!!id),[f,F]=useState(null),[sections,T]=useState([]),[note,N]=useState(""),[error,E]=useState(""),[busy,B]=useState(false),[pendingSave,PS]=useState(null),[activeTab,AT]=useState("info"),[nextSongNo,NSN]=useState(null),[numberLoading,NL]=useState(false),returnTo=location.state?.returnTo||"/admin/songs";useEffect(()=>{if(remote&&id){const x=norm(id,remote);F(x);T(x.sections||[]);}},[remote,id]);useEffect(()=>{if(!create)return;F({songNo:"",songTitle:"",songLanguage:"English",songCategory:"Worship",originalKey:"C",tempo:"",artist:"",author:"",composer:"",description:"",status:"DRAFT",visibility:"PRIVATE",version:0});let active=true;NL(true);get(ref(database,"songs")).then(snapshot=>{if(active)NSN(getNextSongNo(snapshot.val()));}).catch(err=>{if(active)E("Could not determine the next song number: "+err.message);}).finally(()=>{if(active)NL(false);});return()=>{active=false;};},[create]);if(!f)return <div className="boot">Loading song…</div>;const field=(k,v)=>F({...f,[k]:v});const save=async publish=>{
  if(!f.songTitle?.trim()){E("Song title is required.");return;}
  const edited={...f,songNo:create?nextSongNo:Number(remote?.songNo??f.songNo??0),sections:sections,status:publish?"PUBLISHED":f.status,visibility:publish?"PUBLIC":f.visibility};
  if(pendingSave&&JSON.stringify(edited)!==JSON.stringify(pendingSave.edited)){E("A previous save is unfinished. Retry that save without changing the song, then make your next edits.");return;}
@@ -157,7 +169,7 @@ function SongEditor({create=false}){const {id}=useParams(),nav=useNavigate(),{us
   PS(null);F(norm(result.songId,result.song));T(result.song.sections||[]);
   if(create)nav("/admin/songs/"+result.songId+"/edit");
  }catch(e){E(e.message);}finally{B(false);}
-};return <><Heading title={create?"Create a song":"Edit song"} sub="Complete each step in its own tab. Changes stay available as you move between tabs." action={<Link className="secondary-btn" to="/admin/songs">← Library</Link>}/>
+};return <><Heading title={create?"Create a song":"Edit song"} sub="Complete each step in its own tab. Changes stay available as you move between tabs." action={<Link className="secondary-btn" to={returnTo}>← Library</Link>}/>
 <div className="song-editor-tabs" role="tablist" aria-label="Song editor steps">
 <button type="button" role="tab" aria-selected={activeTab==="info"} className={activeTab==="info"?"active":""} onClick={()=>AT("info")}><span>01</span>Song information</button>
 <button type="button" role="tab" aria-selected={activeTab==="lyrics"} className={activeTab==="lyrics"?"active":""} onClick={()=>AT("lyrics")}><span>02</span>Lyrics sections</button>
