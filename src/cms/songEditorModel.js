@@ -210,7 +210,8 @@ export function normalizeChordIndex(chords, requested, length, exclude = -1) {
 }
 
 export function normalizeSections(sections) {
-  return asArray(sections).map(section => ({\n    ...(section.sectionId ? { sectionId: String(section.sectionId) } : {}),
+  return asArray(sections).map(section => ({
+    ...(section.sectionId ? { sectionId: String(section.sectionId) } : {}),
     type: String(section.type || section.title || "VERSE").toUpperCase().split(/\s+/)[0],
     ...(section.sectionNo == null ? {} : { sectionNo: Number(section.sectionNo) }),
     title: String(section.title || section.type || "Verse"),
