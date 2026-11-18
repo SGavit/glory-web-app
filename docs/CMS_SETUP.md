@@ -51,6 +51,12 @@ The CMS reads the existing paths:
 It writes song records and version snapshots, report status changes, taxonomy under appConfig/categories and appConfig/languages, user role updates, announcements under announcements/$id, and multilingual Daily Verse records under dailyVerses/$verseId. The legacy dailyVerse node is left untouched.
 
 
+## Atomic song number allocation
+
+New CMS song creation reserves its catalogue number through a Realtime Database transaction at `appConfig/songNumberCounter`. The allocator first reads the existing `songs` collection to establish the legacy high-water mark, then transactionally increments the shared counter. Concurrent CMS creates are serialized by Firebase, so they receive distinct numbers.
+
+The counter is a high-water mark: do not manually decrease or delete it. Failed song saves can leave gaps because a reserved number is never reused. Before enabling this allocator, verify that no other client writes new songs while bypassing the counter. If Android or another importer also creates songs, migrate those writers to the same allocator or move allocation to a trusted Cloud Function.
+
 ## Song Library and large-catalogue browsing
 
 The CMS Song Library reads the existing `songs/{songId}` records directly. It does not create or depend on a separate `/songIndex` node. Lyrics, sections, chords and metadata remain in the existing Android-compatible song records. The table supports client-side search, filters, sorting and 25/50/100-row pagination. Because it subscribes to the full `/songs` collection, the browser still downloads the complete song collection; this is a usability pagination feature, not server-side pagination or indexed search.

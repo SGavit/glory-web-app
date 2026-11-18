@@ -3,8 +3,8 @@ import {createPortal} from "react-dom";
 import {HashRouter,Routes,Route,Navigate,NavLink,Link,useNavigate,useParams,useLocation,useSearchParams} from "react-router-dom";
 import {onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut} from "firebase/auth";
 import {ref,onValue,get,set,update,push,remove,query,orderByChild,equalTo} from "firebase/database";
-import {normalizeSong as norm,getNextSongNo} from "./songData";
-import {saveSongToFirebase} from "./songRepository";
+import {normalizeSong as norm} from "./songData";
+import {saveSongToFirebase,allocateNextSongNo} from "./songRepository";
 import SongEditorWorkspace from "./SongEditorWorkspace";
 import {auth,database} from "../firebaseConfig";
 import "./cms.css";
@@ -157,7 +157,7 @@ function Songs(){
   </section>
  </>;
 }
-function SongEditor({create=false}){const {id}=useParams(),nav=useNavigate(),location=useLocation(),{user,role}=useAuth(),{value:remote}=useData("songs/"+(id||"none"),!!id),[f,F]=useState(null),[sections,T]=useState([]),[note,N]=useState(""),[error,E]=useState(""),[busy,B]=useState(false),[pendingSave,PS]=useState(null),[activeTab,AT]=useState("info"),[nextSongNo,NSN]=useState(null),[numberLoading,NL]=useState(false),returnTo=location.state?.returnTo||"/admin/songs";useEffect(()=>{if(remote&&id){const x=norm(id,remote);F(x);T(x.sections||[]);}},[remote,id]);useEffect(()=>{if(!create)return;F({songNo:"",songTitle:"",songLanguage:"English",songCategory:"Worship",originalKey:"C",tempo:"",artist:"",author:"",composer:"",description:"",status:"DRAFT",visibility:"PRIVATE",version:0});let active=true;NL(true);get(ref(database,"songs")).then(snapshot=>{if(active)NSN(getNextSongNo(snapshot.val()));}).catch(err=>{if(active)E("Could not determine the next song number: "+err.message);}).finally(()=>{if(active)NL(false);});return()=>{active=false;};},[create]);if(!f)return <div className="boot">Loading song…</div>;const field=(k,v)=>F({...f,[k]:v});const save=async publish=>{
+function SongEditor({create=false}){const {id}=useParams(),nav=useNavigate(),location=useLocation(),{user,role}=useAuth(),{value:remote}=useData("songs/"+(id||"none"),!!id),[f,F]=useState(null),[sections,T]=useState([]),[note,N]=useState(""),[error,E]=useState(""),[busy,B]=useState(false),[pendingSave,PS]=useState(null),[activeTab,AT]=useState("info"),[nextSongNo,NSN]=useState(null),[numberLoading,NL]=useState(false),returnTo=location.state?.returnTo||"/admin/songs";useEffect(()=>{if(remote&&id){const x=norm(id,remote);F(x);T(x.sections||[]);}},[remote,id]);useEffect(()=>{if(!create)return;F({songNo:"",songTitle:"",songLanguage:"English",songCategory:"Worship",originalKey:"C",tempo:"",artist:"",author:"",composer:"",description:"",status:"DRAFT",visibility:"PRIVATE",version:0});let active=true;NL(true);allocateNextSongNo(database).then(number=>{if(active)NSN(number);}).catch(err=>{if(active)E("Could not determine the next song number: "+err.message);}).finally(()=>{if(active)NL(false);});return()=>{active=false;};},[create]);if(!f)return <div className="boot">Loading song…</div>;const field=(k,v)=>F({...f,[k]:v});const save=async publish=>{
  if(!f.songTitle?.trim()){E("Song title is required.");return;}
  const edited={...f,songNo:create?nextSongNo:Number(remote?.songNo??f.songNo??0),sections:sections,status:publish?"PUBLISHED":f.status,visibility:publish?"PUBLIC":f.visibility};
  if(pendingSave&&JSON.stringify(edited)!==JSON.stringify(pendingSave.edited)){E("A previous save is unfinished. Retry that save without changing the song, then make your next edits.");return;}

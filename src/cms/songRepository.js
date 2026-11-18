@@ -10,6 +10,37 @@ const makeOperationId = () => {
 };
 
 /**
+ * Atomically reserves the next catalogue number.
+ *
+ * The initial high-water mark is read from the existing song collection so
+ * older catalogues keep their current numbering. The transaction serializes
+ * concurrent CMS allocations at appConfig/songNumberCounter. Failed song
+ * saves may leave gaps; numbers are never reused.
+ */
+export async function allocateNextSongNo(database) {
+  const songsSnapshot = await get(ref(database, "songs"));
+  const songs = songsSnapshot.val() || {};
+  const highestExisting = Object.values(songs).reduce((max, song) => {
+    const value = Number(song?.songNo);
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+
+  const counterRef = ref(database, "appConfig/songNumberCounter");
+  const result = await runTransaction(counterRef, current => {
+    const currentNumber = Number(current);
+    const highWaterMark = Number.isFinite(currentNumber)
+      ? Math.max(currentNumber, highestExisting)
+      : highestExisting;
+    return Math.floor(highWaterMark) + 1;
+  }, { applyLocally: false });
+
+  if (!result.committed || !Number.isInteger(Number(result.snapshot.val()))) {
+    throw new Error("Could not reserve a unique song number. Please try again.");
+  }
+  return Number(result.snapshot.val());
+}
+
+/**
  * Saves one song with the Android optimistic version check and version-history format.
  * operationId and preparedAt can be supplied by the caller to retry the same logical save.
  * Writes occur only when explicitly called by the editor.
