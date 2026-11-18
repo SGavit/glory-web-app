@@ -1706,3 +1706,40 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
   .app-theme .public-song-card{transition:none!important}
   .app-theme .public-song-card:hover{transform:none!important}
 }
+
+/* Accessibility and public song-reader polish */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{
+ outline:3px solid #7892B7;
+ outline-offset:2px;
+}
+.shell[data-theme="dark"] :where(a,button,input,select,textarea,[tabindex]):focus-visible{
+ outline-color:#A9C0E4;
+}
+:where(button:disabled,input:disabled,select:disabled,textarea:disabled){
+ cursor:not-allowed;
+}
+.public-reader .reader-header{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+}
+.public-reader .reader-header>a{
+ color:#39577F;
+ font-size:12px;
+ font-weight:650;
+}
+.public-reader article section p{
+ color:#263950;
+ font:13px/2 'Noto Sans Devanagari','Noto Sans','Inter',monospace;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+}
+.public-reader .public-empty a{
+ color:#39577F;
+ font-size:12px;
+ font-weight:650;
+}
+@media(prefers-reduced-motion:reduce){
+ .public *, .public-reader *{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
