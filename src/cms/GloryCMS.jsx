@@ -1,4 +1,4 @@
-import React, {useEffect,useState,useCallback,createContext,useContext} from "react";
+import React, {useEffect,useState,useCallback,useRef,createContext,useContext} from "react";
 import {createPortal} from "react-dom";
 import {HashRouter,Routes,Route,Navigate,NavLink,Link,useNavigate,useParams,useLocation,useSearchParams} from "react-router-dom";
 import {onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut} from "firebase/auth";
@@ -242,6 +242,16 @@ const ENGLISH_LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 function PublicHome(){
  const {value:s,error}=usePublicSongs(),{value:d}=useData("dailyVerse");
  const [queryText,setQueryText]=useState(""),[activeTab,setActiveTab]=useState("songs"),[script,setScript]=useState("devanagari");
+ const searchInputRef=useRef(null);
+ useEffect(()=>{
+  const focusSearch=event=>{
+   if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){
+    event.preventDefault();searchInputRef.current?.focus();
+   }
+  };
+  window.addEventListener("keydown",focusSearch);
+  return ()=>window.removeEventListener("keydown",focusSearch);
+ },[]);
  const [language,setLanguage]=useState("ALL"),[category,setCategory]=useState("ALL"),[sort,setSort]=useState("title"),[letter,setLetter]=useState(""),[visibleCount,setVisibleCount]=useState(12);
  const allSongs=Object.entries(s||{}).map(([id,v])=>norm(id,v));
  const languages=[...new Set(allSongs.map(x=>x.songLanguage).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
@@ -271,7 +281,7 @@ function PublicHome(){
  return <div className="public">
   <header><Link to="/" className="public-brand"><span className="brand-mark small">G</span><span>Glory</span></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
   <section className="hero"><span className="hero-kicker">A LIBRARY FOR WORSHIP</span><h1>Sing with <em>one heart.</em></h1><p>Find the songs, lyrics and chords that bring your community together.</p>
-   <div className="public-search"><span aria-hidden="true">⌕</span><input value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Search songs, lyrics, language or category…" aria-label="Search songs"/>{queryText&&<button type="button" onClick={()=>updateFilter(setQueryText,"")} aria-label="Clear search">×</button>}<kbd>⌘ K</kbd></div>
+   <div className="public-search"><span aria-hidden="true">⌕</span><input ref={searchInputRef} value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Search songs, lyrics, language or category…" aria-label="Search songs"/>{queryText&&<button type="button" onClick={()=>updateFilter(setQueryText,"")} aria-label="Clear search">×</button>}<kbd>Ctrl / ⌘ K</kbd></div>
    <div className="hero-meta"><span>♫ {allSongs.length} songs in the library</span><span>·</span><span>Multiple languages</span></div>
   </section>
   {d&&<section className="daily"><small>TODAY'S VERSE</small><p>“{d.text}”</p><b>{d.reference}</b></section>}
@@ -299,7 +309,7 @@ function PublicHome(){
   <footer><span className="brand-mark small">G</span><b>Glory</b><span>Made for worship, shared in community.</span><small>GLORY · WORSHIP LIBRARY</small></footer>
  </div>;
 }
-function PublicSong(){const {id}=useParams(),{value}=usePublicSongs(),s=value?.[id]&&norm(id,value[id]);return <div className="public-reader"><div className="reader-header"><Link to="/">← Glory library</Link><ThemeToggle/></div>{s?<article><small>{s.songLanguage} · {s.songCategory}</small><h1>{s.songTitle}</h1><p>{s.originalKey}{s.tempo?" · "+s.tempo+" BPM":""}</p>{s.sections.map((x,i)=><section key={i}><h3>{x.title}</h3>{x.lines.map((l,j)=><p key={j}>{l.text}</p>)}</section>)}</article>:<p>Loading song…</p>}</div>;}
+function PublicSong(){const {id}=useParams(),{value,error}=usePublicSongs(),s=value?.[id]&&norm(id,value[id]);return <div className="public-reader"><div className="reader-header"><Link to="/">← Glory library</Link><ThemeToggle/></div>{s?<article><small>{s.songLanguage} · {s.songCategory}</small><h1>{s.songTitle}</h1><p>{s.originalKey}{s.tempo?" · "+s.tempo+" BPM":""}</p>{s.sections.map((x,i)=><section key={i}><h3>{x.title}</h3>{x.lines.map((l,j)=><p key={j}>{l.text}</p>)}</section>)}</article>:error?<div className="public-empty"><b>Could not load this song</b><p>{error}</p><Link to="/">Return to the library</Link></div>:value===null?<p>Loading song…</p>:<div className="public-empty"><b>Song not found</b><p>This song may have been unpublished or the link may be incorrect.</p><Link to="/">Browse the Glory library</Link></div>}</div>;}
 function Setlist(){const {shareId}=useParams(),{value}=useData("sharedSetlists/"+shareId),{value:songs}=usePublicSongs();return <div className="public-reader"><div className="reader-header"><Link to="/">← Glory</Link><ThemeToggle/></div><article><small>SHARED WORSHIP SETLIST</small><h1>{value?.name||value?.title||"Worship setlist"}</h1>{arr(value?.songs||value?.items).map((x,i)=>{let id=typeof x==="string"?x:x.songId||x.id;return <p key={i}>{i+1}.　{songs?.[id]?.songTitle||x.title||id}</p>;})}{!value&&<p>Loading setlist…</p>}</article></div>;}
 function Admin(){return <Shell><Routes><Route path="dashboard" element={<Dashboard/>}/><Route path="songs" element={<Songs/>}/><Route path="songs/new" element={<Guard permission="create"><SongEditor create/></Guard>}/><Route path="songs/:id/edit" element={<Guard permission="edit"><SongEditor/></Guard>}/><Route path="songs/:id/history" element={<History/>}/><Route path="reports" element={<Reports/>}/><Route path="taxonomy" element={<Guard permission="taxonomy"><Taxonomy/></Guard>}/><Route path="daily-verses" element={<Guard permission="dailyVerses"><DailyVerses/></Guard>}/><Route path="users" element={<Guard permission="roles"><Users/></Guard>}/><Route path="announcements" element={<Guard permission="announce"><Announcements/></Guard>}/><Route path="settings" element={<Guard permission="settings"><Settings/></Guard>}/><Route path="*" element={<Navigate to="dashboard" replace/>}/></Routes></Shell>;}
 export default function GloryCMS(){return <HashRouter><ThemeProvider><Provider><Routes><Route path="/" element={<PublicHome/>}/><Route path="/song/:id" element={<PublicSong/>}/><Route path="/setlist/:shareId" element={<Setlist/>}/><Route path="/login" element={<Login/>}/><Route path="/admin/*" element={<Guard><Admin/></Guard>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></Provider></ThemeProvider></HashRouter>;}
