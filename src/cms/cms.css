@@ -2417,7 +2417,7 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 @media(max-width:1050px){.shell .taxonomy-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.shell .taxonomy-panel{padding:16px}.shell .taxonomy-row{min-height:52px}.shell .taxonomy-name{font-size:12px}.shell .taxonomy-add-form{gap:7px}.shell .taxonomy-add-form .primary-btn{min-width:78px;padding:9px 10px}}
 
-/* Song library mobile usability: readable song titles + one-tap edit */
+/* Song library mobile usability: readable titles and compact rows */
 @media(max-width:767px){
  .shell .song-library-toolbar{padding:10px!important;gap:8px!important}
  .shell .song-library-search{min-height:40px!important}
@@ -2443,7 +2443,6 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .song-library-table .song-title-cell>small{display:block!important;color:var(--cms-muted)!important;font-size:10px!important;line-height:1.35!important;margin-top:3px!important;white-space:normal!important}
  .shell .song-library-table tbody td:last-child{justify-self:end!important;display:block!important}
  .shell .song-row-actions{display:flex!important;align-items:center!important;gap:5px!important;position:static!important}
- .shell .song-row-edit-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:34px!important;padding:0 10px!important;border:1px solid var(--cms-accent)!important;border-radius:7px!important;background:var(--cms-accent)!important;color:#fff!important;font-size:11px!important;font-weight:650!important;text-decoration:none!important}
  .shell .song-row-action-trigger{width:32px!important;height:32px!important}
  .shell .song-library-table .song-select-cell{width:22px!important;min-width:22px!important;display:block!important}
  .shell .song-library-table .song-select-cell input{width:16px!important;height:16px!important}
@@ -2453,5 +2452,4 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .song-library-filters{grid-template-columns:minmax(0,1fr)!important}
  .shell .song-library-table tbody tr{padding:9px!important;gap:6px!important}
  .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:20px minmax(0,1fr) auto!important}
- .shell .song-row-edit-link{padding:0 8px!important}
 }
