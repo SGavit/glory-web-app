@@ -2255,3 +2255,115 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .public-reader .reader-size-value{font-size:10px;min-width:34px}
  .public-reader article section p{line-height:1.75}
 }
+
+/* FULL CMS MOBILE OVERHAUL — final mobile-specific layout layer */
+@media(max-width:767px){
+ .shell{font-size:14px}
+ .shell .page{padding:12px 12px 24px!important}
+ .shell .topbar{min-height:52px!important;height:auto!important;padding:7px 10px!important}
+ .shell .topbar .menu{width:36px;height:36px;min-height:36px}
+ .shell .topbar-actions{gap:5px}
+ .shell .heading{margin:0 0 14px!important;gap:8px!important}
+ .shell .heading h1{font-size:clamp(21px,6vw,25px)!important;line-height:1.18!important;margin:4px 0!important;letter-spacing:-.45px!important}
+ .shell .heading p{font-size:12px!important;line-height:1.45!important}
+ .shell .heading small,.shell .eyebrow{font-size:9px!important;letter-spacing:1.25px!important}
+ .shell .heading .primary-btn,.shell .heading .secondary-btn{width:100%;min-height:42px}
+ .shell .panel{padding:12px!important;border-radius:12px!important}
+ .shell .table-panel{padding:0!important}
+ .shell .stats{gap:8px!important;margin-bottom:12px!important}
+ .shell .stat{padding:11px!important;min-height:82px!important;border-radius:12px!important}
+ .shell .stat small{font-size:11px!important;line-height:1.25}
+ .shell .stat strong{font-size:21px!important;margin-top:4px}
+ /* Library: search remains prominent; filters are compact and predictable */
+ .shell .song-library-toolbar{padding:10px!important;gap:9px!important}
+ .shell .song-library-search{min-height:42px!important;width:100%!important}
+ .shell .song-library-search input{font-size:13px!important;min-height:40px!important}
+ .shell .song-library-filters{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .shell .song-library-filters select{min-height:39px!important;height:auto!important;padding:8px 25px 8px 10px!important;font-size:12px!important}
+ .shell .song-library-toolbar-bottom{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important;align-items:center}
+ .shell .song-library-sort{grid-column:1/-1!important;display:flex!important;align-items:center;gap:8px!important;font-size:11px!important}
+ .shell .song-library-sort select{flex:1;min-width:0;min-height:38px!important;font-size:12px!important}
+ .shell .song-library-toolbar-bottom .secondary-btn{min-height:38px!important;width:100%!important}
+ .shell .song-library-count{grid-column:1/-1!important;font-size:11px!important;line-height:1.35!important;overflow-wrap:anywhere}
+ .shell .song-bulk-bar{display:flex;flex-wrap:wrap;gap:7px;padding:9px 10px}
+ .shell .song-library-table{display:block!important;width:100%!important}
+ .shell .song-library-table thead{display:none!important}
+ .shell .song-library-table tbody{display:block!important;width:100%!important}
+ .shell .song-library-table tbody tr{display:grid!important;grid-template-columns:minmax(0,1fr) 36px!important;align-items:center!important;gap:8px!important;padding:10px 11px!important;border-bottom:1px solid var(--cms-line,var(--line))!important}
+ .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:26px minmax(0,1fr) 36px!important}
+ .shell .song-library-table tbody td{display:none!important;border:0!important;padding:0!important;min-width:0!important}
+ .shell .song-library-table tbody td.song-title-cell{display:block!important;grid-column:2!important;grid-row:1!important;min-width:0!important}
+ .shell .song-library-table:has(.song-select-cell) tbody td.song-title-cell{grid-column:2!important}
+ .shell .song-library-table tbody td.song-select-cell{display:flex!important;grid-column:1!important;grid-row:1!important;width:26px!important;min-width:26px!important;align-items:center;justify-content:center}
+ .shell .song-library-table tbody td:last-child{display:block!important;grid-column:-2!important;grid-row:1!important;justify-self:end!important}
+ .shell .song-library-table .song-title-cell>b{font-size:13px!important;line-height:1.4!important;display:block!important;overflow-wrap:anywhere}
+ .shell .song-library-table .song-title-cell>small{font-size:10px!important;line-height:1.4!important;display:block!important;margin-top:3px!important;color:var(--cms-muted,#718096)}
+ .shell .song-library-table .song-select-cell input[type=checkbox]{width:18px!important;height:18px!important;margin:0!important;accent-color:#315b8e;vertical-align:middle}
+ .shell .song-row-action-trigger{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;border-radius:9px!important}
+ .shell .song-library-pagination{display:flex!important;flex-direction:column!important;gap:9px!important;padding:10px!important}
+ .shell .song-library-pagination>span{font-size:11px!important}
+ .shell .song-pagination-controls{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
+ .shell .song-pagination-controls>*{min-height:36px!important}
+ /* Corrections: eliminate large empty vertical gaps and make tabs finger-friendly */
+ .shell .report-grid{display:flex!important;flex-direction:column!important;gap:9px!important}
+ .shell .tabs{margin:0 0 9px!important;padding:2px 0 5px!important;gap:4px!important}
+ .shell .tabs button{min-height:38px!important;padding:8px 10px!important;font-size:10px!important;white-space:nowrap}
+ .shell .report-list{min-height:0!important;height:auto!important;max-height:none!important}
+ .shell .report-list>button{padding:11px!important}
+ .shell .report-list>button small{font-size:9px!important;line-height:1.4}
+ .shell .report-list>button b{font-size:13px!important;margin:5px 0!important}
+ .shell .report-list>button p{font-size:12px!important;line-height:1.45!important}
+ .shell .report-list .empty,.shell .report-list .empty-state{min-height:150px!important}
+ .shell .report-detail{min-height:0!important}
+ .shell .report-detail h2{font-size:18px!important}
+ .shell .report-detail p{font-size:12px!important;line-height:1.5!important}
+ .shell .report-detail dl{grid-template-columns:minmax(75px,100px) minmax(0,1fr)!important;font-size:11px!important;overflow-wrap:anywhere}
+ .shell .report-detail .actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
+ .shell .report-detail .actions>*{min-height:38px!important}
+ /* Taxonomy: compact lists, form controls, and predictable section rhythm */
+ .shell .cols{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ .shell .taxonomy{padding:12px!important}
+ .shell .taxonomy h3{font-size:15px!important;margin:0 0 8px!important}
+ .shell .taxonomy p{padding:8px 0!important;margin:0!important;font-size:13px!important;line-height:1.4!important;min-height:36px}
+ .shell .taxonomy p small{font-size:9px!important;letter-spacing:.4px}
+ .shell .taxonomy form{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:7px!important;margin-top:8px!important}
+ .shell .taxonomy form input{min-height:40px!important;font-size:13px!important;padding:9px!important}
+ .shell .taxonomy form button{width:auto!important;min-width:72px!important;min-height:40px!important;padding:9px 12px!important}
+ .shell .notice{margin-top:9px!important;padding:10px!important;font-size:11px!important}
+ /* People, settings, announcements, daily verse, editor and forms */
+ .shell .people-panel{padding:0!important}
+ .shell .people-panel .people-heading{padding:11px!important}
+ .shell .people-panel table tr{gap:6px!important;padding:9px!important}
+ .shell .stack-form{gap:9px!important}
+ .shell .stack-form input,.shell .stack-form select,.shell .stack-form textarea{min-height:40px!important;font-size:13px!important}
+ .shell .daily-verse-summary{gap:7px!important}
+ .shell .daily-verse-list{margin-top:9px!important}
+ .shell .daily-verse-list table{min-width:600px}
+ .shell .editor-grid{gap:10px!important}
+ .shell .song-editor-tabs{margin-bottom:10px!important}
+ .shell .android-section-card{padding:10px!important}
+ .shell .android-section-toolbar{gap:7px!important}
+ .shell .android-lyrics-tools button,.shell .android-chord-toolbar button{min-height:38px!important}
+ .shell .modal-dialog{max-width:calc(100vw - 16px)!important;margin:8px!important}
+ .shell .modal-content{max-height:calc(100dvh - 16px)!important}
+}
+@media(max-width:479px){
+ .shell .song-library-filters{grid-template-columns:minmax(0,1fr)!important}
+ .shell .song-library-toolbar-bottom{grid-template-columns:minmax(0,1fr)!important}
+ .shell .song-library-sort{grid-column:auto!important}
+ .shell .song-library-count{grid-column:auto!important}
+ .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:24px minmax(0,1fr) 34px!important}
+ .shell .song-library-table tbody tr{padding:9px!important}
+ .shell .song-library-table .song-title-cell>b{font-size:12.5px!important}
+ .shell .song-library-table .song-select-cell{width:24px!important;min-width:24px!important}
+ .shell .taxonomy form{grid-template-columns:minmax(0,1fr)!important}
+ .shell .taxonomy form button{width:100%!important}
+ .shell .report-detail .actions{grid-template-columns:minmax(0,1fr)!important}
+ .shell .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .shell .page{padding-inline:10px!important}
+}
+@media(min-width:768px) and (max-width:1023px){
+ .shell .report-grid{grid-template-columns:minmax(0,1fr)!important}
+ .shell .song-library-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .page{padding:18px!important}
+}
