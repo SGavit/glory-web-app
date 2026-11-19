@@ -55,6 +55,7 @@ function Dashboard(){
  const {value:s,error:songError,loaded:songsLoaded}=useData("songs");
  const {value:r,error:reportError,loaded:reportsLoaded}=useData("reports");
  const {value:roles,error:roleError,loaded:rolesLoaded}=useData("roles",role==="SUPER_ADMIN");
+ if(!songsLoaded||!reportsLoaded||(role==="SUPER_ADMIN"&&!rolesLoaded))return <div className="boot">Loading dashboard data…</div>;
  const error=songError||reportError||(role==="SUPER_ADMIN"?roleError:"");
  if(error)return <><Heading title="Overview" sub="A clear view of the Glory library and the work that needs your attention."/><div className="error-box" role="alert">Dashboard data could not be loaded: {error}. Check your Firebase connection and database read permissions, then refresh.</div></>;
  const songs=Object.entries(s||{}).map(([id,v])=>norm(id,v));
