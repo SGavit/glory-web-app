@@ -2184,3 +2184,58 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .login-screen>.login-panel{grid-column:1;grid-row:2;padding:28px 20px}
  .login-theme-toggle{top:12px;left:12px}
 }
+
+/* Public-library production polish: readable type, compact hero, clear browsing states */
+.public{font-size:13px}
+.public header{height:68px}
+.public-brand{font-size:20px}
+.public-header-links>a:not(.secondary-btn){font-size:12px}
+.hero{padding:58px 10px 36px}
+.hero-kicker,.section-kicker{font-size:10px;letter-spacing:1.7px}
+.hero h1{font-size:clamp(42px,5.2vw,60px);letter-spacing:-2.5px}
+.hero>p{font-size:15px;line-height:1.55}
+.public-search{height:56px;margin-top:24px}
+.public-search input{font-size:14px}
+.hero-meta{font-size:12px;margin-top:15px}
+.library-heading h2{font-size:30px}
+.library-heading p{font-size:12px}
+.library-count{font-size:12px}
+.public-tabs button{font-size:12px;min-height:40px}
+.public-filter span{font-size:11px}
+.public-filter select{min-height:42px;font-size:12px}
+.letter-browser-head b{font-size:13px}
+.letter-browser-head small,.letter-hint{font-size:11px}
+.letter-list{display:flex;flex-wrap:wrap;gap:6px;overflow:visible}
+.letter-list button{min-width:34px;min-height:36px;padding:5px 7px;font-size:13px}
+.public-results-head{font-size:11px}
+.public-song-card{min-height:62px;padding:14px}
+.song-card-index{width:32px;height:32px;font-size:11px}
+.song-card-main b{font-size:14px;line-height:1.5}
+.song-card-main small{font-size:10px;line-height:1.5;margin-top:4px}
+.public-empty b,.public-loading b{font-size:14px}
+.public-empty p,.public-loading p{font-size:12px}
+.public-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:38px 16px;border:1px solid #e0e8e2;background:#fff;border-radius:14px;color:#607368;text-align:center}
+.public-loading .loading-mark{font-size:24px;margin-bottom:10px}
+.public footer{font-size:11px}
+.public footer small{font-size:9px}
+@media(max-width:767px){
+ .hero{padding:40px 4px 26px}
+ .hero h1{font-size:clamp(34px,9vw,46px);letter-spacing:-1.8px}
+ .hero>p{font-size:13px}
+ .public-search{height:50px}
+ .hero-meta{font-size:10px;flex-wrap:wrap}
+ .library-heading h2{font-size:26px}
+ .public-controls{gap:9px}
+ .public-filter span{font-size:11px}
+ .letter-list{gap:5px}
+ .letter-list button{min-width:32px;min-height:35px}
+ .public-song-card{min-height:58px;padding:12px}
+ .song-card-main b{font-size:14px}
+}
+@media(max-width:420px){
+ .hero{padding-top:32px}
+ .hero h1{font-size:34px}
+ .public .library-heading{gap:8px}
+ .letter-list button{min-width:30px}
+ .public-results-head{gap:8px;align-items:flex-start}
+}
