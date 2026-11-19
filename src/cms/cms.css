@@ -2416,3 +2416,42 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .shell .taxonomy-panel .taxonomy-heading h3{font-size:16px!important}
 @media(max-width:1050px){.shell .taxonomy-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.shell .taxonomy-panel{padding:16px}.shell .taxonomy-row{min-height:52px}.shell .taxonomy-name{font-size:12px}.shell .taxonomy-add-form{gap:7px}.shell .taxonomy-add-form .primary-btn{min-width:78px;padding:9px 10px}}
+
+/* Song library mobile usability: readable song titles + one-tap edit */
+@media(max-width:767px){
+ .shell .song-library-toolbar{padding:10px!important;gap:8px!important}
+ .shell .song-library-search{min-height:40px!important}
+ .shell .song-library-filters{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ .shell .song-library-filters select{min-height:36px!important;padding-left:8px!important;padding-right:24px!important;font-size:11px!important}
+ .shell .song-library-toolbar-bottom{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:7px!important}
+ .shell .song-library-sort{grid-column:1/-1!important;display:flex!important;align-items:center!important;gap:7px!important;font-size:10px!important}
+ .shell .song-library-sort select{min-width:0!important;flex:1!important;min-height:36px!important}
+ .shell .song-library-toolbar-bottom .secondary-btn{min-height:35px!important;padding:8px 10px!important}
+ .shell .song-library-count{grid-column:1/-1!important;font-size:10px!important}
+ .shell .song-library-table{display:block!important;width:100%!important;min-width:0!important;table-layout:auto!important}
+ .shell .song-library-table thead{display:none!important}
+ .shell .song-library-table tbody{display:block!important;width:100%!important}
+ .shell .song-library-table tbody tr{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:8px!important;padding:10px 11px!important;border-bottom:1px solid var(--cms-line)!important;min-height:58px!important}
+ .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:22px minmax(0,1fr) auto!important}
+ .shell .song-library-table tbody td{display:block!important;padding:0!important;border:0!important;min-width:0!important;white-space:normal!important}
+ .shell .song-library-table tbody td:nth-child(3),.shell .song-library-table tbody td:nth-child(4),.shell .song-library-table tbody td:nth-child(5),.shell .song-library-table tbody td:nth-child(6),.shell .song-library-table tbody td:nth-child(7){display:none!important}
+ .shell .song-library-table:has(.song-select-cell) tbody td:nth-child(2){display:block!important}
+ .shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(1){display:block!important}
+ .shell .song-library-table .song-title-cell{grid-column:1!important;min-width:0!important;max-width:none!important;display:block!important;visibility:visible!important;opacity:1!important}
+ .shell .song-library-table:has(.song-select-cell) .song-title-cell{grid-column:2!important}
+ .shell .song-library-table .song-title-cell>b{display:block!important;color:var(--cms-text)!important;font-size:13px!important;font-weight:650!important;line-height:1.45!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ .shell .song-library-table .song-title-cell>small{display:block!important;color:var(--cms-muted)!important;font-size:10px!important;line-height:1.35!important;margin-top:3px!important;white-space:normal!important}
+ .shell .song-library-table tbody td:last-child{justify-self:end!important;display:block!important}
+ .shell .song-row-actions{display:flex!important;align-items:center!important;gap:5px!important;position:static!important}
+ .shell .song-row-edit-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:34px!important;padding:0 10px!important;border:1px solid var(--cms-accent)!important;border-radius:7px!important;background:var(--cms-accent)!important;color:#fff!important;font-size:11px!important;font-weight:650!important;text-decoration:none!important}
+ .shell .song-row-action-trigger{width:32px!important;height:32px!important}
+ .shell .song-library-table .song-select-cell{width:22px!important;min-width:22px!important;display:block!important}
+ .shell .song-library-table .song-select-cell input{width:16px!important;height:16px!important}
+ .shell .song-library-pagination{padding:10px!important;gap:8px!important}
+}
+@media(max-width:360px){
+ .shell .song-library-filters{grid-template-columns:minmax(0,1fr)!important}
+ .shell .song-library-table tbody tr{padding:9px!important;gap:6px!important}
+ .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:20px minmax(0,1fr) auto!important}
+ .shell .song-row-edit-link{padding:0 8px!important}
+}
