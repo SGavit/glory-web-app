@@ -136,23 +136,28 @@ export function detectSectionsFromLyrics(input) {
   const source = cleanText(input).trim();
   if (!source) return [];
 
-  const lines = source.split("\n");
-  const explicit = lines.some(line => /^\s*\[[^\]]+\]\s*$/.test(line));
+  const lines = source.split("\\n");
+  const explicit = lines.some(line => /^\\s*\\[[^\\]]+\\]\\s*$/.test(line));
 
   if (explicit) {
     const output = [];
     let current = null;
+    let verseNo = 0;
     const finish = () => {
       if (current && current.lines.length) output.push(current);
     };
 
     lines.forEach(raw => {
-      const match = raw.match(/^\s*\[([^\]]+)\]\s*$/);
+      const match = raw.match(/^\\s*\\[([^\\]]+)\\]\\s*$/);
       if (match) {
         finish();
-        const title = match[1].trim();
+        const rawTitle = match[1].trim();
+        const isIntro = /^intro(?:duction)?$/i.test(rawTitle);
+        const isVerse = /^verse(?:\\s*\\d+)?$/i.test(rawTitle);
+        if (isVerse) verseNo += 1;
+        const title = isIntro ? "Intro" : isVerse ? "Verse " + verseNo : rawTitle;
         current = {
-          type: title.toUpperCase().split(/\s+/)[0],
+          type: isIntro ? "INTRO" : isVerse ? "VERSE" : rawTitle.toUpperCase().split(/\\s+/)[0],
           title,
           lines: []
         };
@@ -165,15 +170,20 @@ export function detectSectionsFromLyrics(input) {
     return output;
   }
 
-  return source
-    .split(/\n\s*\n+/)
-    .map(block => block.split("\n").map(line => line.trimEnd()).filter(line => line.trim()))
-    .filter(block => block.length)
-    .map((block, index) => ({
-      type: "VERSE",
-      title: "Verse " + (index + 1),
+  const blocks = source
+    .split(/\\n\\s*\\n+/)
+    .map(block => block.split("\\n").map(line => line.trimEnd()).filter(line => line.trim()))
+    .filter(block => block.length);
+
+  return blocks.map((block, index) => {
+    const isIntro = blocks.length > 1 && index === 0;
+    const verseNo = isIntro ? 0 : index + (blocks.length > 1 ? 0 : 1);
+    return {
+      type: isIntro ? "INTRO" : "VERSE",
+      title: isIntro ? "Intro" : "Verse " + verseNo,
       lines: block.map(text => ({ text, chords: [] }))
-    }));
+    };
+  });
 }
 
 export function nextSectionTitle(type, sections) {
