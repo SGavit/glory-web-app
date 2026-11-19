@@ -1,4 +1,10 @@
 const asArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
+const taxonomyArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
+export const normalizeTaxonomyValue = value => String(value ?? "").trim().replace(/\s+/g, " ");
+export const taxonomyKey = value => normalizeTaxonomyValue(value).toLocaleLowerCase();
+export const uniqueTaxonomyValues = values => { const seen=new Set(); return taxonomyArray(values).map(normalizeTaxonomyValue).filter(value=>{if(!value)return false;const key=taxonomyKey(value);if(seen.has(key))return false;seen.add(key);return true;}); };
+export const mergeTaxonomyOptions = (configured=[],songValues=[],extraValues=[]) => uniqueTaxonomyValues([...taxonomyArray(configured),...taxonomyArray(songValues),...taxonomyArray(extraValues)]).sort((x,y)=>x.localeCompare(y,undefined,{sensitivity:"base"}));
+
 
 export const toStatusVisibility = (status, visibility) => String(status || "DRAFT") + "_" + String(visibility || "PRIVATE");
 
