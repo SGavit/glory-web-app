@@ -2093,3 +2093,10 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .daily-verse-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(prefers-reduced-motion:reduce){.shell .sidebar{transition:none!important}}
+
+@media(max-width:767px){
+ .shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(2),
+ .shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(6){display:none}
+ .shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(5){display:block}
+ .shell .song-library-table:not(:has(.song-select-cell)) tbody td:last-child{display:block}
+}
