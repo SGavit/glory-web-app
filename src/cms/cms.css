@@ -1850,3 +1850,95 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 /* Section-name dropdown retains the existing section-header layout. */
 .android-section-title-select{flex:1;min-width:0;border:0;border-bottom:1px solid #e7ede8;background:transparent;padding:7px 2px;font:700 12px Inter;color:#286b52;cursor:pointer;appearance:auto;}
 .android-section-title-select:focus{outline:0;border-bottom-color:#78a88a;}
+
+/* Final responsive system: consolidated mobile/tablet behavior */
+.shell,.shell *{min-width:0}
+.shell{width:100%;overflow-x:clip;min-height:100vh;min-height:100dvh}
+.shell .main{min-width:0;width:auto}
+.shell .page{width:100%;min-width:0}
+.shell .scroll,.shell .table-panel,.shell .table-responsive{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.shell .toolbar,.shell .heading,.shell .panel-title{min-width:0}
+.shell input,.shell select,.shell textarea{max-width:100%}
+.shell .sidebar{padding-top:max(18px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
+.shell .scrim{position:fixed;inset:0;z-index:29;border:0;background:rgba(7,15,27,.48);backdrop-filter:blur(2px)}
+.shell .sidebar{z-index:30}
+.shell .menu{display:none;flex:0 0 auto;min-width:38px;min-height:38px;border:1px solid var(--navy-border,#DCE3ED);border-radius:9px;background:var(--navy-surface,#fff);color:var(--navy-text,#1D2C43);cursor:pointer}
+.shell .topbar{gap:12px;min-width:0}
+.shell .breadcrumb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.shell .topbar-actions{display:flex;align-items:center;gap:10px;min-width:0}
+.shell .connection-status{white-space:nowrap}
+.shell .heading{flex-wrap:wrap;align-items:flex-start}
+.shell .heading>div{min-width:0}
+.shell .heading h1{overflow-wrap:anywhere}
+.shell .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.shell .cols,.shell .editor-grid{min-width:0}
+.shell .editor-grid>*{min-width:0}
+.shell .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.shell .quick{flex-wrap:wrap}
+.shell .quick>*{min-width:min(100%,220px)}
+.shell .song-library-toolbar,.shell .song-library-filters{min-width:0;flex-wrap:wrap}
+.shell .song-library-filters>*{min-width:0;max-width:100%}
+.shell .people-search{max-width:100%}
+.shell .people-role-filters{flex-wrap:wrap}
+.shell .android-section-toolbar,.shell .lyrics-toolbar,.shell .android-chord-palette{max-width:100%}
+.shell .android-chord-modal-backdrop{padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+.shell .modal-dialog{max-width:calc(100vw - 24px)}
+.shell .modal-content{max-height:calc(100dvh - 24px);overflow:auto}
+@media(max-width:1023px){
+ .shell .sidebar{position:fixed;inset:0 auto 0 0;height:100dvh;width:min(300px,88vw);max-width:88vw;transform:translateX(-105%);transition:transform .22s ease;box-shadow:18px 0 42px rgba(0,0,0,.22)}
+ .shell .sidebar.show{transform:translateX(0)}
+ .shell .main{margin-left:0;width:100%}
+ .shell .menu{display:inline-flex;align-items:center;justify-content:center}
+ .shell .topbar{padding-inline:clamp(12px,3vw,24px)}
+ .shell .page{padding:clamp(16px,3vw,28px)}
+ .shell .cols{grid-template-columns:minmax(0,1fr)}
+ .shell .editor-grid{grid-template-columns:minmax(0,1fr)}
+ .shell .publish{position:static}
+}
+@media(max-width:767px){
+ .shell .topbar{height:auto;min-height:58px;padding:8px 12px;gap:8px}
+ .shell .breadcrumb{font-size:12px;flex:1}
+ .shell .topbar-actions{gap:6px}
+ .shell .connection-status{display:none}
+ .shell .page{padding:16px 12px}
+ .shell .heading{gap:12px;margin-bottom:18px}
+ .shell .heading h1{font-size:clamp(22px,6vw,26px);letter-spacing:-.6px}
+ .shell .heading p{font-size:12px}
+ .shell .heading .primary-btn,.shell .heading .secondary-btn{width:100%}
+ .shell .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .shell .stat{padding:13px;min-height:98px}
+ .shell .stat strong{font-size:clamp(19px,6vw,23px)}
+ .shell .panel{padding:14px}
+ .shell .table-panel{padding:0}
+ .shell .toolbar{flex-wrap:wrap;padding:12px}
+ .shell .toolbar input{min-width:0;width:100%;flex:1 1 100%}
+ .shell .toolbar select{min-width:0;flex:1 1 130px}
+ .shell .form-grid{grid-template-columns:minmax(0,1fr)}
+ .shell .wide{grid-column:auto}
+ .shell .quick{display:grid;grid-template-columns:minmax(0,1fr)}
+ .shell .quick>*{min-width:0}
+ .shell .song-library-toolbar{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+ .shell .song-library-toolbar>*{width:100%;max-width:100%}
+ .shell .song-library-filters{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .shell .song-library-filters>*{width:100%}
+ .shell .android-section-toolbar{grid-template-columns:minmax(0,1fr)!important}
+ .shell .song-editor-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .shell .song-editor-tabs button{min-width:0;padding:9px 6px;font-size:11px}
+ .shell .android-lyrics-tools{flex-wrap:wrap}
+ .shell .android-chord-palette{flex-direction:column;align-items:stretch}
+ .shell .people-panel .people-heading{padding:14px;gap:10px}
+ .shell .people-role-filters button{flex:1 1 calc(50% - 7px)}
+ .shell .modal-dialog{width:auto;margin:12px}
+}
+@media(max-width:479px){
+ .shell .page{padding-inline:10px}
+ .shell .topbar{padding-inline:9px}
+ .shell .topbar .theme-toggle{padding:6px}
+ .shell .heading h1{font-size:22px}
+ .shell .stats{grid-template-columns:minmax(0,1fr)}
+ .shell .song-editor-tabs{grid-template-columns:minmax(0,1fr)!important}
+ .shell .people-role-filters button{flex-basis:100%}
+ .shell .panel{padding:12px}
+ .shell .table-panel{padding:0}
+}
+@media(prefers-reduced-motion:reduce){.shell .sidebar{transition:none}}
