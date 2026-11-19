@@ -1846,3 +1846,7 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 @media(prefers-reduced-motion:reduce){
  .people-role-filters button{transition:none}
 }
+
+/* Section-name dropdown retains the existing section-header layout. */
+.android-section-title-select{flex:1;min-width:0;border:0;border-bottom:1px solid #e7ede8;background:transparent;padding:7px 2px;font:700 12px Inter;color:#286b52;cursor:pointer;appearance:auto;}
+.android-section-title-select:focus{outline:0;border-bottom-color:#78a88a;}
