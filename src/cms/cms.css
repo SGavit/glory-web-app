@@ -2156,3 +2156,31 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .public-controls .public-filter:last-of-type,.public-controls .clear-filters{grid-column:auto}
  .public-reader{padding:8px}
 }
+
+/* Fix login grid: theme toggle is overlay, not a grid cell */
+.login-screen{
+ position:relative;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+ grid-template-rows:minmax(0,1fr);
+ min-height:100vh;
+}
+.login-theme-toggle{
+ position:absolute;
+ top:16px;
+ left:16px;
+ z-index:3;
+}
+.login-screen>.login-art,
+.login-screen>.login-panel{
+ min-width:0;
+ min-height:0;
+ grid-row:1;
+}
+.login-screen>.login-art{grid-column:1}
+.login-screen>.login-panel{grid-column:2}
+@media(max-width:720px){
+ .login-screen{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;min-height:100vh}
+ .login-screen>.login-art{grid-column:1;grid-row:1;min-height:260px;padding:60px 24px 28px}
+ .login-screen>.login-panel{grid-column:1;grid-row:2;padding:28px 20px}
+ .login-theme-toggle{top:12px;left:12px}
+}
