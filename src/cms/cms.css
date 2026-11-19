@@ -2239,3 +2239,19 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .letter-list button{min-width:30px}
  .public-results-head{gap:8px;align-items:flex-start}
 }
+
+/* Public song reader: adjustable, accessible lyric typography */
+.public-reader .reader-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.public-reader .reader-size-btn{min-width:38px;min-height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface,#fff);color:var(--text,#173454);font-size:15px;font-weight:700;cursor:pointer}
+.public-reader .reader-size-value{min-width:42px;text-align:center;font-size:11px;color:var(--muted,#718096);font-variant-numeric:tabular-nums}
+.public-reader .reader-song-meta{font-size:12px;line-height:1.6;color:var(--muted,#718096);margin-top:10px}
+.public-reader article section{margin-top:24px}
+.public-reader article section h3{font-size:12px;letter-spacing:.06em;margin-bottom:10px}
+.public-reader article section p{font-size:var(--reader-lyrics-size,16px);line-height:1.85;font-family:'Noto Sans Devanagari','Noto Sans','Inter',sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 12px}
+@media(max-width:520px){
+ .public-reader .reader-header{align-items:flex-start}
+ .public-reader .reader-tools{gap:5px}
+ .public-reader .reader-size-btn{min-width:34px;min-height:36px}
+ .public-reader .reader-size-value{font-size:10px;min-width:34px}
+ .public-reader article section p{line-height:1.75}
+}
