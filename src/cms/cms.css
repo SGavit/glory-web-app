@@ -2367,3 +2367,15 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .song-library-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
  .shell .page{padding:18px!important}
 }
+
+/* Empty-state and mobile queue sizing refinement */
+@media(max-width:767px){
+ .shell .report-grid{align-items:start!important}
+ .shell .report-list,.shell .report-detail{height:auto!important;min-height:0!important;max-height:none!important;align-self:start!important}
+ .shell .report-list .empty{padding:24px 12px!important;min-height:0!important}
+ .shell .report-list .empty>b{width:36px;height:36px;margin-bottom:8px}
+ .shell .report-list .empty h3{font-size:14px!important}
+ .shell .report-list .empty p{font-size:11px!important}
+ .shell .report-detail .empty{padding:22px 12px!important}
+ .shell .taxonomy{height:auto!important;min-height:0!important;align-self:start!important}
+}
