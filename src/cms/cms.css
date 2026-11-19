@@ -1942,3 +1942,154 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .table-panel{padding:0}
 }
 @media(prefers-reduced-motion:reduce){.shell .sidebar{transition:none}}
+
+/* Responsive overhaul v2 — page-level mobile layouts, not compressed desktop tables */
+.shell{overflow-x:clip}
+.shell .main,.shell .page,.shell .panel,.shell .cols,.shell .editor-grid,.shell .report-grid{min-width:0;max-width:100%}
+.shell .heading{gap:14px}
+.shell .heading>div{flex:1 1 220px}
+.shell .heading>.primary-btn,.shell .heading>.secondary-btn{flex:0 0 auto}
+.shell .panel-title,.shell .panel-title>div{min-width:0}
+.shell .panel-title h3{overflow-wrap:anywhere}
+.shell .report-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}
+.shell .report-list,.shell .report-detail{min-width:0}
+.shell .report-list>button{min-width:0;overflow-wrap:anywhere}
+.shell .report-detail dl{display:grid;grid-template-columns:minmax(90px,auto) minmax(0,1fr);gap:7px 12px}
+.shell .report-detail dd{min-width:0;overflow-wrap:anywhere}
+.shell .actions{display:flex;flex-wrap:wrap;gap:8px}
+.shell .actions>*{flex:1 1 120px}
+.shell .taxonomy form{display:flex;gap:8px;align-items:stretch}
+.shell .taxonomy form input{min-width:0;flex:1}
+.shell .taxonomy form button{flex:0 0 auto}
+.shell .stack-form>*{min-width:0}
+.shell .daily-verse-list .scroll{max-width:100%;overflow-x:auto}
+.shell .daily-verse-list table{min-width:650px}
+.shell .people-panel .scroll{max-width:100%;overflow-x:auto}
+.shell .people-panel table{min-width:640px}
+.shell .song-library-table-wrap{overflow-x:visible}
+.shell .song-library-table{min-width:0;width:100%;table-layout:auto}
+.shell .song-library-table .song-title-cell{min-width:0;max-width:none}
+.shell .song-library-table .song-title-cell>b{display:block;overflow-wrap:anywhere}
+.shell .song-library-table .song-title-cell>small{display:block;overflow-wrap:anywhere}
+.shell .song-library-table td{white-space:normal}
+.shell .song-library-pagination>span{overflow-wrap:anywhere}
+.shell .song-pagination-controls{min-width:0}
+.shell .song-pagination-controls>*{min-width:0}
+.shell .android-song-workspace{min-width:0;max-width:100%;overflow-x:clip}
+.shell .android-section-card,.shell .android-chord-target-line,.shell .android-editor-step{min-width:0;max-width:100%}
+.shell .android-verse-lyrics{width:100%;max-width:100%;min-width:0}
+.shell .android-chord-roots{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.shell .android-chord-targets{max-width:100%;overflow-x:auto}
+.shell .android-lyric-word-line{overflow-wrap:anywhere;word-break:normal}
+.shell .modal-dialog,.shell .android-chord-modal{max-width:calc(100vw - 24px)}
+.shell .modal-content,.shell .android-chord-modal{max-height:calc(100dvh - 24px);overflow-y:auto}
+@media(max-width:1023px){
+ .shell .report-grid{grid-template-columns:minmax(0,1fr)}
+ .shell .editor-grid{grid-template-columns:minmax(0,1fr)}
+ .shell .publish{position:static}
+}
+@media(max-width:767px){
+ .shell .page{padding:16px clamp(10px,3vw,16px) 28px}
+ .shell .heading{display:flex;flex-direction:column;align-items:stretch}
+ .shell .heading>div{width:100%}
+ .shell .heading>.primary-btn,.shell .heading>.secondary-btn{width:100%}
+ .shell .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .stat{min-height:86px;padding:11px}
+ .shell .stat strong{font-size:clamp(18px,5.5vw,22px)}
+ .shell .cols{grid-template-columns:minmax(0,1fr)}
+ .shell .quick{grid-template-columns:minmax(0,1fr)}
+ .shell .report-grid{gap:10px}
+ .shell .tabs{display:flex;overflow-x:auto;max-width:100%;gap:6px;padding-bottom:5px;overscroll-behavior-x:contain}
+ .shell .tabs button{flex:0 0 auto;min-height:38px}
+ .shell .report-list>button{padding:12px}
+ .shell .report-detail .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .taxonomy form{flex-direction:column}
+ .shell .taxonomy form button{width:100%}
+ .shell .song-library-toolbar{gap:9px;padding:12px}
+ .shell .song-library-filters{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .song-library-filters select{min-height:40px}
+ .shell .song-library-toolbar-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .shell .song-library-sort{grid-column:1/-1}
+ .shell .song-library-sort select{flex:1;min-width:0}
+ .shell .song-library-count{grid-column:1/-1}
+ .shell .song-library-table{display:block}
+ .shell .song-library-table thead{display:none}
+ .shell .song-library-table tbody{display:block;width:100%}
+ .shell .song-library-table tbody tr{display:grid;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--cms-line);grid-template-columns:minmax(0,1fr) auto auto}
+ .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:28px minmax(0,1fr) auto auto}
+ .shell .song-library-table tbody td{display:block;padding:0;border:0;min-width:0}
+ .shell .song-library-table .song-select-cell{width:28px;min-width:28px}
+ .shell .song-library-table .song-select-cell input{width:17px;height:17px}
+ .shell .song-library-table tbody td:nth-child(3),.shell .song-library-table tbody td:nth-child(4),.shell .song-library-table tbody td:nth-child(5),.shell .song-library-table tbody td:nth-child(7){display:none}
+ .shell .song-library-table:has(.song-select-cell) tbody td:nth-child(6){display:block}
+ .shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(5){display:block}
+ .shell .song-library-table .song-title-cell{grid-column:2;min-width:0;max-width:none}
+ .shell .song-library-table:not(:has(.song-select-cell)) .song-title-cell{grid-column:1}
+ .shell .song-library-table .song-title-cell>b{font-size:13px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+ .shell .song-library-table .song-title-cell>small{font-size:10px;line-height:1.4;white-space:normal}
+ .shell .song-library-table tbody td:nth-child(6),.shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(5){justify-self:start}
+ .shell .song-library-table tbody td:last-child{justify-self:end}
+ .shell .song-library-table .song-row-action-trigger{width:34px;height:34px}
+ .shell .song-library-pagination{gap:10px;padding:12px}
+ .shell .song-pagination-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .shell .song-pagination-controls label,.shell .song-pagination-controls>span{grid-column:1/-1}
+ .shell .song-pagination-controls button{width:100%}
+ .shell .people-panel .people-heading{align-items:stretch}
+ .shell .people-role-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .people-role-filters button{min-width:0;flex:initial}
+ .shell .people-panel .scroll{overflow-x:visible}
+ .shell .people-panel table{min-width:0;width:100%}
+ .shell .people-panel table thead{display:none}
+ .shell .people-panel table tbody{display:block}
+ .shell .people-panel table tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 10px;padding:12px;border-bottom:1px solid var(--navy-border)}
+ .shell .people-panel table td{display:block;min-width:0;padding:0;border:0;overflow-wrap:anywhere}
+ .shell .people-panel table td:first-child{grid-column:1/-1}
+ .shell .people-panel table td:nth-child(2){grid-column:1;grid-row:2;color:var(--navy-muted);font-size:11px}
+ .shell .people-panel table td:nth-child(3){grid-column:2;grid-row:2;justify-self:end}
+ .shell .people-panel table td:nth-child(4){display:none}
+ .shell .people-panel table select{max-width:150px;min-height:38px}
+ .shell .daily-verse-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .daily-verse-form-actions{grid-template-columns:1fr}
+ .shell .daily-verse-form-actions>*{width:100%}
+ .shell .song-editor-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .shell .song-editor-tabs button{overflow-wrap:anywhere;white-space:normal}
+ .shell .android-section-toolbar{display:flex;flex-direction:column;align-items:stretch}
+ .shell .android-section-add{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .android-section-add button,.shell .android-lyrics-tools button{width:100%;min-width:0}
+ .shell .android-lyrics-tools{display:grid;grid-template-columns:1fr}
+ .shell .android-section-card header{flex-wrap:wrap;gap:8px}
+ .shell .android-section-title-select{width:100%;min-width:0}
+ .shell .android-section-actions{display:flex;flex-wrap:wrap;gap:5px}
+ .shell .android-section-actions button{min-width:34px;min-height:34px}
+ .shell .android-chord-toolbar .android-chord-actions{display:flex;flex-wrap:wrap;gap:6px}
+ .shell .android-chord-toolbar .android-chord-actions button{flex:1 1 100px;min-height:38px}
+ .shell .android-chord-palette{gap:8px}
+ .shell .android-selected-chord{display:flex;flex-direction:column;gap:5px}
+ .shell .android-chord-targets{overflow-x:visible}
+ .shell .android-chord-target-line{overflow-x:auto;max-width:100%}
+ .shell .android-chord-modal-backdrop{align-items:flex-start;overflow-y:auto}
+ .shell .android-chord-modal{width:100%;margin:auto}
+ .shell .modal-dialog{width:100%;max-width:calc(100vw - 20px);margin:8px auto}
+ .shell .modal-content{max-height:calc(100dvh - 16px)}
+}
+@media(max-width:479px){
+ .shell .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .shell .topbar{gap:6px}
+ .shell .breadcrumb{font-size:11px}
+ .shell .theme-toggle small{display:none}
+ .shell .song-library-filters{grid-template-columns:minmax(0,1fr)}
+ .shell .song-library-table tbody tr{gap:6px;padding:9px 10px}
+ .shell .song-library-table:has(.song-select-cell) tbody tr{grid-template-columns:24px minmax(0,1fr) auto auto}
+ .shell .song-library-table .song-select-cell{width:24px;min-width:24px}
+ .shell .song-library-table .song-title-cell>b{font-size:12px}
+ .shell .people-role-filters{grid-template-columns:minmax(0,1fr)}
+ .shell .people-panel table tr{padding:10px}
+ .shell .people-panel table td:nth-child(3){grid-column:1/-1;grid-row:3;justify-self:start}
+ .shell .people-panel table select{max-width:100%;width:100%}
+ .shell .song-editor-tabs{grid-template-columns:1fr!important}
+ .shell .song-editor-tabs button{display:flex;align-items:center;gap:8px;text-align:left}
+ .shell .android-section-add{grid-template-columns:1fr}
+ .shell .report-detail .actions{grid-template-columns:1fr}
+ .shell .daily-verse-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){.shell .sidebar{transition:none!important}}
