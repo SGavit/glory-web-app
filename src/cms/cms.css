@@ -2100,3 +2100,59 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .song-library-table:not(:has(.song-select-cell)) tbody td:nth-child(5){display:block}
  .shell .song-library-table:not(:has(.song-select-cell)) tbody td:last-child{display:block}
 }
+
+/* Public Glory website responsive audit refinements */
+.public,.public-reader{width:100%;max-width:100%;overflow-x:clip}
+.public header,.public-header-links,.public .library-heading,.public .letter-browser-head{min-width:0}
+.public header{gap:12px}
+.public-header-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.public .hero,.public .library,.public .daily,.public-reader article{min-width:0}
+.public-search{width:100%;max-width:100%;min-width:0}
+.public-search input{min-width:0;width:100%}
+.public-controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+.public-filter{min-width:0}
+.public-filter select{width:100%;min-width:0}
+.public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.public-song-card,.public-song-card>*{min-width:0}
+.public-song-card b,.public-song-card small{overflow-wrap:anywhere}
+.public-reader{padding-inline:clamp(12px,3vw,24px)}
+.public-reader article{width:100%;max-width:760px;margin-inline:auto}
+@media(max-width:767px){
+ .public{padding-inline:12px}
+ .public header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 0}
+ .public-header-links{gap:6px}
+ .public-header-links .secondary-btn{padding:8px 10px}
+ .public .hero{padding:36px 0 28px}
+ .public .hero h1{font-size:clamp(32px,9vw,48px);line-height:1.08}
+ .public .hero>p{font-size:14px;line-height:1.6}
+ .public-search{min-height:48px;padding:0 12px}
+ .public-search kbd{display:none}
+ .public .hero-meta{display:flex;flex-wrap:wrap;gap:6px}
+ .public .library-heading{display:flex;align-items:flex-start;flex-direction:column;gap:8px}
+ .public .library-heading h2{font-size:clamp(23px,6vw,30px)}
+ .public-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .public-controls .public-filter:last-of-type{grid-column:1/-1}
+ .public-controls .clear-filters{grid-column:1/-1;width:100%}
+ .public-tabs{width:100%;display:flex}
+ .public-tabs button{flex:1;justify-content:center;min-width:0}
+ .letter-browser-head{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+ .script-switch{width:100%;display:flex}
+ .script-switch button{flex:1;min-width:0}
+ .letter-list{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+ .public-grid{grid-template-columns:minmax(0,1fr);gap:8px}
+ .public-song-card{padding:13px}
+ .public-results-head{display:flex;flex-wrap:wrap;gap:6px}
+ .public-reader{padding:12px}
+ .public-reader article{padding:clamp(14px,4vw,22px)}
+ .public-reader h1{font-size:clamp(24px,7vw,34px);overflow-wrap:anywhere}
+ .public-reader article section p{font-size:clamp(12px,3.7vw,15px);line-height:1.9;overflow-wrap:anywhere}
+ .public footer{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;text-align:center}
+}
+@media(max-width:420px){
+ .public{padding-inline:10px}
+ .public-header-links .secondary-btn{font-size:11px}
+ .public .hero{padding-top:28px}
+ .public-controls{grid-template-columns:minmax(0,1fr)}
+ .public-controls .public-filter:last-of-type,.public-controls .clear-filters{grid-column:auto}
+ .public-reader{padding:8px}
+}
