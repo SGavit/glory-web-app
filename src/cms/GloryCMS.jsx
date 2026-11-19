@@ -12,7 +12,7 @@ const Ctx=createContext(null), useAuth=()=>useContext(Ctx);
 const ThemeCtx=createContext(null), useTheme=()=>useContext(ThemeCtx);
 function ThemeProvider({children}){
  const [theme,setTheme]=useState(()=>{try{return localStorage.getItem("glory-cms-theme")==="dark"?"dark":"light";}catch{return "light";}});
- useEffect(()=>{try{localStorage.setItem("glory-cms-theme",theme);}catch{}},[theme]);
+ useEffect(()=>{try{localStorage.setItem("glory-cms-theme",theme);}catch{};const color=theme==="dark"?"#14243c":"#f4f6fa";document.querySelectorAll('meta[name="theme-color"]').forEach(meta=>meta.setAttribute("content",color));},[theme]);
  return <ThemeCtx.Provider value={{theme,setTheme}}><div className="app-theme" data-theme={theme}>{children}</div></ThemeCtx.Provider>;
 }
 function ThemeToggle(){const {theme,setTheme}=useTheme();return <button className="theme-toggle" type="button" onClick={()=>setTheme(t=>t==="light"?"dark":"light")} aria-label={theme==="light"?"Switch to dark theme":"Switch to light theme"} title={theme==="light"?"Dark theme":"Light theme"}><span>{theme==="light"?"☾":"☀"}</span><small>{theme==="light"?"Dark":"Light"}</small></button>;}
