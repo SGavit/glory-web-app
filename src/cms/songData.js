@@ -1,5 +1,7 @@
 const asArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
 const taxonomyArray = value => Array.isArray(value) ? value : value && typeof value === "object" ? Object.values(value) : [];
+export const DEFAULT_CATEGORIES = ["Worship","Praise","Christmas","Easter","Prayer","Other"];
+export const DEFAULT_LANGUAGES = ["English","Hindi","Marathi","Gujarati","Gamit","Mavchi"];
 export const normalizeTaxonomyValue = value => String(value ?? "").trim().replace(/\s+/g, " ");
 export const taxonomyKey = value => normalizeTaxonomyValue(value).toLocaleLowerCase();
 export const uniqueTaxonomyValues = values => { const seen=new Set(); return taxonomyArray(values).map(normalizeTaxonomyValue).filter(value=>{if(!value)return false;const key=taxonomyKey(value);if(seen.has(key))return false;seen.add(key);return true;}); };
