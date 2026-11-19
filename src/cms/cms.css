@@ -152,13 +152,6 @@
 
 /* Clearly separated editor steps: lyrics (02) and chord placement (03) */
 .android-editor-step{display:grid;gap:12px;padding:15px;border:1px solid var(--line);border-radius:11px;background:#fff}
-/* Chord step: one clean surface, with flat tool and lyric groups. */
-.android-chord-step{gap:10px;padding:12px;background:transparent;border:0;border-radius:0;box-shadow:none}
-.android-chord-step .android-chord-toolbar{padding:10px;border:0;border-radius:8px;background:#f8faf8}
-.android-chord-step .android-chord-targets{gap:8px}
-.android-chord-step .android-chord-targets>.android-section-card{padding:9px 10px;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}
-.android-chord-step .android-chord-targets>.android-section-card:first-child{border-top:0}
-@media(max-width:700px){.android-chord-step{padding:8px;gap:8px}.android-chord-step .android-chord-toolbar{padding:8px}.android-chord-step .android-chord-targets>.android-section-card{padding:8px 4px}}
 .android-editor-step-heading{display:flex;align-items:flex-start;gap:11px;padding-bottom:11px;border-bottom:1px solid #edf1ed}
 .android-editor-step-heading>span{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:8px;background:#f0f4f1;color:#315b43;font-size:12px;font-weight:800}
 .android-editor-step-heading h4{margin:0 0 4px;color:#20392b;font-size:13px;font-weight:750}
@@ -1019,8 +1012,6 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-section-list,
 body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-targets{background:transparent!important}
 body .shell[data-theme="dark"] .song-editor-tab-content .android-section-card,
 body .shell[data-theme="dark"] .song-editor-tab-content .android-song-preview,
-body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-step .android-chord-toolbar{background:#121e30!important;border-color:transparent!important}
-body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-step .android-chord-targets>.android-section-card{background:transparent!important;border-color:#344860!important}
 body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-toolbar,
 body .shell[data-theme="dark"] .song-editor-tab-content .android-detect-panel{
  background:#121e30!important;border-color:#3a4e68!important;color:#e8eef7!important
@@ -1451,8 +1442,6 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
   background:var(--navy-accent)!important;
   color:#FFFFFF!important;
 }
-.app-theme .shell .android-chord-step .android-chord-toolbar{background:var(--navy-surface-soft)!important;border-color:transparent!important}
-.app-theme .shell .android-chord-step .android-chord-targets>.android-section-card{background:transparent!important;border-color:var(--navy-border)!important}
 .app-theme .shell .android-section-card,
 .app-theme .shell .android-song-preview,
 .app-theme .shell .android-chord-toolbar,
