@@ -136,8 +136,8 @@ export function detectSectionsFromLyrics(input) {
   const source = cleanText(input).trim();
   if (!source) return [];
 
-  const lines = source.split("\\n");
-  const explicit = lines.some(line => /^\\s*\\[[^\\]]+\\]\\s*$/.test(line));
+  const lines = source.split("\n");
+  const explicit = lines.some(line => /^\s*\[[^\]]+\]\s*$/.test(line));
 
   if (explicit) {
     const output = [];
@@ -148,16 +148,16 @@ export function detectSectionsFromLyrics(input) {
     };
 
     lines.forEach(raw => {
-      const match = raw.match(/^\\s*\\[([^\\]]+)\\]\\s*$/);
+      const match = raw.match(/^\s*\[([^\]]+)\]\s*$/);
       if (match) {
         finish();
         const rawTitle = match[1].trim();
         const isIntro = /^intro(?:duction)?$/i.test(rawTitle);
-        const isVerse = /^verse(?:\\s*\\d+)?$/i.test(rawTitle);
+        const isVerse = /^verse(?:\s*\d+)?$/i.test(rawTitle);
         if (isVerse) verseNo += 1;
         const title = isIntro ? "Intro" : isVerse ? "Verse " + verseNo : rawTitle;
         current = {
-          type: isIntro ? "INTRO" : isVerse ? "VERSE" : rawTitle.toUpperCase().split(/\\s+/)[0],
+          type: isIntro ? "INTRO" : isVerse ? "VERSE" : rawTitle.toUpperCase().split(/\s+/)[0],
           title,
           lines: []
         };
@@ -171,8 +171,8 @@ export function detectSectionsFromLyrics(input) {
   }
 
   const blocks = source
-    .split(/\\n\\s*\\n+/)
-    .map(block => block.split("\\n").map(line => line.trimEnd()).filter(line => line.trim()))
+    .split(/\n\s*\n+/)
+    .map(block => block.split("\n").map(line => line.trimEnd()).filter(line => line.trim()))
     .filter(block => block.length);
 
   return blocks.map((block, index) => {
