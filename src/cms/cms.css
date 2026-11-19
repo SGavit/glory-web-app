@@ -2392,3 +2392,27 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .page>.heading+.stats{margin-top:0!important}
  .shell .page>.heading+.cols,.shell .page>.heading+.panel,.shell .page>.heading+.report-grid,.shell .page>.heading+.table-panel{margin-top:0!important}
 }
+
+/* Taxonomy management: polished, compact, protected-state clarity */
+.shell .taxonomy-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr);gap:18px;align-items:start}
+.shell .taxonomy-panel{padding:20px 22px 18px;overflow:hidden}
+.shell .taxonomy-heading{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--cms-line,#e2e8f0)}
+.shell .taxonomy-heading h3{margin:0;font-size:16px}
+.shell .taxonomy-heading p{margin:4px 0 0;font-size:12px;color:var(--cms-muted,#718096)}
+.shell .taxonomy-list{display:flex;flex-direction:column}
+.shell .taxonomy-row{min-height:55px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--cms-line,#e2e8f0);padding:9px 0}
+.shell .taxonomy-value{display:flex;align-items:center;gap:9px;min-width:0;flex-wrap:wrap}
+.shell .taxonomy-name{font-size:13px;font-weight:600;color:var(--cms-text,#1d2c43);overflow-wrap:anywhere}
+.shell .taxonomy-status{font-size:10px;line-height:1;padding:5px 8px;border-radius:20px;letter-spacing:.15px;font-weight:600;white-space:nowrap}
+.shell .taxonomy-status.is-default{background:#f1f5f9;color:#64748b}
+.shell .taxonomy-status.is-used{background:#eff6ff;color:#3b6a9f}
+.shell .taxonomy-status.is-custom{background:#ecfdf3;color:#31805a}
+.shell .taxonomy-remove{border:1px solid #f0d8d5;background:#fff;color:#a44f46;border-radius:7px;padding:8px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s,border .15s;white-space:nowrap}
+.shell .taxonomy-remove:hover{background:#fff4f2;border-color:#e8bcb7}
+.shell .taxonomy-protected{font-size:10px;color:var(--cms-muted,#8794a3);background:var(--cms-subtle,#f8fafc);border:1px solid var(--cms-line,#e2e8f0);border-radius:6px;padding:5px 8px;white-space:nowrap}
+.shell .taxonomy-add-form{display:flex;gap:9px;margin-top:15px}
+.shell .taxonomy-add-form input{flex:1;min-width:0;border-radius:8px;padding:11px 12px;font-size:12px}
+.shell .taxonomy-add-form .primary-btn{min-width:88px;border-radius:8px;padding:10px 14px;font-size:11px}
+.shell .taxonomy-panel .taxonomy-heading h3{font-size:16px!important}
+@media(max-width:1050px){.shell .taxonomy-layout{grid-template-columns:1fr}}
+@media(max-width:600px){.shell .taxonomy-panel{padding:16px}.shell .taxonomy-row{min-height:52px}.shell .taxonomy-name{font-size:12px}.shell .taxonomy-add-form{gap:7px}.shell .taxonomy-add-form .primary-btn{min-width:78px;padding:9px 10px}}
