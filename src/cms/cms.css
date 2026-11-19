@@ -2379,3 +2379,16 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .shell .report-detail .empty{padding:22px 12px!important}
  .shell .taxonomy{height:auto!important;min-height:0!important;align-self:start!important}
 }
+
+/* Fix mobile page flow: prevent heading wrappers from flex-growing and pushing first cards down */
+@media(max-width:767px){
+ .shell .page{display:block!important;min-height:0!important;height:auto!important;align-content:start!important;justify-content:flex-start!important;gap:0!important}
+ .shell .page>.heading{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:8px!important;margin:0 0 12px!important;height:auto!important;min-height:0!important;max-height:none!important}
+ .shell .page>.heading>div{display:block!important;flex:0 0 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;align-self:stretch!important}
+ .shell .page>.heading>div>small{display:block!important;margin:0 0 5px!important}
+ .shell .page>.heading h1{margin:0 0 5px!important}
+ .shell .page>.heading p{margin:0!important}
+ .shell .page>.heading>.primary-btn,.shell .page>.heading>.secondary-btn{flex:0 0 auto!important;align-self:stretch!important;margin:0!important;width:100%!important}
+ .shell .page>.heading+.stats{margin-top:0!important}
+ .shell .page>.heading+.cols,.shell .page>.heading+.panel,.shell .page>.heading+.report-grid,.shell .page>.heading+.table-panel{margin-top:0!important}
+}
