@@ -332,7 +332,7 @@ function PublicHome(){
  const shown=filtered.slice(0,visibleCount);
  const updateFilter=(setter,value)=>{setter(value);setVisibleCount(12);};
  return <div className="public">
-  <header><Link to="/" className="public-brand"><img className="public-brand-icon" src="/glory-logo.svg" alt="" /><span className="public-brand-copy"><b>Glory</b><small>Song Library</small></span></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
+  <header><Link to="/" className="public-brand" aria-label="Glory Song Library"><img className="public-brand-wordmark" src="/glory-wordmark.svg" alt="Glory — Song Library" /></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
   <section className="hero"><span className="hero-kicker">A LIBRARY FOR WORSHIP</span><h1>Sing with <em>one heart.</em></h1><p>Find the songs, lyrics and chords that bring your community together.</p>
    <div className="public-search"><span aria-hidden="true">⌕</span><input ref={searchInputRef} value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Search songs, lyrics, language or category…" aria-label="Search songs"/>{queryText&&<button type="button" onClick={()=>updateFilter(setQueryText,"")} aria-label="Clear search">×</button>}<kbd>Ctrl / ⌘ K</kbd></div>
    <div className="hero-meta"><span>♫ {allSongs.length} published songs in the library</span><span>·</span><span>Multiple languages</span></div>
