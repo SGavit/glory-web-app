@@ -2506,3 +2506,23 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
  .public .public-search kbd{display:none}
  .public .hero-meta{font-size:9px;flex-wrap:wrap}
 }
+
+/* Public letter browser — dark-mode button contrast and state clarity */
+.app-theme[data-theme="dark"] .public .letter-list button{
+  background:#24344B!important;
+  border-color:#40536D!important;
+  color:#E8EEF7!important;
+  opacity:1!important;
+}
+.app-theme[data-theme="dark"] .public .letter-list button:disabled{
+  background:#1A2638!important;
+  border-color:#34445C!important;
+  color:#9EACC2!important;
+  opacity:1!important;
+}
+.app-theme[data-theme="dark"] .public .letter-list button:hover:not(:disabled),
+.app-theme[data-theme="dark"] .public .letter-list button.selected{
+  background:#31527A!important;
+  border-color:#7898C2!important;
+  color:#FFFFFF!important;
+}
