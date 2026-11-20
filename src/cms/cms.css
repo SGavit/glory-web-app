@@ -2458,7 +2458,7 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .public .hero{
   position:relative;
 
-  margin:0 12px;
+  margin:0;
   overflow:hidden;
   isolation:isolate;
   overflow:hidden;
