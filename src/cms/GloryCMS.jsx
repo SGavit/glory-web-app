@@ -293,6 +293,7 @@ function Settings(){const {value:s}=useData("songs"),{value:d,error}=useData("da
 const DEVANAGARI_LETTERS=["अ","आ","इ","ई","उ","ऊ","ए","ऐ","ओ","औ","क","ख","ग","घ","ङ","च","छ","ज","झ","ञ","ट","ठ","ड","ढ","ण","त","थ","द","ध","न","प","फ","ब","भ","म","य","र","ल","व","श","ष","स","ह"];
 const ENGLISH_LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 function PublicHome(){
+ const {theme}=useTheme();
  const {value:s,error}=usePublicSongs(),{value:d}=useData("dailyVerse"),{value:config}=useData("appConfig");
  const [queryText,setQueryText]=useState(""),[activeTab,setActiveTab]=useState("songs"),[script,setScript]=useState("devanagari");
  const searchInputRef=useRef(null);
@@ -332,7 +333,7 @@ function PublicHome(){
  const shown=filtered.slice(0,visibleCount);
  const updateFilter=(setter,value)=>{setter(value);setVisibleCount(12);};
  return <div className="public">
-  <header><Link to="/" className="public-brand" aria-label="Glory Song Library"><img className="public-brand-wordmark" src={`${process.env.PUBLIC_URL}/glory-wordmark.svg`} alt="Glory — Song Library" /></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
+  <header><Link to="/" className="public-brand" aria-label="Glory Song Library"><img className="public-brand-wordmark" src={`${process.env.PUBLIC_URL}/glory-wordmark-${theme}.svg`} alt="Glory — Song Library" /></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
   <section className="hero"><span className="hero-kicker">A LIBRARY FOR WORSHIP</span><h1>Sing with <em>one heart.</em></h1><p>Find the songs, lyrics and chords that bring your community together.</p>
    <div className="public-search"><span aria-hidden="true">⌕</span><input ref={searchInputRef} value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Search songs, lyrics, language or category…" aria-label="Search songs"/>{queryText&&<button type="button" onClick={()=>updateFilter(setQueryText,"")} aria-label="Clear search">×</button>}<kbd>Ctrl / ⌘ K</kbd></div>
    <div className="hero-meta"><span>♫ {allSongs.length} published songs in the library</span><span>·</span><span>Multiple languages</span></div>
