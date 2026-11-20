@@ -39,7 +39,7 @@ function Shell({children}){
  useEffect(()=>{O(false);},[loc.pathname]);
  return <div className="shell" data-theme={theme}>
   <aside className={"sidebar "+(open?"show":"")}>
-   <div className="brand"><img className="cms-brand-icon" src="/glory-logo.svg" alt="" /><div><b>Glory</b><small>CONTENT STUDIO</small></div><button className="close" aria-label="Close navigation" onClick={()=>O(false)}>×</button></div>
+   <div className="brand"><img className="cms-brand-icon" src={`${process.env.PUBLIC_URL}/glory-logo.svg`} alt="" /><div><b>Glory</b><small>CONTENT STUDIO</small></div><button className="close" aria-label="Close navigation" onClick={()=>O(false)}>×</button></div>
    <div className="workspace"><span className="workspace-dot"/> Worship library <span className="workspace-chevron">⌄</span></div>
    <nav className="sidebar-nav" aria-label="CMS navigation">{groups.map(g=><div className="nav-group" key={g[0]}><small>{g[0]}</small>{g[1].filter(x=>(x[0]!=="users"||can(role,"roles"))&&(x[0]!=="daily-verses"||can(role,"dailyVerses"))).map(x=><NavLink onClick={()=>O(false)} className={({isActive})=>isActive?"nav active":"nav"} to={"/admin/"+x[0]} key={x[0]}><i aria-hidden="true">{x[2]}</i><span>{x[1]}</span></NavLink>)}</div>)}</nav>
    <div className="side-bottom"><div className="sidebar-help"><b>Keep the library in tune.</b><Link to="/admin/reports">Review corrections <span>→</span></Link></div><div className="profile"><span className="profile-avatar">{(user.displayName||user.email||"G")[0].toUpperCase()}</span><div className="profile-copy"><b>{user.displayName||user.email}</b><small>{labels[role]||role}</small></div><button className="signout-btn" onClick={logout} aria-label="Sign out" title="Sign out"><span>↗</span><small>Sign out</small></button></div></div>
@@ -333,7 +333,7 @@ function PublicHome(){
  const shown=filtered.slice(0,visibleCount);
  const updateFilter=(setter,value)=>{setter(value);setVisibleCount(12);};
  return <div className="public">
-  <header><Link to="/" className="public-brand" aria-label="Glory Song Library"><img className="public-brand-wordmark" src={`${process.env.PUBLIC_URL}/glory-wordmark-${theme}.svg`} alt="Glory — Song Library" /></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
+  <header><Link to="/" className="public-brand" aria-label="Glory Song Library"><img className="public-brand-icon" src={`${process.env.PUBLIC_URL}/glory-logo.svg`} alt="" /><span className="public-brand-copy"><b>Glory</b><small>Song Library</small></span></Link><nav className="public-header-links"><a href="#explore">Explore</a><ThemeToggle/><Link className="secondary-btn" to="/login">Editor sign in</Link></nav></header>
   <section className="hero"><span className="hero-kicker">A LIBRARY FOR WORSHIP</span><h1>Sing with <em>one heart.</em></h1><p>Find the songs, lyrics and chords that bring your community together.</p>
    <div className="public-search"><span aria-hidden="true">⌕</span><input ref={searchInputRef} value={queryText} onChange={e=>updateFilter(setQueryText,e.target.value)} placeholder="Search songs, lyrics, language or category…" aria-label="Search songs"/>{queryText&&<button type="button" onClick={()=>updateFilter(setQueryText,"")} aria-label="Clear search">×</button>}<kbd>Ctrl / ⌘ K</kbd></div>
    <div className="hero-meta"><span>♫ {allSongs.length} published songs in the library</span><span>·</span><span>Multiple languages</span></div>
