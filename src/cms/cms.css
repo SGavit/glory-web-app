@@ -2542,3 +2542,8 @@ body .shell[data-theme="dark"] .song-editor-tab-content .android-chord-chip.is-m
 .public-brand-copy small{font:600 9px Inter,sans-serif;letter-spacing:.65px;color:#8190a4}
 .login-brand-icon{width:76px;height:76px;display:block;margin:0 0 22px;border-radius:18px}
 .cms-brand-icon{width:30px;height:30px;display:block;flex:none;border-radius:8px}
+
+/* Glory Song Library header lockup */
+.public-brand{display:flex;align-items:center;text-decoration:none;flex:none}
+.public-brand-wordmark{display:block;width:176px;height:auto;max-width:100%;}
+@media(max-width:560px){.public-brand-wordmark{width:148px}}
